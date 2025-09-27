@@ -19,29 +19,33 @@ document.getElementById('year').textContent = new Date().getFullYear();
   }, {passive:true});
 })();
 
-// Pelota miel: parallax + leve escala + saturación con scroll
+// Orb miel: movimiento horizontal derecha→izquierda al hacer scroll.
+// Queda detrás del contenido.
 (function(){
-  const ball = document.getElementById('honey-ball');
-  if (!ball) return;
+  const orb = document.getElementById('bg-orb');
+  if (!orb) return;
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) return;
 
-  ball.classList.add('motion');
-
-  const maxShift = 180;   // px vertical
-  const maxScale = 1.12;  // leve zoom
-  const maxSat   = 1.15;  // leve saturación
+  const baseTop = 18;         // vh
+  const baseLeftVW = 60;      // vw inicial
+  const travelVW = 120;       // cuánto viaja hacia la izquierda
 
   function update(){
     const y = window.scrollY || 0;
-    // progreso suave con techo
-    const p = Math.min(1, y / 900);
-    const ty = p * maxShift;
-    const sc = 1 + p * (maxScale - 1);
-    const sat = 1 + p * (maxSat - 1);
-    ball.style.transform = `translateY(${ty}px) scale(${sc})`;
-    ball.style.filter = `saturate(${sat})`;
+    // progreso suave y limitado
+    const p = Math.min(1, y / 1600);
+    // derecha (60vw) → izquierda (-60vw)
+    const left = baseLeftVW - travelVW * p;
+    // ligero paralaje vertical
+    const top = baseTop + p * 6;
+    // micro-escala
+    const scale = 1 + p * 0.06;
+
+    orb.style.left = `${left}vw`;
+    orb.style.top = `${top}vh`;
+    orb.style.transform = `scale(${scale})`;
   }
 
   update();
@@ -49,7 +53,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   window.addEventListener('resize', () => requestAnimationFrame(update));
 })();
 
-// Aparición de secciones
+// Aparición de bloques al entrar al viewport
 (function(){
   const els = [...document.querySelectorAll('.section, .card, .story, .spec, .hero-copy, .hero-media')];
   els.forEach(el => el.classList.add('reveal'));
@@ -60,3 +64,4 @@ document.getElementById('year').textContent = new Date().getFullYear();
   }, {threshold:.12});
   els.forEach(el => io.observe(el));
 })();
+
