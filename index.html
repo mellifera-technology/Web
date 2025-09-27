@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>MIELLIFERA TECHNOLOGIE</title>
+  <title>MIELLIFERA TECHNOLOGIE — Apicultura Inteligente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Apicultura inteligente: sensores IoT y app móvil para monitorear colmenas en tiempo real." />
+  <meta name="description" content="Sensores IoT y app móvil para monitorear colmenas en tiempo real. Alertas, tendencias y decisiones basadas en datos." />
   <link rel="icon" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,21 +12,20 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Pelota miel animada por scroll -->
-  <div id="honey-ball" aria-hidden="true"></div>
+  <!-- Fondo interactivo: círculo miel detrás de todo -->
+  <div id="bg-orb" aria-hidden="true"></div>
 
   <header id="site-header" class="header" role="banner">
     <div class="nav-grid">
-      <a class="brand" href="#inicio" aria-label="Inicio">
-        <img src="assets/logo.svg" alt="Mellifera logo" />
-      </a>
+      <a class="brand" href="#inicio" aria-label="Inicio">MIELLIFERA</a>
 
       <nav class="nav-center" aria-label="Principal">
         <a href="#inicio">Inicio</a>
-        <a href="#soluciones">Soluciones</a>
-        <a href="#producto">Producto</a>
-        <a href="#historia">Historia</a>
-        <a href="#equipo">Equipo</a>
+        <a href="#solucion">Solución</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#hardware">Hardware</a>
+        <a href="#seguridad">Seguridad</a>
+        <a href="#faqs">FAQs</a>
         <a href="#contacto">Contacto</a>
       </nav>
 
@@ -34,134 +33,185 @@
     </div>
   </header>
 
-  <main id="inicio">
+  <main id="inicio" class="site">
     <!-- HERO -->
     <section class="hero">
-      <div class="hero-media" role="img" aria-label="Colmenas y tecnología">
+      <div class="hero-media" role="img" aria-label="Colmenas conectadas">
         <img src="assets/hero.jpg" alt="" />
       </div>
       <div class="hero-copy">
         <h1>El futuro de la apicultura en tus manos</h1>
-        <p class="lead">Sensores inteligentes + app móvil. Monitoreo remoto de colmenas, alertas automáticas y decisiones basadas en datos.</p>
+        <p class="lead">Sistema integral de <strong>apicultura inteligente</strong> que une sensores IoT y una app móvil para monitorear colmenas a distancia, recibir <strong>alertas automáticas</strong> y tomar decisiones rápidas y seguras.</p>
         <div class="cta-row">
-          <a href="#producto" class="btn primary">Ver cómo funciona</a>
+          <a href="#solucion" class="btn primary">Explorar solución</a>
           <a href="#contacto" class="btn ghost">Solicitar demo</a>
         </div>
       </div>
     </section>
 
-    <!-- SOLUCIONES -->
-    <section id="soluciones" class="section">
+    <!-- SOLUCIÓN -->
+    <section id="solucion" class="section">
       <div class="section-head">
-        <h2>Apicultura inteligente</h2>
-        <p>Monitoreo en tiempo real de variables clave sin abrir la colmena.</p>
+        <h2>Solución para apiarios conectados</h2>
+        <p>Monitorea variables clave sin abrir la colmena. Reduce visitas innecesarias. Protege la salud de las abejas y mejora la productividad.</p>
       </div>
 
       <div class="cards">
         <article class="card">
-          <h3>Monitoreo 24/7</h3>
-          <p>Temperatura, humedad, oxígeno, peso, sonido y movimiento, con historial y tendencias.</p>
+          <h3>Monitoreo en tiempo real</h3>
+          <p>Temperatura, humedad, oxígeno, peso, sonido, movimiento y estado del alimento. Visualización por colmena, apiario y rango de fechas.</p>
         </article>
         <article class="card">
-          <h3>Alertas automáticas</h3>
-          <p>Notificaciones cuando algo no está bien. Menos visitas innecesarias, más foco.</p>
+          <h3>Alertas y notificaciones</h3>
+          <p>Umbrales configurables por variable y temporada. Avisos ante sobrecalentamiento, falta de alimento, eventos de enjambrazón o caída de peso anómala.</p>
         </article>
         <article class="card">
-          <h3>Productividad</h3>
-          <p>Datos que se transforman en decisiones. Colmenares sanos, eficientes y rentables.</p>
+          <h3>Analítica y tendencias</h3>
+          <p>Historial, comparativas entre colmenas, curvas de peso y microclima. Insights accionables para planificar cosecha y traslados.</p>
+        </article>
+        <article class="card">
+          <h3>Ahorro de costos</h3>
+          <p>Menos viajes al apiario y visitas dirigidas. Enfoque en colmenas con eventos críticos. Más tiempo productivo en campo.</p>
+        </article>
+        <article class="card">
+          <h3>Escalable</h3>
+          <p>Desde decenas hasta miles de colmenas. Gestión por grupos, permisos por rol y vistas resumidas para decisiones rápidas.</p>
+        </article>
+        <article class="card">
+          <h3>Integraciones</h3>
+          <p>API para sistemas de terceros, dashboards y BI. Webhooks para automatizaciones y reportes periódicos.</p>
         </article>
       </div>
     </section>
 
-    <!-- PRODUCTO -->
-    <section id="producto" class="section alt">
+    <!-- CÓMO FUNCIONA -->
+    <section id="como-funciona" class="section alt">
       <div class="split">
         <div>
-          <h2>Sistema integral</h2>
-          <ul class="features">
-            <li>Sensores IoT de última generación</li>
-            <li>App móvil intuitiva</li>
-            <li>Alertas configurables</li>
-            <li>Historial, tendencias y comparativas</li>
-            <li>Conectividad para apiarios remotos</li>
-          </ul>
-          <p class="tagline">Apicultura Inteligente • Tecnología que cuida a las abejas</p>
+          <h2>Cómo funciona</h2>
+          <ol class="steps">
+            <li><strong>Sensado.</strong> Módulos IoT registran variables internas de la colmena y su entorno.</li>
+            <li><strong>Transmisión.</strong> Envío seguro por Wi-Fi, LTE-M o LoRaWAN según disponibilidad.</li>
+            <li><strong>Procesamiento.</strong> Servidores aplican validaciones, modelos y detección de eventos.</li>
+            <li><strong>Alertas.</strong> Notificaciones a la app del apicultor con contexto y sugerencias.</li>
+            <li><strong>Decisión.</strong> Panel con históricos y comparativas para priorizar acciones.</li>
+          </ol>
+          <p class="tagline">Datos que se convierten en decisiones. Colmenas sanas y producción predecible.</p>
         </div>
         <div class="spec">
-          <h3>Métricas clave</h3>
+          <h3>Métricas observadas</h3>
           <dl>
-            <dt>Temperatura / Humedad</dt><dd>Microclima de la colmena</dd>
-            <dt>Oxígeno</dt><dd>Ventilación y bienestar</dd>
-            <dt>Peso</dt><dd>Flujo de néctar y cosecha</dd>
-            <dt>Sonido / Movimiento</dt><dd>Actividad y estados anómalos</dd>
-            <dt>Alimento</dt><dd>Niveles y consumo</dd>
+            <dt>Temperatura / Humedad</dt><dd>Microclima y confort de la colonia.</dd>
+            <dt>Oxígeno</dt><dd>Ventilación y actividad metabólica.</dd>
+            <dt>Peso</dt><dd>Flujo de néctar, consumo y cosecha.</dd>
+            <dt>Sonido / Vibración</dt><dd>Actividad, enjambrazón, estrés.</dd>
+            <dt>Alimento</dt><dd>Niveles y reposición necesaria.</dd>
           </dl>
         </div>
       </div>
     </section>
 
-    <!-- HISTORIA / STORYTELLING -->
-    <section id="historia" class="section">
+    <!-- HARDWARE -->
+    <section id="hardware" class="section">
       <div class="section-head">
-        <h2>Naturaleza + Tecnología</h2>
-        <p>Un sistema pensado para optimizar el trabajo del apicultor y la salud de las abejas.</p>
-      </div>
-      <blockquote class="story">
-        En <strong>MIELLIFERA</strong> la unión entre naturaleza y tecnología guía cada decisión.
-        Vigilamos la salud de las colmenas en tiempo real, reducimos visitas innecesarias
-        y ayudamos a tomar decisiones más rápidas y seguras.
-      </blockquote>
-    </section>
-
-    <!-- EQUIPO -->
-    <section id="equipo" class="section alt">
-      <div class="section-head">
-        <h2>Quiénes somos</h2>
-        <p>Equipo enfocado en apicultura, innovación y datos.</p>
+        <h2>Hardware diseñado para campo</h2>
+        <p>Robusto, eficiente y preciso. Pensado para climas variables y despliegues extensos.</p>
       </div>
       <div class="cards">
         <article class="card">
-          <h3>Misión</h3>
-          <p>Cuidar la salud de las abejas y hacer más rentable el trabajo del apicultor.</p>
+          <h3>Sensores calibrados</h3>
+          <p>Componentes industriales con deriva mínima y chequeos de consistencia automática.</p>
         </article>
         <article class="card">
-          <h3>Visión</h3>
-          <p>Colmenares conectados que anticipan problemas y mejoran la productividad.</p>
+          <h3>Bajo consumo</h3>
+          <p>Telemetría inteligente, batching y modos de sueño. Batería y opciones de energía solar.</p>
         </article>
         <article class="card">
-          <h3>Valores</h3>
-          <p>Precisión, sustentabilidad, simplicidad y respeto por la naturaleza.</p>
+          <h3>Instalación simple</h3>
+          <p>Montaje sin modificar la estructura. Guías paso a paso y app de provisión en minutos.</p>
         </article>
       </div>
     </section>
 
-    <!-- MANIFIESTO -->
-    <section id="manifiesto" class="section">
-      <div class="manifest">
-        <h2>MIELLIFERA TECHNOLOGIE</h2>
-        <p>Unimos la sabiduría de la naturaleza con la precisión de la tecnología. Más que sensores: un sistema inteligente para cuidar hoy lo más valioso.</p>
+    <!-- SEGURIDAD -->
+    <section id="seguridad" class="section alt">
+      <div class="split">
+        <div>
+          <h2>Seguridad y confiabilidad</h2>
+          <p>La información del apiario es crítica. Se protege con buenas prácticas de industria.</p>
+          <ul class="features">
+            <li>Comunicación cifrada de extremo a extremo.</li>
+            <li>Control de acceso por roles y auditoría de acciones.</li>
+            <li>Backups automáticos y alta disponibilidad.</li>
+            <li>Exportación y portabilidad de datos bajo solicitud.</li>
+          </ul>
+        </div>
+        <div class="spec">
+          <h3>Disponibilidad</h3>
+          <p>Reintentos con colas locales ante cortes. Sincronización diferida cuando vuelve la señal.</p>
+          <h3>Privacidad</h3>
+          <p>Datos del cliente bajo su dominio. Política clara de uso y retención configurable.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STORY -->
+    <section class="section">
+      <div class="section-head">
+        <h2>Naturaleza + Tecnología</h2>
+        <p>Una marca que cruza biología y precisión técnica para cuidar abejas y producción.</p>
+      </div>
+      <blockquote class="story">
+        <strong>MIELLIFERA</strong> es más que sensores: es un sistema que reduce visitas
+        innecesarias, anticipa eventos y simplifica el trabajo del apicultor.
+        Las abejas sanas cuidan el ecosistema; la tecnología cuida a las abejas.
+      </blockquote>
+    </section>
+
+    <!-- FAQs -->
+    <section id="faqs" class="section alt">
+      <div class="section-head">
+        <h2>Preguntas frecuentes</h2>
+      </div>
+      <div class="faqs">
+        <details>
+          <summary>¿Necesito Internet en el apiario?</summary>
+          <p>Puede operar con Wi-Fi, LTE-M o gateways LoRaWAN. Si no hay cobertura, los módulos almacenan y sincronizan al recuperar señal.</p>
+        </details>
+        <details>
+          <summary>¿Cuántas colmenas puedo gestionar?</summary>
+          <p>El sistema es escalable. Se trabaja por grupos y permisos, desde pocos equipos hasta flotas extensas.</p>
+        </details>
+        <details>
+          <summary>¿Cómo se calibran los sensores?</summary>
+          <p>Se entregan calibrados de fábrica y con rutinas de verificación en campo. La app guía el proceso.</p>
+        </details>
+        <details>
+          <summary>¿Qué alertas trae?</summary>
+          <p>Umbrales de microclima, peso, alimentación y patrones de actividad. El usuario puede ajustar por temporada.</p>
+        </details>
       </div>
     </section>
 
     <!-- CONTACTO -->
-    <section id="contacto" class="section alt">
+    <section id="contacto" class="section">
       <div class="split">
         <div>
           <h2>Contacto</h2>
-          <p>¿Quiere evaluar la solución o solicitar una demo?</p>
+          <p>¿Quiere evaluar la solución o coordinar una demo?</p>
           <form class="contact">
             <label>Nombre<input type="text" name="name" placeholder="Nombre y apellido" required></label>
             <label>Email<input type="email" name="email" placeholder="nombre@dominio.com" required></label>
-            <label>Mensaje<textarea name="message" rows="4" placeholder="Cuéntenos sobre su apiario"></textarea></label>
+            <label>Mensaje<textarea name="message" rows="5" placeholder="Cuéntenos sobre su apiario, cantidad de colmenas y ubicación."></textarea></label>
             <button class="btn primary" type="submit">Enviar</button>
           </form>
         </div>
         <div>
           <h3>También</h3>
           <ul class="bullets">
-            <li>Docs y API (próximamente)</li>
-            <li>Soporte a integradores</li>
-            <li>Actualizaciones OTA</li>
+            <li>Programa para integradores</li>
+            <li>Documentación y API</li>
+            <li>Soporte y capacitación</li>
           </ul>
         </div>
       </div>
