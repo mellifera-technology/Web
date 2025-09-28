@@ -23,13 +23,10 @@
     .row{display:flex;gap:8px;margin-top:12px}
     .btn{flex:1;padding:.75rem 1rem;border:0;border-radius:10px;cursor:pointer;font-weight:600}
     .btn.primary{background:#ffd24a;color:#111}
-    .btn.ghost{background:#1a1a22;color:#eaeaea;border:1px solid #2a2a33}
     .btn.google{background:#ea4335;color:#fff}
-    .sep{display:flex;align-items:center;gap:10px;margin:14px 0;color:#8f8fa0}
-    .sep:before,.sep:after{content:"";height:1px;background:#2a2a33;flex:1}
-    #msg{min-height:1.1rem;color:#ff7a7a;margin-top:8px}
     .foot{display:flex;justify-content:space-between;margin-top:14px;color:#8f8fa0;font-size:.9rem}
     a.link{color:#ffd24a;text-decoration:none}
+    #msg{min-height:1.1rem;color:#ff7a7a;margin-top:8px}
   </style>
 </head>
 <body>
@@ -43,30 +40,25 @@
 
     <label>Email</label>
     <input id="email" type="email" placeholder="tu@email.com" autocomplete="email" />
-
     <label>Contraseña</label>
     <input id="pass" type="password" placeholder="********" autocomplete="current-password"/>
 
     <div class="row">
       <button id="btnLogin" class="btn primary">Ingresar</button>
-      <button id="btnRegister" class="btn ghost">Crear cuenta</button>
+      <button id="btnGoogle" class="btn google" type="button">Google</button>
     </div>
-
-    <div class="sep">o</div>
-    <button id="btnGoogle" class="btn google">Continuar con Google</button>
 
     <div id="msg" role="alert"></div>
 
     <div class="foot">
       <a class="link" href="index.html">← Volver</a>
-      <span>© <span id="year"></span> MIELLIFERA</span>
+      <a class="link" href="register.html">Crear cuenta</a>
     </div>
   </div>
 </div>
 
 <script>
-  document.getElementById('year').textContent = new Date().getFullYear();
-
+  // Firebase config — usa tu proyecto
   const firebaseConfig = {
     apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
     authDomain: "mellifera-technology.firebaseapp.com",
@@ -80,58 +72,29 @@
   const auth = firebase.auth();
 
   const $ = id=>document.getElementById(id);
-  const msg = t => $('msg').textContent = t||'';
+  const showErr = e=> $('msg').textContent = (e && e.message) ? e.message : String(e||"");
 
-  let mode = 'login'; // login o register
-
-  function switchMode(newMode){
-    mode = newMode;
-    const ttl = document.getElementById('ttl');
-    if(mode==='register'){
-      ttl.textContent = 'Crear cuenta';
-      $('btnLogin').style.display = 'none';
-      $('btnRegister').textContent = 'Crear cuenta';
-    }else{
-      ttl.textContent = 'Iniciar sesión';
-      $('btnLogin').style.display = '';
-      $('btnRegister').textContent = 'Crear cuenta';
-    }
-    msg('');
-  }
-
-  $('btnRegister').onclick = async (e)=>{
-    if(mode==='login'){ switchMode('register'); return; }
-    try{
-      const email = $('email').value.trim();
-      const pass = $('pass').value;
-      if(!email||!pass) throw new Error('Completá email y contraseña');
-      await auth.createUserWithEmailAndPassword(email, pass);
-      location.href='dashboard.html';
-    }catch(e){ msg(e.message); }
-  };
+  auth.onAuthStateChanged(u => { if(u) location.href = 'dashboard.html'; });
 
   $('btnLogin').onclick = async ()=>{
     try{
       const email = $('email').value.trim();
-      const pass = $('pass').value;
+      const pass  = $('pass').value;
       if(!email||!pass) throw new Error('Completá email y contraseña');
       await auth.signInWithEmailAndPassword(email, pass);
-      location.href='dashboard.html';
-    }catch(e){ msg(e.message); }
+      location.href = 'dashboard.html';
+    }catch(e){ showErr(e); }
   };
 
   $('btnGoogle').onclick = async ()=>{
     try{
       const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({prompt:'select_account'});
+      provider.setCustomParameters({ prompt: 'select_account' });
       await auth.signInWithPopup(provider);
-      location.href='dashboard.html';
-    }catch(e){ msg(e.message); }
+      location.href = 'dashboard.html';
+    }catch(e){ showErr(e); }
   };
-
-  auth.onAuthStateChanged(u => { if(u) location.href = 'dashboard.html'; });
 </script>
-
 </body>
 </html>
 
