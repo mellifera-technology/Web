@@ -10,9 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
-  <!-- Firebase SDK (Compat para simplicidad en Pages) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
 </head>
 <body>
   <!-- Fondo interactivo -->
@@ -30,7 +27,7 @@
         <a href="#faqs">FAQs</a>
         <a href="#contacto">Contacto</a>
       </nav>
-      <a class="cta" href="#login">Iniciar sesión</a>
+      <a class="cta" href="login.html">Iniciar sesión</a>
     </div>
   </header>
 
@@ -112,17 +109,16 @@
         <div>
           <h2>Seguridad y confiabilidad</h2>
           <ul class="features">
-            <li>Comunicación cifrada de extremo a extremo.</li>
-            <li>Control de acceso por roles y auditoría de acciones.</li>
-            <li>Backups automáticos y alta disponibilidad.</li>
-            <li>Exportación y portabilidad de datos bajo solicitud.</li>
+            <li>Comunicación cifrada.</li>
+            <li>Backups y alta disponibilidad.</li>
+            <li>Exportación y portabilidad de datos.</li>
           </ul>
         </div>
         <div class="spec">
           <h3>Disponibilidad</h3>
-          <p>Reintentos con colas locales ante cortes. Sincronización diferida cuando vuelve la señal.</p>
+          <p>Reintentos ante cortes. Sincronización diferida al volver la señal.</p>
           <h3>Privacidad</h3>
-          <p>Datos del cliente bajo su dominio. Política clara de uso y retención configurable.</p>
+          <p>Datos bajo tu dominio. Retención configurable.</p>
         </div>
       </div>
     </section>
@@ -143,10 +139,9 @@
     <section id="faqs" class="section alt">
       <div class="section-head"><h2>Preguntas frecuentes</h2></div>
       <div class="faqs">
-        <details><summary>¿Necesito Internet en el apiario?</summary><p>Opera con Wi-Fi, LTE-M o LoRaWAN. Si no hay cobertura, almacena y sincroniza al volver la señal.</p></details>
-        <details><summary>¿Cuántas colmenas puedo gestionar?</summary><p>Escalable. Grupos y permisos, de pocos equipos a flotas extensas.</p></details>
-        <details><summary>¿Cómo se calibran los sensores?</summary><p>Calibrados de fábrica y rutinas de verificación en campo.</p></details>
-        <details><summary>¿Qué alertas trae?</summary><p>Umbrales de microclima, peso, alimentación y patrones de actividad.</p></details>
+        <details><summary>¿Necesito Internet en el apiario?</summary><p>Wi-Fi, LTE-M o LoRaWAN. Si no hay cobertura, almacena y sincroniza luego.</p></details>
+        <details><summary>¿Cuántas colmenas puedo gestionar?</summary><p>Escalable. Grupos y permisos.</p></details>
+        <details><summary>¿Cómo se calibran los sensores?</summary><p>Calibrados de fábrica y verificación en campo.</p></details>
       </div>
     </section>
 
@@ -169,39 +164,6 @@
             <li>Documentación y API</li>
             <li>Soporte y capacitación</li>
           </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- LOGIN + PANEL -->
-    <section id="login" class="section alt">
-      <div class="section-head">
-        <h2>Acceso</h2>
-        <p>Ingresá para ver tu código y tus lecturas.</p>
-      </div>
-      <div class="split">
-        <div class="card" style="max-width:420px">
-          <label>Email<input id="email" type="email" placeholder="tu@email.com"></label>
-          <label>Contraseña<input id="pass" type="password" placeholder="********"></label>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="btnLogin" class="btn primary">Ingresar</button>
-            <button id="btnRegister" class="btn ghost">Crear cuenta</button>
-            <button id="btnGoogle" class="btn" style="background:#db4437;color:#fff">Google</button>
-          </div>
-          <p id="msg" class="muted" style="min-height:1.2em"></p>
-          <div id="logged" style="display:none;margin-top:8px">
-            <p>Usuario: <b id="uEmail"></b></p>
-            <p>Tu código de 4 dígitos: <b id="uCode">—</b></p>
-            <button id="btnLogout" class="btn ghost">Salir</button>
-          </div>
-        </div>
-
-        <div class="card" style="flex:1">
-          <h3>Tus lecturas (últimas 200)</h3>
-          <table id="tbl" style="width:100%">
-            <thead><tr><th>Fecha</th><th>T_in</th><th>HR_in</th><th>T_out</th><th>HR_out</th></tr></thead>
-            <tbody></tbody>
-          </table>
         </div>
       </div>
     </section>
