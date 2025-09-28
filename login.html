@@ -2,81 +2,72 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Acceso — MIELLIFERA</title>
+  <title>Iniciar sesión — MIELLIFERA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="assets/logo.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <style>
+    body{background:#0f0f12;color:#eaeaea;font-family:Inter,system-ui,Arial}
+    .wrap{min-height:100dvh;display:grid;place-items:center;padding:24px}
+    .card{width:100%;max-width:420px;background:#141419;border:1px solid #24242b;border-radius:14px;padding:22px;box-shadow:0 8px 40px rgba(0,0,0,.35)}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .brand svg{width:28px;height:28px}
+    h1{font-size:1.4rem;margin:0 0 2px}
+    p.muted{color:#a6a6b3;margin:0 0 16px}
+    label{display:block;font-size:.92rem;margin:.75rem 0 .35rem}
+    input{width:100%;padding:.72rem .8rem;border-radius:10px;border:1px solid #2a2a33;background:#0f0f14;color:#eaeaea}
+    .row{display:flex;gap:8px;margin-top:12px}
+    .btn{flex:1;padding:.75rem 1rem;border:0;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.primary{background:#ffd24a;color:#111}
+    .btn.ghost{background:#1a1a22;color:#eaeaea;border:1px solid #2a2a33}
+    .btn.google{background:#ea4335;color:#fff}
+    .sep{display:flex;align-items:center;gap:10px;margin:14px 0;color:#8f8fa0}
+    .sep:before,.sep:after{content:"";height:1px;background:#2a2a33;flex:1}
+    #msg{min-height:1.1rem;color:#ff7a7a;margin-top:8px}
+    .foot{display:flex;justify-content:space-between;margin-top:14px;color:#8f8fa0;font-size:.9rem}
+    a.link{color:#ffd24a;text-decoration:none}
+  </style>
 </head>
 <body>
-  <div id="bg-orb" aria-hidden="true"></div>
-
-  <header id="site-header" class="header" role="banner">
-    <div class="nav-grid">
-      <a class="brand" href="index.html" aria-label="Inicio">MIELLIFERA</a>
-      <nav class="nav-center" aria-label="Principal">
-        <a href="index.html#solucion">Solución</a>
-        <a href="index.html#como-funciona">Cómo funciona</a>
-        <a href="index.html#hardware">Hardware</a>
-        <a href="index.html#seguridad">Seguridad</a>
-        <a href="index.html#faqs">FAQs</a>
-        <a href="index.html#contacto">Contacto</a>
-      </nav>
-      <a class="cta" href="index.html">Volver</a>
+<div class="wrap">
+  <div class="card" role="main" aria-labelledby="ttl">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none"><path fill="#ffd24a" d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z"/></svg>
+      <h1 id="ttl">Iniciar sesión</h1>
     </div>
-  </header>
+    <p class="muted">Accedé con tu cuenta para ver tu panel.</p>
 
-  <main class="site">
-    <section class="section alt">
-      <div class="section-head">
-        <h2>Acceso</h2>
-        <p>Ingresá para ver tu código y tus lecturas.</p>
-      </div>
+    <label>Email</label>
+    <input id="email" type="email" placeholder="tu@email.com" autocomplete="email" />
 
-      <div class="split">
-        <!-- Login -->
-        <div class="card" style="max-width:420px">
-          <label>Email<input id="email" type="email" placeholder="tu@email.com"></label>
-          <label>Contraseña<input id="pass" type="password" placeholder="********"></label>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="btnLogin" class="btn primary">Ingresar</button>
-            <button id="btnRegister" class="btn ghost">Crear cuenta</button>
-            <button id="btnGoogle" class="btn" style="background:#db4437;color:#fff">Google</button>
-          </div>
-          <p id="msg" class="muted" style="min-height:1.2em"></p>
-          <div id="logged" style="display:none;margin-top:8px">
-            <p>Usuario: <b id="uEmail"></b></p>
-            <p>Tu código de 4 dígitos: <b id="uCode">—</b></p>
-            <button id="btnLogout" class="btn ghost">Salir</button>
-          </div>
-        </div>
+    <label>Contraseña</label>
+    <input id="pass" type="password" placeholder="********" autocomplete="current-password"/>
 
-        <!-- Tabla -->
-        <div class="card" style="flex:1">
-          <h3>Tus lecturas (últimas 200)</h3>
-          <table id="tbl" style="width:100%">
-            <thead><tr><th>Fecha</th><th>T_in</th><th>HR_in</th><th>T_out</th><th>HR_out</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
+    <div class="row">
+      <button id="btnLogin" class="btn primary">Ingresar</button>
+      <button id="btnRegister" class="btn ghost">Crear cuenta</button>
+    </div>
 
-  <footer class="footer">
-    <span>© <span id="year"></span> MIELLIFERA TECHNOLOGIE</span>
-  </footer>
+    <div class="sep">o</div>
+    <button id="btnGoogle" class="btn google">Continuar con Google</button>
+
+    <div id="msg" role="alert"></div>
+
+    <div class="foot">
+      <a class="link" href="index.html">← Volver</a>
+      <span>© <span id="year"></span> MIELLIFERA</span>
+    </div>
+  </div>
+</div>
 
 <script>
-  // Año
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Firebase config — reemplazar por el tuyo
+  // Firebase config — reemplazá por el tuyo
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
@@ -87,69 +78,35 @@ const firebaseConfig = {
   appId: "1:68043353319:web:20a1aafde7b37d3457c642",
   measurementId: "G-FCW1E604DG"
 };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-  // URL del Worker — reemplazar por la tuya
-  const WORKER_BASE = "https://mellifera-worker.mellifera-tech.workers.dev/";
+  const $ = id=>document.getElementById(id);
+  const err = (e)=> $('msg').textContent = (e && e.message) ? e.message : String(e||'');
 
-  const $ = id => document.getElementById(id);
-  const setText = (id, t)=>{ const el=$(id); if(el) el.textContent=t; };
-  const show = (id, v)=>{ const el=$(id); if(el) el.style.display = v ? '' : 'none'; };
-  const msg = t => setText('msg', t||'');
+  // Redirect si ya está logueado
+  auth.onAuthStateChanged(u => { if(u) location.href = 'dashboard.html'; });
 
   $('btnRegister').onclick = async ()=>{
-    try{ await auth.createUserWithEmailAndPassword($('email').value, $('pass').value); msg('Cuenta creada.'); }
-    catch(e){ msg(e.message); }
+    try{
+      await auth.createUserWithEmailAndPassword($('email').value, $('pass').value);
+      location.href = 'dashboard.html';
+    }catch(e){ err(e); }
   };
   $('btnLogin').onclick = async ()=>{
-    try{ await auth.signInWithEmailAndPassword($('email').value, $('pass').value); msg(''); }
-    catch(e){ msg(e.message); }
+    try{
+      await auth.signInWithEmailAndPassword($('email').value, $('pass').value);
+      location.href = 'dashboard.html';
+    }catch(e){ err(e); }
   };
   $('btnGoogle').onclick = async ()=>{
-    try{ await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); msg(''); }
-    catch(e){ msg(e.message); }
+    try{
+      const provider = new firebase.auth.GoogleAuthProvider();
+      await auth.signInWithPopup(provider);
+      location.href = 'dashboard.html';
+    }catch(e){ err(e); }
   };
-  $('btnLogout').onclick = ()=> auth.signOut();
-
-  async function callWorker(path, opts={}){
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
-    const t = await u.getIdToken();
-    const res = await fetch(`${WORKER_BASE}${path}`, {
-      method: opts.method || 'GET',
-      headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
-      body: opts.body ? JSON.stringify(opts.body) : undefined
-    });
-    if(!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-
-  auth.onAuthStateChanged(async (u)=>{
-    if(!u){
-      show('logged', false);
-      setText('uEmail',''); setText('uCode','—');
-      $('tbl').querySelector('tbody').innerHTML = '';
-      return;
-    }
-    show('logged', true);
-    setText('uEmail', u.email || '(sin email)');
-
-    try{
-      const { code } = await callWorker('/ensure_user', { method:'POST' });
-      setText('uCode', code || '—');
-    }catch(e){ msg(`ensure_user: ${e.message}`); }
-
-    try{
-      const data = await callWorker('/readings?limit=200');
-      const rows = (data.items||[]).map(r=>{
-        const dt = new Date(r.ts);
-        return `<tr><td>${dt.toLocaleString()}</td>
-          <td>${fmt(r.t_in)}</td><td>${fmt(r.hr_in)}</td>
-          <td>${fmt(r.t_out)}</td><td>${fmt(r.hr_out)}</td></tr>`;
-      }).join('');
-      $('tbl').querySelector('tbody').innerHTML = rows;
-    }catch(e){ msg(`readings: ${e.message}`); }
-  });
-
-  const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
 </script>
 </body>
 </html>
+
