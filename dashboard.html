@@ -53,11 +53,16 @@
       </div>
 
       <div class="card" style="flex:1">
-        <h3>Tus lecturas (últimas 200)</h3>
-        <table id="tbl" style="width:100%">
-          <thead><tr><th>Fecha</th><th>Device</th><th>T_in</th><th>HR_in</th><th>T_out</th><th>HR_out</th></tr></thead>
-          <tbody></tbody>
-        </table>
+        <h3>Eventos y mediciones (últimas 200)</h3>
+<table id="tbl" style="width:100%">
+  <thead>
+    <tr>
+      <th>Fecha</th><th>Dispositivo</th><th>Sensor</th><th>Valor / Info</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
       </div>
     </div>
   </section>
@@ -99,7 +104,8 @@
     try {
       const { code } = await callWorker('/ensure_user', { method:'POST' });
       setText('uCode', code || '—');
-      await loadReadings();
+      await loadDatapoints();
+
     } catch(e){
       console.error(e);
       alert("Error cargando datos: " + (e.message||e));
@@ -123,26 +129,33 @@
   }
 
   // --- Cargar lecturas ---
-  async function loadReadings(){
-    const data = await callWorker('/readings?limit=200');
-    const rows = (data.items||[]).map(r=>{
-      const dt = new Date(r.ts);
-      const isAlert = r.device_id && r.device_id.toUpperCase()==="ALERT";
-      return `<tr${isAlert ? ' style="background:#ffdddd;font-weight:bold"' : ''}>
-        <td>${dt.toLocaleString()}</td>
-        <td>${fmt(r.t_in)}</td>
-        <td>${fmt(r.hr_in)}</td>
-        <td>${fmt(r.t_out)}</td>
-        <td>${fmt(r.hr_out)}</td>
-        <td>${isAlert ? '⚠️ ALERT' : (r.device_id||'')}</td>
+  // Reemplaza loadReadings() por esto:
+  async function loadDatapoints(){
+    const { items } = await callWorker('/datapoints?limit=200'); // requiere GET /datapoints en el Worker
+    const rows = (items||[]).map(d=>{
+      const dt = new Date(d.ts).toLocaleString();
+      const isEvent = String(d.sensor_key||'').startsWith('EVENT.');
+      const isAlert = String(d.device_id||'').toUpperCase()==='ALERT';
+      const cls = isEvent || isAlert ? 'row-alert' : '';
+      const val = isEvent
+        ? (d.meta?.info || d.meta?.type || JSON.stringify(d.meta||{}))
+        : (d.value==null ? '' : Number(d.value).toFixed(2));
+      return `<tr class="${cls}">
+        <td>${dt}</td>
+        <td>${d.device_id||''}</td>
+        <td>${d.sensor_key||''}</td>
+        <td>${val}</td>
       </tr>`;
     }).join('');
-    const tbody = $('tbl').querySelector('tbody');
-    tbody.innerHTML = rows;
+    document.querySelector('#tbl tbody').innerHTML = rows;
   }
 
-  // Auto-refresh cada 15 s
-  setInterval(()=>{ if(auth.currentUser) loadReadings().catch(()=>{}); }, 15000);
+  // En tu onAuthStateChanged, donde llamabas a loadReadings(), cambiá por:
+  //   await loadDatapoints();
+
+  // Y reemplazá el setInterval por este:
+  setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
+
 
   const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
 </script>
