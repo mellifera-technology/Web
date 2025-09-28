@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Acceso — MIELLIFERA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div id="bg-orb" aria-hidden="true"></div>
+
+  <header id="site-header" class="header" role="banner">
+    <div class="nav-grid">
+      <a class="brand" href="index.html" aria-label="Inicio">MIELLIFERA</a>
+      <nav class="nav-center" aria-label="Principal">
+        <a href="index.html#solucion">Solución</a>
+        <a href="index.html#como-funciona">Cómo funciona</a>
+        <a href="index.html#hardware">Hardware</a>
+        <a href="index.html#seguridad">Seguridad</a>
+        <a href="index.html#faqs">FAQs</a>
+        <a href="index.html#contacto">Contacto</a>
+      </nav>
+      <a class="cta" href="index.html">Volver</a>
+    </div>
+  </header>
+
+  <main class="site">
+    <section class="section alt">
+      <div class="section-head">
+        <h2>Acceso</h2>
+        <p>Ingresá para ver tu código y tus lecturas.</p>
+      </div>
+
+      <div class="split">
+        <!-- Login -->
+        <div class="card" style="max-width:420px">
+          <label>Email<input id="email" type="email" placeholder="tu@email.com"></label>
+          <label>Contraseña<input id="pass" type="password" placeholder="********"></label>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="btnLogin" class="btn primary">Ingresar</button>
+            <button id="btnRegister" class="btn ghost">Crear cuenta</button>
+            <button id="btnGoogle" class="btn" style="background:#db4437;color:#fff">Google</button>
+          </div>
+          <p id="msg" class="muted" style="min-height:1.2em"></p>
+          <div id="logged" style="display:none;margin-top:8px">
+            <p>Usuario: <b id="uEmail"></b></p>
+            <p>Tu código de 4 dígitos: <b id="uCode">—</b></p>
+            <button id="btnLogout" class="btn ghost">Salir</button>
+          </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="card" style="flex:1">
+          <h3>Tus lecturas (últimas 200)</h3>
+          <table id="tbl" style="width:100%">
+            <thead><tr><th>Fecha</th><th>T_in</th><th>HR_in</th><th>T_out</th><th>HR_out</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© <span id="year"></span> MIELLIFERA TECHNOLOGIE</span>
+  </footer>
+
+<script>
+  // Año
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Firebase config — reemplazar por el tuyo
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
+  authDomain: "mellifera-technology.firebaseapp.com",
+  projectId: "mellifera-technology",
+  storageBucket: "mellifera-technology.firebasestorage.app",
+  messagingSenderId: "68043353319",
+  appId: "1:68043353319:web:20a1aafde7b37d3457c642",
+  measurementId: "G-FCW1E604DG"
+};
+
+  // URL del Worker — reemplazar por la tuya
+  const WORKER_BASE = "https://mellifera-worker.mellifera-tech.workers.dev/";
+
+  const $ = id => document.getElementById(id);
+  const setText = (id, t)=>{ const el=$(id); if(el) el.textContent=t; };
+  const show = (id, v)=>{ const el=$(id); if(el) el.style.display = v ? '' : 'none'; };
+  const msg = t => setText('msg', t||'');
+
+  $('btnRegister').onclick = async ()=>{
+    try{ await auth.createUserWithEmailAndPassword($('email').value, $('pass').value); msg('Cuenta creada.'); }
+    catch(e){ msg(e.message); }
+  };
+  $('btnLogin').onclick = async ()=>{
+    try{ await auth.signInWithEmailAndPassword($('email').value, $('pass').value); msg(''); }
+    catch(e){ msg(e.message); }
+  };
+  $('btnGoogle').onclick = async ()=>{
+    try{ await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); msg(''); }
+    catch(e){ msg(e.message); }
+  };
+  $('btnLogout').onclick = ()=> auth.signOut();
+
+  async function callWorker(path, opts={}){
+    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(`${WORKER_BASE}${path}`, {
+      method: opts.method || 'GET',
+      headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    if(!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  auth.onAuthStateChanged(async (u)=>{
+    if(!u){
+      show('logged', false);
+      setText('uEmail',''); setText('uCode','—');
+      $('tbl').querySelector('tbody').innerHTML = '';
+      return;
+    }
+    show('logged', true);
+    setText('uEmail', u.email || '(sin email)');
+
+    try{
+      const { code } = await callWorker('/ensure_user', { method:'POST' });
+      setText('uCode', code || '—');
+    }catch(e){ msg(`ensure_user: ${e.message}`); }
+
+    try{
+      const data = await callWorker('/readings?limit=200');
+      const rows = (data.items||[]).map(r=>{
+        const dt = new Date(r.ts);
+        return `<tr><td>${dt.toLocaleString()}</td>
+          <td>${fmt(r.t_in)}</td><td>${fmt(r.hr_in)}</td>
+          <td>${fmt(r.t_out)}</td><td>${fmt(r.hr_out)}</td></tr>`;
+      }).join('');
+      $('tbl').querySelector('tbody').innerHTML = rows;
+    }catch(e){ msg(`readings: ${e.message}`); }
+  });
+
+  const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
+</script>
+</body>
+</html>
