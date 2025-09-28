@@ -10,15 +10,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <!-- Firebase SDK (Compat para simplicidad en Pages) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
 </head>
 <body>
-  <!-- Fondo interactivo: círculo miel detrás de todo -->
+  <!-- Fondo interactivo -->
   <div id="bg-orb" aria-hidden="true"></div>
 
   <header id="site-header" class="header" role="banner">
     <div class="nav-grid">
       <a class="brand" href="#inicio" aria-label="Inicio">MIELLIFERA</a>
-
       <nav class="nav-center" aria-label="Principal">
         <a href="#inicio">Inicio</a>
         <a href="#solucion">Solución</a>
@@ -28,7 +30,6 @@
         <a href="#faqs">FAQs</a>
         <a href="#contacto">Contacto</a>
       </nav>
-
       <a class="cta" href="#login">Iniciar sesión</a>
     </div>
   </header>
@@ -55,32 +56,13 @@
         <h2>Solución para apiarios conectados</h2>
         <p>Monitorea variables clave sin abrir la colmena. Reduce visitas innecesarias. Protege la salud de las abejas y mejora la productividad.</p>
       </div>
-
       <div class="cards">
-        <article class="card">
-          <h3>Monitoreo en tiempo real</h3>
-          <p>Temperatura, humedad, oxígeno, peso, sonido, movimiento y estado del alimento. Visualización por colmena, apiario y rango de fechas.</p>
-        </article>
-        <article class="card">
-          <h3>Alertas y notificaciones</h3>
-          <p>Umbrales configurables por variable y temporada. Avisos ante sobrecalentamiento, falta de alimento, eventos de enjambrazón o caída de peso anómala.</p>
-        </article>
-        <article class="card">
-          <h3>Analítica y tendencias</h3>
-          <p>Historial, comparativas entre colmenas, curvas de peso y microclima. Insights accionables para planificar cosecha y traslados.</p>
-        </article>
-        <article class="card">
-          <h3>Ahorro de costos</h3>
-          <p>Menos viajes al apiario y visitas dirigidas. Enfoque en colmenas con eventos críticos. Más tiempo productivo en campo.</p>
-        </article>
-        <article class="card">
-          <h3>Escalable</h3>
-          <p>Desde decenas hasta miles de colmenas. Gestión por grupos, permisos por rol y vistas resumidas para decisiones rápidas.</p>
-        </article>
-        <article class="card">
-          <h3>Integraciones</h3>
-          <p>API para sistemas de terceros, dashboards y BI. Webhooks para automatizaciones y reportes periódicos.</p>
-        </article>
+        <article class="card"><h3>Monitoreo en tiempo real</h3><p>Temperatura, humedad, oxígeno, peso, sonido, movimiento y estado del alimento. Visualización por colmena, apiario y rango de fechas.</p></article>
+        <article class="card"><h3>Alertas y notificaciones</h3><p>Umbrales configurables por variable y temporada. Avisos ante sobrecalentamiento, falta de alimento, eventos de enjambrazón o caída de peso anómala.</p></article>
+        <article class="card"><h3>Analítica y tendencias</h3><p>Historial, comparativas entre colmenas, curvas de peso y microclima. Insights accionables para planificar cosecha y traslados.</p></article>
+        <article class="card"><h3>Ahorro de costos</h3><p>Menos viajes al apiario y visitas dirigidas. Enfoque en colmenas con eventos críticos. Más tiempo productivo en campo.</p></article>
+        <article class="card"><h3>Escalable</h3><p>Desde decenas hasta miles de colmenas. Gestión por grupos, permisos por rol y vistas resumidas para decisiones rápidas.</p></article>
+        <article class="card"><h3>Integraciones</h3><p>API para sistemas de terceros, dashboards y BI. Webhooks para automatizaciones y reportes periódicos.</p></article>
       </div>
     </section>
 
@@ -118,18 +100,9 @@
         <p>Robusto, eficiente y preciso. Pensado para climas variables y despliegues extensos.</p>
       </div>
       <div class="cards">
-        <article class="card">
-          <h3>Sensores calibrados</h3>
-          <p>Componentes industriales con deriva mínima y chequeos de consistencia automática.</p>
-        </article>
-        <article class="card">
-          <h3>Bajo consumo</h3>
-          <p>Telemetría inteligente, batching y modos de sueño. Batería y opciones de energía solar.</p>
-        </article>
-        <article class="card">
-          <h3>Instalación simple</h3>
-          <p>Montaje sin modificar la estructura. Guías paso a paso y app de provisión en minutos.</p>
-        </article>
+        <article class="card"><h3>Sensores calibrados</h3><p>Componentes industriales con deriva mínima y chequeos de consistencia automática.</p></article>
+        <article class="card"><h3>Bajo consumo</h3><p>Telemetría inteligente, batching y modos de sueño. Batería y opciones de energía solar.</p></article>
+        <article class="card"><h3>Instalación simple</h3><p>Montaje sin modificar la estructura. Guías paso a paso y app de provisión en minutos.</p></article>
       </div>
     </section>
 
@@ -138,7 +111,6 @@
       <div class="split">
         <div>
           <h2>Seguridad y confiabilidad</h2>
-          <p>La información del apiario es crítica. Se protege con buenas prácticas de industria.</p>
           <ul class="features">
             <li>Comunicación cifrada de extremo a extremo.</li>
             <li>Control de acceso por roles y auditoría de acciones.</li>
@@ -162,34 +134,19 @@
         <p>Una marca que cruza biología y precisión técnica para cuidar abejas y producción.</p>
       </div>
       <blockquote class="story">
-        <strong>MIELLIFERA</strong> es más que sensores: es un sistema que reduce visitas
-        innecesarias, anticipa eventos y simplifica el trabajo del apicultor.
-        Las abejas sanas cuidan el ecosistema; la tecnología cuida a las abejas.
+        <strong>MIELLIFERA</strong> es más que sensores: reduce visitas,
+        anticipa eventos y simplifica trabajo del apicultor.
       </blockquote>
     </section>
 
     <!-- FAQs -->
     <section id="faqs" class="section alt">
-      <div class="section-head">
-        <h2>Preguntas frecuentes</h2>
-      </div>
+      <div class="section-head"><h2>Preguntas frecuentes</h2></div>
       <div class="faqs">
-        <details>
-          <summary>¿Necesito Internet en el apiario?</summary>
-          <p>Puede operar con Wi-Fi, LTE-M o gateways LoRaWAN. Si no hay cobertura, los módulos almacenan y sincronizan al recuperar señal.</p>
-        </details>
-        <details>
-          <summary>¿Cuántas colmenas puedo gestionar?</summary>
-          <p>El sistema es escalable. Se trabaja por grupos y permisos, desde pocos equipos hasta flotas extensas.</p>
-        </details>
-        <details>
-          <summary>¿Cómo se calibran los sensores?</summary>
-          <p>Se entregan calibrados de fábrica y con rutinas de verificación en campo. La app guía el proceso.</p>
-        </details>
-        <details>
-          <summary>¿Qué alertas trae?</summary>
-          <p>Umbrales de microclima, peso, alimentación y patrones de actividad. El usuario puede ajustar por temporada.</p>
-        </details>
+        <details><summary>¿Necesito Internet en el apiario?</summary><p>Opera con Wi-Fi, LTE-M o LoRaWAN. Si no hay cobertura, almacena y sincroniza al volver la señal.</p></details>
+        <details><summary>¿Cuántas colmenas puedo gestionar?</summary><p>Escalable. Grupos y permisos, de pocos equipos a flotas extensas.</p></details>
+        <details><summary>¿Cómo se calibran los sensores?</summary><p>Calibrados de fábrica y rutinas de verificación en campo.</p></details>
+        <details><summary>¿Qué alertas trae?</summary><p>Umbrales de microclima, peso, alimentación y patrones de actividad.</p></details>
       </div>
     </section>
 
@@ -198,11 +155,10 @@
       <div class="split">
         <div>
           <h2>Contacto</h2>
-          <p>¿Quiere evaluar la solución o coordinar una demo?</p>
           <form class="contact">
             <label>Nombre<input type="text" name="name" placeholder="Nombre y apellido" required></label>
             <label>Email<input type="email" name="email" placeholder="nombre@dominio.com" required></label>
-            <label>Mensaje<textarea name="message" rows="5" placeholder="Cuéntenos sobre su apiario, cantidad de colmenas y ubicación."></textarea></label>
+            <label>Mensaje<textarea name="message" rows="5" placeholder="Contanos tu apiario"></textarea></label>
             <button class="btn primary" type="submit">Enviar</button>
           </form>
         </div>
@@ -213,6 +169,39 @@
             <li>Documentación y API</li>
             <li>Soporte y capacitación</li>
           </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGIN + PANEL -->
+    <section id="login" class="section alt">
+      <div class="section-head">
+        <h2>Acceso</h2>
+        <p>Ingresá para ver tu código y tus lecturas.</p>
+      </div>
+      <div class="split">
+        <div class="card" style="max-width:420px">
+          <label>Email<input id="email" type="email" placeholder="tu@email.com"></label>
+          <label>Contraseña<input id="pass" type="password" placeholder="********"></label>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="btnLogin" class="btn primary">Ingresar</button>
+            <button id="btnRegister" class="btn ghost">Crear cuenta</button>
+            <button id="btnGoogle" class="btn" style="background:#db4437;color:#fff">Google</button>
+          </div>
+          <p id="msg" class="muted" style="min-height:1.2em"></p>
+          <div id="logged" style="display:none;margin-top:8px">
+            <p>Usuario: <b id="uEmail"></b></p>
+            <p>Tu código de 4 dígitos: <b id="uCode">—</b></p>
+            <button id="btnLogout" class="btn ghost">Salir</button>
+          </div>
+        </div>
+
+        <div class="card" style="flex:1">
+          <h3>Tus lecturas (últimas 200)</h3>
+          <table id="tbl" style="width:100%">
+            <thead><tr><th>Fecha</th><th>T_in</th><th>HR_in</th><th>T_out</th><th>HR_out</th></tr></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </section>
