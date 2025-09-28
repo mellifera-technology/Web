@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Crear cuenta — MIELLIFERA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="assets/logo.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <style>
+    body{background:#0f0f12;color:#eaeaea;font-family:Inter,system-ui,Arial}
+    .wrap{min-height:100dvh;display:grid;place-items:center;padding:24px}
+    .card{width:100%;max-width:420px;background:#141419;border:1px solid #24242b;border-radius:14px;padding:22px;box-shadow:0 8px 40px rgba(0,0,0,.35)}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .brand svg{width:28px;height:28px}
+    h1{font-size:1.4rem;margin:0 0 2px}
+    p.muted{color:#a6a6b3;margin:0 0 16px}
+    label{display:block;font-size:.92rem;margin:.75rem 0 .35rem}
+    input{width:100%;padding:.72rem .8rem;border-radius:10px;border:1px solid #2a2a33;background:#0f0f14;color:#eaeaea}
+    .row{display:flex;gap:8px;margin-top:12px}
+    .btn{flex:1;padding:.75rem 1rem;border:0;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.primary{background:#ffd24a;color:#111}
+    .btn.google{background:#ea4335;color:#fff}
+    .foot{display:flex;justify-content:space-between;margin-top:14px;color:#8f8fa0;font-size:.9rem}
+    a.link{color:#ffd24a;text-decoration:none}
+    #msg{min-height:1.1rem;color:#ff7a7a;margin-top:8px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" role="main" aria-labelledby="ttl">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none"><path fill="#ffd24a" d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z"/></svg>
+      <h1 id="ttl">Crear cuenta</h1>
+    </div>
+    <p class="muted">Registrate para acceder a tu panel.</p>
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="tu@email.com" autocomplete="email" />
+    <label>Contraseña</label>
+    <input id="pass" type="password" placeholder="mínimo 6 caracteres" autocomplete="new-password"/>
+
+    <div class="row">
+      <button id="btnRegister" class="btn primary">Crear cuenta</button>
+      <button id="btnGoogle" class="btn google" type="button">Google</button>
+    </div>
+
+    <div id="msg" role="alert"></div>
+
+    <div class="foot">
+      <a class="link" href="login.html">Ya tengo cuenta</a>
+      <a class="link" href="index.html">Inicio</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Firebase config — igual que en login
+  const firebaseConfig = {
+    apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
+    authDomain: "mellifera-technology.firebaseapp.com",
+    projectId: "mellifera-technology",
+    storageBucket: "mellifera-technology.firebasestorage.app",
+    messagingSenderId: "68043353319",
+    appId: "1:68043353319:web:20a1aafde7b37d3457c642",
+    measurementId: "G-FCW1E604DG"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  const $ = id=>document.getElementById(id);
+  const showErr = e=>{
+    const map = {
+      "auth/invalid-email":"Email inválido.",
+      "auth/missing-email":"Ingresá un email.",
+      "auth/missing-password":"Ingresá una contraseña.",
+      "auth/weak-password":"Mínimo 6 caracteres.",
+      "auth/email-already-in-use":"Ese email ya está registrado."
+    };
+    $('msg').textContent = map[e.code] || e.message || String(e||"");
+  };
+
+  auth.onAuthStateChanged(u => { if(u) location.href = 'dashboard.html'; });
+
+  $('btnRegister').onclick = async ()=>{
+    try{
+      const email = $('email').value.trim();
+      const pass  = $('pass').value;
+      if(!email||!pass) throw new Error('Completá email y contraseña');
+      await auth.createUserWithEmailAndPassword(email, pass);
+      location.href = 'dashboard.html';
+    }catch(e){ showErr(e); }
+  };
+
+  $('btnGoogle').onclick = async ()=>{
+    try{
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await auth.signInWithPopup(provider);
+      location.href = 'dashboard.html';
+    }catch(e){ showErr(e); }
+  };
+</script>
+</body>
+</html>
