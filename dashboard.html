@@ -30,76 +30,90 @@
   </header>
 
   <main class="site">
-    <section class="section alt">
-      <div class="section-head">
-        <h2>Tu panel</h2>
-        <p>Código de vinculación y primeras lecturas.</p>
-      </div>
+  <section class="section alt">
+    <div class="section-head">
+      <h2>Tu panel</h2>
+      <p>Código de vinculación, dispositivos y lecturas.</p>
+    </div>
 
-      <div class="split">
-        <div class="card" style="max-width:420px">
-          <h3>Cuenta</h3>
-          <p>Email: <b id="uEmail">—</b></p>
-          <p>Código de 4 dígitos: <b id="uCode">—</b></p>
-          <p class="muted">Usá este código en el ESP32 para enviar datos.</p>
-          <div id="msg" class="muted" style="margin-top:8px"></div>
-        </div>
-
-        <div class="card" style="flex:1">
-          <h3>Tus lecturas (últimas 200)</h3>
-          <table id="tbl" style="width:100%">
-            <thead><tr><th>Fecha</th><th>T_in</th><th>HR_in</th><th>T_out</th><th>HR_out</th></tr></thead>
-            <tbody></tbody>
-          </table>
+    <div class="split">
+      <div class="card" style="max-width:420px">
+        <h3>Cuenta</h3>
+        <p>Email: <b id="uEmail">—</b></p>
+        <p>Código de 4 dígitos: <b id="uCode">—</b></p>
+        <div id="msg" class="muted" style="margin-top:8px"></div>
+        <hr>
+        <h3>Dispositivos</h3>
+        <ul id="devList" class="bullets"></ul>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="newLabel" placeholder="Nuevo nombre p/seleccionado" style="flex:1">
+          <button id="btnRename" class="btn">Renombrar</button>
+          <button id="btnDelete" class="btn ghost">Borrar</button>
         </div>
       </div>
-    </section>
-  </main>
+
+      <div class="card" style="flex:1">
+        <h3>Tus lecturas (últimas 200)</h3>
+        <table id="tbl" style="width:100%">
+          <thead><tr><th>Fecha</th><th>Device</th><th>T_in</th><th>HR_in</th><th>T_out</th><th>HR_out</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
 
   <footer class="footer">
     <span>© <span id="year"></span> MIELLIFERA</span>
   </footer>
 
 <script>
+  // Año footer
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Firebase config — el mismo que en login.html
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
-  authDomain: "mellifera-technology.firebaseapp.com",
-  projectId: "mellifera-technology",
-  storageBucket: "mellifera-technology.firebasestorage.app",
-  messagingSenderId: "68043353319",
-  appId: "1:68043353319:web:20a1aafde7b37d3457c642",
-  measurementId: "G-FCW1E604DG"
-};
+  // --- Firebase ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
+    authDomain: "mellifera-technology.firebaseapp.com",
+    projectId: "mellifera-technology",
+    storageBucket: "mellifera-technology.firebasestorage.app",
+    messagingSenderId: "68043353319",
+    appId: "1:68043353319:web:20a1aafde7b37d3457c642",
+    measurementId: "G-FCW1E604DG"
+  };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  const WORKER_BASE = "https://mellifera-worker.mellifera-tech.workers.dev"; // reemplazar
+  // --- Worker base URL ---
+  const WORKER_BASE = "https://mellifera-worker.mellifera-tech.workers.dev";
+  const BASE = WORKER_BASE.replace(/\/+$/, ''); // quita barra final
 
   const $ = id => document.getElementById(id);
   const setText = (id, t)=>{ const el=$(id); if(el) el.textContent=t; };
-  const msg = t => setText('msg', t||'');
 
-  // Guard
+  // --- Login guard ---
   auth.onAuthStateChanged(async (u)=>{
     if(!u){ location.href = 'login.html'; return; }
     setText('uEmail', u.email || '(sin email)');
-    try{
+    try {
       const { code } = await callWorker('/ensure_user', { method:'POST' });
       setText('uCode', code || '—');
       await loadReadings();
-    }catch(e){ msg(e.message||e); }
+    } catch(e){
+      console.error(e);
+      alert("Error cargando datos: " + (e.message||e));
+    }
   });
 
   $('btnLogout').onclick = ()=> auth.signOut().then(()=>location.href='login.html');
 
+  // --- Llamadas al Worker ---
   async function callWorker(path, opts={}){
     const u = auth.currentUser; if(!u) throw new Error('No auth');
     const t = await u.getIdToken();
-    const res = await fetch(`${WORKER_BASE}${path}`, {
+    const p = path.startsWith('/') ? path : `/${path}`;
+    const res = await fetch(`${BASE}${p}`, {
       method: opts.method || 'GET',
       headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
       body: opts.body ? JSON.stringify(opts.body) : undefined
@@ -108,18 +122,30 @@ const firebaseConfig = {
     return res.json();
   }
 
+  // --- Cargar lecturas ---
   async function loadReadings(){
     const data = await callWorker('/readings?limit=200');
     const rows = (data.items||[]).map(r=>{
       const dt = new Date(r.ts);
-      return `<tr><td>${dt.toLocaleString()}</td>
-        <td>${fmt(r.t_in)}</td><td>${fmt(r.hr_in)}</td>
-        <td>${fmt(r.t_out)}</td><td>${fmt(r.hr_out)}</td></tr>`;
+      const isAlert = r.device_id && r.device_id.toUpperCase()==="ALERT";
+      return `<tr${isAlert ? ' style="background:#ffdddd;font-weight:bold"' : ''}>
+        <td>${dt.toLocaleString()}</td>
+        <td>${fmt(r.t_in)}</td>
+        <td>${fmt(r.hr_in)}</td>
+        <td>${fmt(r.t_out)}</td>
+        <td>${fmt(r.hr_out)}</td>
+        <td>${isAlert ? '⚠️ ALERT' : (r.device_id||'')}</td>
+      </tr>`;
     }).join('');
-    $('tbl').querySelector('tbody').innerHTML = rows;
+    const tbody = $('tbl').querySelector('tbody');
+    tbody.innerHTML = rows;
   }
+
+  // Auto-refresh cada 15 s
+  setInterval(()=>{ if(auth.currentUser) loadReadings().catch(()=>{}); }, 15000);
 
   const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
 </script>
+
 </body>
 </html>
