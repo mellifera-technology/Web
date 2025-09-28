@@ -67,46 +67,71 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Firebase config — reemplazá por el tuyo
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
-  authDomain: "mellifera-technology.firebaseapp.com",
-  projectId: "mellifera-technology",
-  storageBucket: "mellifera-technology.firebasestorage.app",
-  messagingSenderId: "68043353319",
-  appId: "1:68043353319:web:20a1aafde7b37d3457c642",
-  measurementId: "G-FCW1E604DG"
-};
-  firebase.initializeApp(firebaseConfig);
+  const firebaseConfig = {
+    apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
+    authDomain: "mellifera-technology.firebaseapp.com",
+    projectId: "mellifera-technology",
+    storageBucket: "mellifera-technology.firebasestorage.app",
+    messagingSenderId: "68043353319",
+    appId: "1:68043353319:web:20a1aafde7b37d3457c642",
+    measurementId: "G-FCW1E604DG"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
   const $ = id=>document.getElementById(id);
-  const err = (e)=> $('msg').textContent = (e && e.message) ? e.message : String(e||'');
+  const msg = t => $('msg').textContent = t||'';
 
-  // Redirect si ya está logueado
-  auth.onAuthStateChanged(u => { if(u) location.href = 'dashboard.html'; });
+  let mode = 'login'; // login o register
 
-  $('btnRegister').onclick = async ()=>{
+  function switchMode(newMode){
+    mode = newMode;
+    const ttl = document.getElementById('ttl');
+    if(mode==='register'){
+      ttl.textContent = 'Crear cuenta';
+      $('btnLogin').style.display = 'none';
+      $('btnRegister').textContent = 'Crear cuenta';
+    }else{
+      ttl.textContent = 'Iniciar sesión';
+      $('btnLogin').style.display = '';
+      $('btnRegister').textContent = 'Crear cuenta';
+    }
+    msg('');
+  }
+
+  $('btnRegister').onclick = async (e)=>{
+    if(mode==='login'){ switchMode('register'); return; }
     try{
-      await auth.createUserWithEmailAndPassword($('email').value, $('pass').value);
-      location.href = 'dashboard.html';
-    }catch(e){ err(e); }
+      const email = $('email').value.trim();
+      const pass = $('pass').value;
+      if(!email||!pass) throw new Error('Completá email y contraseña');
+      await auth.createUserWithEmailAndPassword(email, pass);
+      location.href='dashboard.html';
+    }catch(e){ msg(e.message); }
   };
+
   $('btnLogin').onclick = async ()=>{
     try{
-      await auth.signInWithEmailAndPassword($('email').value, $('pass').value);
-      location.href = 'dashboard.html';
-    }catch(e){ err(e); }
+      const email = $('email').value.trim();
+      const pass = $('pass').value;
+      if(!email||!pass) throw new Error('Completá email y contraseña');
+      await auth.signInWithEmailAndPassword(email, pass);
+      location.href='dashboard.html';
+    }catch(e){ msg(e.message); }
   };
+
   $('btnGoogle').onclick = async ()=>{
     try{
       const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({prompt:'select_account'});
       await auth.signInWithPopup(provider);
-      location.href = 'dashboard.html';
-    }catch(e){ err(e); }
+      location.href='dashboard.html';
+    }catch(e){ msg(e.message); }
   };
+
+  auth.onAuthStateChanged(u => { if(u) location.href = 'dashboard.html'; });
 </script>
+
 </body>
 </html>
 
