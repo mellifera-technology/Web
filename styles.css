@@ -16,21 +16,7 @@ body{
   line-height:1.55;
 }
 
-/* Orb miel al fondo: no tapa contenido */
-#bg-orb{
-  position:fixed;
-  top:18vh;               /* altura base */
-  left:60vw;              /* arranca hacia la derecha */
-  width:120vmin;
-  height:120vmin;
-  border-radius:50%;
-  background:var(--honey);
-  z-index:0;              /* detrás */
-  opacity:.98;
-  pointer-events:none;
-  filter:saturate(1);
-}
-.site{position:relative; z-index:1} /* todo el contenido por encima */
+
 
 /* Header con hide-on-scroll */
 .header{
