@@ -190,7 +190,7 @@ body{
 
 
 /* ======== Pelota/Gota de miel interactiva ======== */
-#honey-orb {
+#bg-orb {
   position: fixed;
   top: 50%;
   left: 100%;
@@ -205,7 +205,7 @@ body{
 }
 
 /* Forma de gota */
-#honey-orb.drop-shape {
+#bg-orb.drop-shape {
   clip-path: path("M 90 0 C 120 0 180 60 150 120 C 120 180 60 180 30 120 C 0 60 60 0 90 0 Z");
 }
 
@@ -215,3 +215,4 @@ body{
   color: #222 !important;
   transition: background 1s ease, color 1s ease;
 }
+
