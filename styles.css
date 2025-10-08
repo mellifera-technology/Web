@@ -174,27 +174,51 @@ body{
   .nav-center{gap:14px; font-size:15px}
 }
 
+/* ======= EFECTO DE AGUA EN EL FOOTER ======= */
+.footer {
+  position: relative;
+  overflow: hidden;
+}
 
-#bg-orb {
-  position: fixed;
-  top: 50%;
-  left: 100%;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  background: #f3b700; /* tu color corporativo */
-  transform: translate(-50%, -50%);
-  transition: clip-path 1s ease;
+/* Capa de "agua" */
+.footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 100%, #f3b700 25%, transparent 70%);
+  opacity: 0.5;
+  transform: translateX(-25%) translateY(10%);
+  animation: honeyWave 6s infinite linear;
+  z-index: 0;
+}
+
+/* segunda capa más suave */
+.footer::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 100%, #f3b700 30%, transparent 75%);
+  opacity: 0.3;
+  transform: translateX(-35%) translateY(15%);
+  animation: honeyWave 8s infinite reverse linear;
+  z-index: 0;
+}
+
+/* animación tipo agua */
+@keyframes honeyWave {
+  0%   { transform: translateX(-30%) translateY(10%) rotate(0deg); }
+  50%  { transform: translateX(-20%) translateY(12%) rotate(1deg); }
+  100% { transform: translateX(-30%) translateY(10%) rotate(0deg); }
+}
+
+/* asegurar que el texto quede arriba */
+.footer > * {
+  position: relative;
   z-index: 2;
-  pointer-events: none;
-}
-
-#bg-orb.drop-shape {
-  clip-path: path("M 130 0 C 180 0 260 90 210 190 C 180 260 80 260 50 190 C 0 90 80 0 130 0 Z");
-}
-
-.footer.honey {
-  background: #f3b700 !important;
-  color: #222 !important;
-  transition: background 1s ease, color 1s ease;
 }
