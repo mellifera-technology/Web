@@ -98,14 +98,14 @@
         <div>
           <div class="side-cards">
             <div class="card">
-              <h3>Temperatura exterior</h3>
+              <h3>Temperatura (MOTHER.TEM)</h3>
               <div class="metric" aria-live="polite">
-                <span id="temVal" class="val">—</span><span class="unit">Cº</span>
+                <span id="temVal" class="val">—</span><span class="unit">°C</span>
               </div>
               <div id="temWhen" class="stamp">—</div>
             </div>
             <div class="card">
-              <h3>Humedad exterior</h3>
+              <h3>Humedad (MOTHER.HUM)</h3>
               <div class="metric" aria-live="polite">
                 <span id="humVal" class="val">—</span><span class="unit">%</span>
               </div>
@@ -118,9 +118,9 @@
             <button id="btnChart" class="btn yellow" type="button">Mostrar gráfica</button>
           </div>
 
-          <!-- Cartas automáticas -->
+          <!-- Cartas automáticas por dispositivo -->
           <div id="autoCards" class="cards-grid" aria-live="polite" style="margin-top:14px">
-            <!-- se inyectarán tarjetas dinámicas -->
+            <!-- se inyectarán tarjetas 0022, 0021, 0010, ... -->
           </div>
         </div>
       </div>
@@ -234,24 +234,47 @@
   }
 
   function updateSensorCards(items){
-    // TEM
     const tem = findLatestBySensor(items,'MOTHER.TEM');
-    if(tem){
-      const v = fmt(tem.value);
-      setText('temVal', v!==null ? v : '—');
-      setText('temWhen', dtAR(tem.ts));
-    }else{
-      setText('temVal','—'); setText('temWhen','—');
-    }
-    // HUM
+    if(tem){ setText('temVal', fmt(tem.value) ?? '—'); setText('temWhen', dtAR(tem.ts)); }
+    else { setText('temVal','—'); setText('temWhen','—'); }
+
     const hum = findLatestBySensor(items,'MOTHER.HUM');
-    if(hum){
-      const v = fmt(hum.value);
-      setText('humVal', v!==null ? v : '—');
-      setText('humWhen', dtAR(hum.ts));
-    }else{
-      setText('humVal','—'); setText('humWhen','—');
+    if(hum){ setText('humVal', fmt(hum.value) ?? '—'); setText('humWhen', dtAR(hum.ts)); }
+    else { setText('humVal','—'); setText('humWhen','—'); }
+  }
+
+  // === NUEVO: cards por cada dispositivo único ===
+  function renderDeviceCards(items){
+    const wrap = $('autoCards'); if(!wrap) return;
+
+    // 1) Obtener IDs únicos en orden por última actividad
+    const byId = new Map(); // device_id -> max ts
+    for(const d of (items||[])){
+      const id = String(d.device_id||'').trim();
+      if(!id) continue;
+      const t = new Date(d.ts).getTime();
+      const prev = byId.get(id) || 0;
+      if(t>prev) byId.set(id, t);
     }
+    // Array ordenado por ts desc
+    const devices = Array.from(byId.entries())
+      .sort((a,b)=>b[1]-a[1])
+      .map(([id])=>id);
+
+    // 2) Render simple: una card por ID
+    if(!devices.length){ wrap.innerHTML = '<div class="muted">Sin dispositivos detectados.</div>'; return; }
+
+    const html = devices.map(id=>{
+      const safe = escapeHtml(id);
+      return `
+        <div class="card" data-device="${safe}">
+          <h3 style="margin:0">Dispositivo ${safe}</h3>
+          <p class="muted" style="margin:.25rem 0 0">Card base generada automáticamente.</p>
+        </div>
+      `;
+    }).join('');
+
+    wrap.innerHTML = html;
   }
 
   // --- Cargar lecturas ---
@@ -280,7 +303,7 @@
     // UI derivada
     updateLastReading(items);
     updateSensorCards(items);
-    ensureAutoCardsContainer();
+    renderDeviceCards(items); // <<=== genera una card por dispositivo
   }
 
   // Toggle historial
@@ -296,7 +319,6 @@
   setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
 
   // Helpers
-  function ensureAutoCardsContainer(){ /* placeholder */ }
   function escapeHtml(s){
     return String(s)
       .replace(/&/g,'&amp;')
