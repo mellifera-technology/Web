@@ -175,30 +175,26 @@ body{
 }
 
 
-/* ======== Pelota/Gota de miel interactiva ======== */
 #bg-orb {
   position: fixed;
   top: 50%;
   left: 100%;
-  width: 180px;
-  height: 180px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  
-  transform: translateY(-50%) translateX(-60px);
-  transition: clip-path 1s ease, background 1s ease;
-  z-index: 1;
+  background: #f3b700; /* tu color corporativo */
+  transform: translate(-50%, -50%);
+  transition: clip-path 1s ease;
+  z-index: 2;
   pointer-events: none;
 }
 
-/* Forma de gota */
 #bg-orb.drop-shape {
-  clip-path: path("M 90 0 C 120 0 180 60 150 120 C 120 180 60 180 30 120 C 0 60 60 0 90 0 Z");
+  clip-path: path("M 130 0 C 180 0 260 90 210 190 C 180 260 80 260 50 190 C 0 90 80 0 130 0 Z");
 }
 
-/* Footer pintado de miel */
 .footer.honey {
   background: #f3b700 !important;
   color: #222 !important;
   transition: background 1s ease, color 1s ease;
 }
-
