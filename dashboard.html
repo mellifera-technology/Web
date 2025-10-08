@@ -10,6 +10,35 @@
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <style>
+    body{background:#0f0f12;color:#eaeaea;font-family:Inter,system-ui,Arial;margin:0}
+    .site{padding:24px}
+    .header{position:sticky;top:0;background:#0f0f12cc;backdrop-filter:saturate(140%) blur(6px);z-index:10}
+    .nav-grid{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:12px 16px}
+    .brand{color:#ffd54f;text-decoration:none;font-weight:800;letter-spacing:.5px}
+    .nav-center a{color:#cfcfcf;text-decoration:none;margin:0 8px}
+    .cta{background:#ffd54f;color:#111;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .section{margin:24px auto;max-width:1200px}
+    .section.alt{background:#14141a;border:1px solid #20202a;border-radius:14px;padding:16px}
+    .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+    .pill{background:#222;color:#ffd54f;border:1px solid #2d2d2d;padding:8px 12px;border-radius:999px;font-weight:700;cursor:default;white-space:nowrap}
+    .split{display:grid;grid-template-columns:420px 1fr;gap:16px}
+    .card{background:#17171e;border:1px solid #242433;border-radius:12px;padding:14px}
+    .muted{color:#b6b6b6;font-size:.9rem}
+    /* fila de dos cards extra a la derecha */
+    .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    /* contenedor de cartas automáticas */
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:12px}
+    /* tabla */
+    table{border-collapse:collapse;width:100%}
+    th,td{border-bottom:1px solid #2a2a35;padding:8px;text-align:left}
+    thead th{position:sticky;top:0;background:#14141a;z-index:1}
+    .row-alert{background:rgba(255,213,79,.06)}
+    .btn{background:#222;color:#fff;border:1px solid #2f2f2f;padding:8px 14px;border-radius:8px;cursor:pointer}
+    .btn.yellow{background:#ffd54f;color:#111;border-color:#ffd54f}
+    .center{display:flex;justify-content:center;align-items:center}
+    @media(max-width:900px){.split{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
   <div id="bg-orb" aria-hidden="true"></div>
@@ -30,55 +59,75 @@
   </header>
 
   <main class="site">
-  <section class="section alt">
-    <div class="section-head">
-      <h2>Tu panel</h2>
-      <p>Código de vinculación, dispositivos y lecturas.</p>
-    </div>
-
-    <div class="split">
-      <div class="card" style="max-width:420px">
-        <h3>Cuenta</h3>
-        <p>Email: <b id="uEmail">—</b></p>
-        <p>Código de 4 dígitos: <b id="uCode">—</b></p>
-        <div id="msg" class="muted" style="margin-top:8px"></div>
-        <hr>
-        
+    <section class="section alt">
+      <div class="section-head">
+        <div>
+          <h2 style="margin:0">Tu panel</h2>
+          <p class="muted" style="margin:.25rem 0 0">Código de vinculación, dispositivos y lecturas.</p>
+        </div>
+        <!-- Botón-badge Última medición -->
+        <button id="lastReading" class="pill" type="button" title="Fecha y hora de la última medición">Última medición: —</button>
       </div>
 
-      <div class="card" style="flex:1">
-        <h3>Eventos y mediciones (últimas 200)</h3>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-  <span id="lastReading" style="font-weight:600;color:#ffd54f;">Última medición: —</span>
-  <button id="toggleTbl" type="button" style="background:#222;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">
-    Mostrar/Ocultar tabla
-  </button>
-</div>
-<div id="tableWrap" style="overflow:auto;max-height:60vh;">
-<table id="tbl" style="width:100%">
-  <thead>
-    <tr><th>Fecha</th><th>Dispositivo</th><th>Sensor</th><th>Valor / Info</th></tr>
-  </thead>
-  <tbody></tbody>
-</table>
-</div>
+      <div class="split">
+        <!-- Izquierda: Cuenta -->
+        <div class="card" style="max-width:420px">
+          <h3 style="margin-top:0">Cuenta</h3>
+          <p>Email: <b id="uEmail">—</b></p>
+          <p>Código de 4 dígitos: <b id="uCode">—</b></p>
+          <div id="msg" class="muted" style="margin-top:8px"></div>
+          <hr>
+        </div>
 
-        <table id="tbl" style="width:100%">
-  <thead>
-    <tr>
-      <th>Fecha</th><th>Dispositivo</th><th>Sensor</th><th>Valor / Info</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+        <!-- Derecha: dos cartas lado a lado -->
+        <div>
+          <div class="side-cards">
+            <div class="card">
+              <h3 style="margin-top:0">Card A</h3>
+              <p class="muted">Contenido a definir.</p>
+            </div>
+            <div class="card">
+              <h3 style="margin-top:0">Card B</h3>
+              <p class="muted">Contenido a definir.</p>
+            </div>
+          </div>
 
+          <!-- Botón Mostrar gráfica -->
+          <div class="center" style="margin-top:12px">
+            <button id="btnChart" class="btn yellow" type="button">Mostrar gráfica</button>
+          </div>
+
+          <!-- Cartas automáticas -->
+          <div id="autoCards" class="cards-grid" aria-live="polite" style="margin-top:12px">
+            <!-- aquí se podrán inyectar n tarjetas sin tocar HTML -->
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
-</main>
+    </section>
 
+    <!-- Historial al final del main -->
+    <section class="section" id="lecturas">
+      <div class="section-head">
+        <h3 style="margin:0">Historial de mediciones</h3>
+        <button id="toggleTbl" class="btn" type="button">Mostrar / Ocultar historial de mediciones</button>
+      </div>
+      <div id="tableWrap" style="overflow:auto;max-height:60vh;display:none">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Dispositivo</th>
+              <th>Sensor</th>
+              <th>Valor / Info</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
-  <footer class="footer">
+  <footer class="footer" style="padding:16px;color:#9a9a9a;border-top:1px solid #222;display:flex;justify-content:center">
     <span>© <span id="year"></span> MIELLIFERA</span>
   </footer>
 
@@ -101,7 +150,7 @@
 
   // --- Worker base URL ---
   const WORKER_BASE = "https://mellifera-worker.mellifera-tech.workers.dev";
-  const BASE = WORKER_BASE.replace(/\/+$/, ''); // quita barra final
+  const BASE = WORKER_BASE.replace(/\/+$/, '');
 
   const $ = id => document.getElementById(id);
   const setText = (id, t)=>{ const el=$(id); if(el) el.textContent=t; };
@@ -114,10 +163,10 @@
       const { code } = await callWorker('/ensure_user', { method:'POST' });
       setText('uCode', code || '—');
       await loadDatapoints();
-
     } catch(e){
       console.error(e);
-      alert("Error cargando datos: " + (e.message||e));
+      // Mensaje en la card en lugar de alert
+      const m = $('msg'); if(m) m.textContent = "Error cargando datos: " + (e.message||e);
     }
   });
 
@@ -137,53 +186,72 @@
     return res.json();
   }
 
+  // --- Utilidades ---
+  const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
+
+  function updateLastReading(items){
+    const el = $('lastReading');
+    if(!items?.length){ if(el) el.textContent='Última medición: —'; return; }
+    const latest = items.reduce((a,b)=> new Date(a.ts) > new Date(b.ts) ? a : b);
+    const dt = new Date(latest.ts).toLocaleString('es-AR');
+    if(el) el.textContent = 'Última medición: ' + dt;
+  }
+
   // --- Cargar lecturas ---
-  // Reemplaza loadReadings() por esto:
   async function loadDatapoints(){
-    const { items } = await callWorker('/datapoints?limit=200'); // requiere GET /datapoints en el Worker
+    const { items } = await callWorker('/datapoints?limit=200');
+    // tabla
     const rows = (items||[]).map(d=>{
-      const dt = new Date(d.ts).toLocaleString();
+      const dt = new Date(d.ts).toLocaleString('es-AR');
       const isEvent = String(d.sensor_key||'').startsWith('EVENT.');
       const isAlert = String(d.device_id||'').toUpperCase()==='ALERT';
       const cls = isEvent || isAlert ? 'row-alert' : '';
       const val = isEvent
         ? (d.meta?.info || d.meta?.type || JSON.stringify(d.meta||{}))
-        : (d.value==null ? '' : Number(d.value).toFixed(2));
+        : (d.value==null ? '' : fmt(d.value));
       return `<tr class="${cls}">
         <td>${dt}</td>
-        <td>${d.device_id||''}</td>
-        <td>${d.sensor_key||''}</td>
-        <td>${val}</td>
+        <td>${escapeHtml(d.device_id||'')}</td>
+        <td>${escapeHtml(d.sensor_key||'')}</td>
+        <td>${escapeHtml(val)}</td>
       </tr>`;
     }).join('');
-    document.querySelector('#tbl tbody').innerHTML = rows;
+    const tbody = document.querySelector('#tbl tbody');
+    if(tbody) tbody.innerHTML = rows;
+
+    // badge de última medición
     updateLastReading(items);
 
+    // gancho para cartas automáticas futuras (espacio queda listo)
+    ensureAutoCardsContainer();
   }
 
-  // En tu onAuthStateChanged, donde llamabas a loadReadings(), cambiá por:
-  //   await loadDatapoints();
+  // Toggle historial
+  $('toggleTbl').onclick = ()=>{
+    const wrap = $('tableWrap');
+    wrap.style.display = wrap.style.display==='none' ? 'block' : 'none';
+  };
 
-  // Y reemplazá el setInterval por este:
+  // Botón "Mostrar gráfica" aún sin acción
+  $('btnChart').onclick = ()=>{ /* pendiente */ };
+
+  // Refresco periódico
   setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
 
+  // Helpers
+  function ensureAutoCardsContainer(){
+    // Placeholder de ejemplo si se quiere mostrar algo cuando no hay tarjetas
+    // No agrega nada por defecto para dejar el espacio limpio.
+  }
 
-  const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
-// Botón de plegado
-$('toggleTbl').onclick = ()=>{
-  const wrap=$('tableWrap');
-  wrap.style.display = wrap.style.display==='none' ? 'block':'none';
-};
-
-// Actualiza el cartel "Última medición"
-function updateLastReading(items){
-  if(!items?.length){ setText('lastReading','Última medición: —'); return; }
-  const latest = items.reduce((a,b)=> new Date(a.ts)>new Date(b.ts)?a:b);
-  const dt = new Date(latest.ts).toLocaleString('es-AR');
-  setText('lastReading','Última medición: '+dt);
-}
-
+  function escapeHtml(s){
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
 </script>
-
 </body>
 </html>
