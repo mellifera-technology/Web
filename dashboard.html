@@ -48,7 +48,22 @@
 
       <div class="card" style="flex:1">
         <h3>Eventos y mediciones (últimas 200)</h3>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+  <span id="lastReading" style="font-weight:600;color:#ffd54f;">Última medición: —</span>
+  <button id="toggleTbl" type="button" style="background:#222;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">
+    Mostrar/Ocultar tabla
+  </button>
+</div>
+<div id="tableWrap" style="overflow:auto;max-height:60vh;">
 <table id="tbl" style="width:100%">
+  <thead>
+    <tr><th>Fecha</th><th>Dispositivo</th><th>Sensor</th><th>Valor / Info</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+</div>
+
+        <table id="tbl" style="width:100%">
   <thead>
     <tr>
       <th>Fecha</th><th>Dispositivo</th><th>Sensor</th><th>Valor / Info</th>
@@ -142,6 +157,8 @@
       </tr>`;
     }).join('');
     document.querySelector('#tbl tbody').innerHTML = rows;
+    updateLastReading(items);
+
   }
 
   // En tu onAuthStateChanged, donde llamabas a loadReadings(), cambiá por:
@@ -152,6 +169,20 @@
 
 
   const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
+// Botón de plegado
+$('toggleTbl').onclick = ()=>{
+  const wrap=$('tableWrap');
+  wrap.style.display = wrap.style.display==='none' ? 'block':'none';
+};
+
+// Actualiza el cartel "Última medición"
+function updateLastReading(items){
+  if(!items?.length){ setText('lastReading','Última medición: —'); return; }
+  const latest = items.reduce((a,b)=> new Date(a.ts)>new Date(b.ts)?a:b);
+  const dt = new Date(latest.ts).toLocaleString('es-AR');
+  setText('lastReading','Última medición: '+dt);
+}
+
 </script>
 
 </body>
