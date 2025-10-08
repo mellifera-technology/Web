@@ -11,33 +11,66 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
   <style>
-    body{background:#0f0f12;color:#eaeaea;font-family:Inter,system-ui,Arial;margin:0}
+    :root{
+      --bg:#0e0f12;
+      --bg-soft:#13151a;
+      --card:#171a21;
+      --card-2:#1b1f27;
+      --text:#eef0f3;
+      --muted:#b8bec7;
+      --border:#262b35;
+      --accent:#ffd54f;        /* miel */
+      --accent-600:#f0c12c;    /* más oscuro para hover */
+      --accent-700:#d9ab12;
+      --focus:#7fb3ff;
+      --danger:#ff7676;
+      --zebra:#141820;
+    }
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;
+      font-size:16.5px;line-height:1.6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
     .site{padding:24px}
-    .header{position:sticky;top:0;background:#0f0f12cc;backdrop-filter:saturate(140%) blur(6px);z-index:10}
+    .header{position:sticky;top:0;background:rgba(14,15,18,.9);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--border)}
     .nav-grid{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:12px 16px}
-    .brand{color:#ffd54f;text-decoration:none;font-weight:800;letter-spacing:.5px}
-    .nav-center a{color:#cfcfcf;text-decoration:none;margin:0 8px}
-    .cta{background:#ffd54f;color:#111;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
-    .section{margin:24px auto;max-width:1200px}
-    .section.alt{background:#14141a;border:1px solid #20202a;border-radius:14px;padding:16px}
+    .brand{color:var(--accent);text-decoration:none;font-weight:800;letter-spacing:.4px}
+    .nav-center a{color:#d6dae0;text-decoration:none;margin:0 10px}
+    .nav-center a:hover{color:var(--text)}
+    .cta{background:var(--accent);color:#111;border:0;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+    .cta:focus{outline:3px solid var(--focus);outline-offset:2px}
+    .section{margin:28px auto;max-width:1200px}
+    .section.alt{background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;padding:16px}
     .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
-    .pill{background:#222;color:#ffd54f;border:1px solid #2d2d2d;padding:8px 12px;border-radius:999px;font-weight:700;cursor:default;white-space:nowrap}
-    .split{display:grid;grid-template-columns:420px 1fr;gap:16px}
-    .card{background:#17171e;border:1px solid #242433;border-radius:12px;padding:14px}
-    .muted{color:#b6b6b6;font-size:.9rem}
-    /* fila de dos cards extra a la derecha */
+    h2,h3{margin:.2rem 0 .4rem;font-weight:800;letter-spacing:.2px}
+    .muted{color:var(--muted)}
+    .split{display:grid;grid-template-columns:420px 1fr;gap:18px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+    .card h3{margin-top:0}
     .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    /* contenedor de cartas automáticas */
     .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:12px}
-    /* tabla */
-    table{border-collapse:collapse;width:100%}
-    th,td{border-bottom:1px solid #2a2a35;padding:8px;text-align:left}
-    thead th{position:sticky;top:0;background:#14141a;z-index:1}
-    .row-alert{background:rgba(255,213,79,.06)}
-    .btn{background:#222;color:#fff;border:1px solid #2f2f2f;padding:8px 14px;border-radius:8px;cursor:pointer}
-    .btn.yellow{background:#ffd54f;color:#111;border-color:#ffd54f}
+    .pill{background:#111;color:#111;border:2px solid var(--accent);border-radius:999px;font-weight:800;
+          padding:8px 14px; cursor:default; color:#111; background:var(--accent)}
+    .pill[data-stale="1"]{background:#111;color:var(--accent);border-color:var(--accent)}
+    .btn{background:var(--card-2);color:var(--text);border:1px solid var(--border);padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn:hover{background:#202631}
+    .btn.yellow{background:var(--accent);border-color:var(--accent);color:#111}
+    .btn.yellow:hover{background:var(--accent-600)}
+    .btn:focus{outline:3px solid var(--focus);outline-offset:2px}
     .center{display:flex;justify-content:center;align-items:center}
-    @media(max-width:900px){.split{grid-template-columns:1fr}}
+    /* Tabla accesible */
+    table{border-collapse:separate;border-spacing:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    thead th{
+      position:sticky;top:0;background:var(--accent);color:#111;font-weight:800;text-transform:uppercase;
+      letter-spacing:.3px;font-size:.95rem;border-bottom:2px solid #caa332;z-index:1;padding:10px 10px
+    }
+    tbody td{padding:10px;border-bottom:1px solid var(--border)}
+    tbody tr:nth-child(odd){background:var(--zebra)}
+    tbody tr.row-alert{background:linear-gradient(0deg, rgba(255,213,79,.10), rgba(255,213,79,.10))}
+    #tableWrap{box-shadow:0 1px 0 rgba(0,0,0,.2) inset}
+    /* Accesibilidad de foco en links */
+    a:focus{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+    @media(max-width:1000px){.split{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -62,57 +95,58 @@
     <section class="section alt">
       <div class="section-head">
         <div>
-          <h2 style="margin:0">Tu panel</h2>
-          <p class="muted" style="margin:.25rem 0 0">Código de vinculación, dispositivos y lecturas.</p>
+          <h2>Tu panel</h2>
+          <p class="muted">Código de vinculación, dispositivos y lecturas.</p>
         </div>
-        <!-- Botón-badge Última medición -->
+        <!-- Badge Última medición -->
         <button id="lastReading" class="pill" type="button" title="Fecha y hora de la última medición">Última medición: —</button>
       </div>
 
       <div class="split">
         <!-- Izquierda: Cuenta -->
         <div class="card" style="max-width:420px">
-          <h3 style="margin-top:0">Cuenta</h3>
+          <h3>Cuenta</h3>
           <p>Email: <b id="uEmail">—</b></p>
           <p>Código de 4 dígitos: <b id="uCode">—</b></p>
           <div id="msg" class="muted" style="margin-top:8px"></div>
-          <hr>
+          <hr style="border:0;border-top:1px solid var(--border)">
         </div>
 
-        <!-- Derecha: dos cartas lado a lado -->
+        <!-- Derecha: dos cartas -->
         <div>
           <div class="side-cards">
             <div class="card">
-              <h3 style="margin-top:0">Card A</h3>
+              <h3>Card A</h3>
               <p class="muted">Contenido a definir.</p>
             </div>
             <div class="card">
-              <h3 style="margin-top:0">Card B</h3>
+              <h3>Card B</h3>
               <p class="muted">Contenido a definir.</p>
             </div>
           </div>
 
           <!-- Botón Mostrar gráfica -->
-          <div class="center" style="margin-top:12px">
+          <div class="center" style="margin-top:14px">
             <button id="btnChart" class="btn yellow" type="button">Mostrar gráfica</button>
           </div>
 
           <!-- Cartas automáticas -->
-          <div id="autoCards" class="cards-grid" aria-live="polite" style="margin-top:12px">
-            <!-- aquí se podrán inyectar n tarjetas sin tocar HTML -->
+          <div id="autoCards" class="cards-grid" aria-live="polite" style="margin-top:14px">
+            <!-- aquí se inyectarán tarjetas -->
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Historial al final del main -->
+    <!-- Historial al final -->
     <section class="section" id="lecturas">
       <div class="section-head">
-        <h3 style="margin:0">Historial de mediciones</h3>
+        <h3>Historial de mediciones</h3>
         <button id="toggleTbl" class="btn" type="button">Mostrar / Ocultar historial de mediciones</button>
       </div>
-      <div id="tableWrap" style="overflow:auto;max-height:60vh;display:none">
-        <table id="tbl">
+      <div id="tableWrap" style="overflow:auto;max-height:60vh;display:none;border-radius:12px">
+        <table id="tbl" aria-describedby="histDesc">
+          <caption id="histDesc" class="muted" style="caption-side:bottom;padding:8px">Últimas 200 entradas.</caption>
           <thead>
             <tr>
               <th>Fecha</th>
@@ -127,7 +161,7 @@
     </section>
   </main>
 
-  <footer class="footer" style="padding:16px;color:#9a9a9a;border-top:1px solid #222;display:flex;justify-content:center">
+  <footer class="footer" style="padding:16px;color:#c3c9d1;border-top:1px solid var(--border);display:flex;justify-content:center">
     <span>© <span id="year"></span> MIELLIFERA</span>
   </footer>
 
@@ -165,7 +199,6 @@
       await loadDatapoints();
     } catch(e){
       console.error(e);
-      // Mensaje en la card en lugar de alert
       const m = $('msg'); if(m) m.textContent = "Error cargando datos: " + (e.message||e);
     }
   });
@@ -195,12 +228,18 @@
     const latest = items.reduce((a,b)=> new Date(a.ts) > new Date(b.ts) ? a : b);
     const dt = new Date(latest.ts).toLocaleString('es-AR');
     if(el) el.textContent = 'Última medición: ' + dt;
+
+    // Marca como "stale" si pasaron > 10 min sin lecturas
+    const stale = (Date.now() - new Date(latest.ts).getTime()) > 10*60*1000;
+    el?.setAttribute('data-stale', stale ? '1':'0');
+    el?.setAttribute('title', stale ? 'Sin lecturas recientes (>10 min)' : 'Fecha y hora de la última medición');
   }
 
   // --- Cargar lecturas ---
   async function loadDatapoints(){
     const { items } = await callWorker('/datapoints?limit=200');
-    // tabla
+    const tbody = document.querySelector('#tbl tbody');
+
     const rows = (items||[]).map(d=>{
       const dt = new Date(d.ts).toLocaleString('es-AR');
       const isEvent = String(d.sensor_key||'').startsWith('EVENT.');
@@ -216,13 +255,9 @@
         <td>${escapeHtml(val)}</td>
       </tr>`;
     }).join('');
-    const tbody = document.querySelector('#tbl tbody');
+
     if(tbody) tbody.innerHTML = rows;
-
-    // badge de última medición
     updateLastReading(items);
-
-    // gancho para cartas automáticas futuras (espacio queda listo)
     ensureAutoCardsContainer();
   }
 
@@ -232,18 +267,14 @@
     wrap.style.display = wrap.style.display==='none' ? 'block' : 'none';
   };
 
-  // Botón "Mostrar gráfica" aún sin acción
+  // Botón "Mostrar gráfica" por ahora sin acción
   $('btnChart').onclick = ()=>{ /* pendiente */ };
 
   // Refresco periódico
   setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
 
   // Helpers
-  function ensureAutoCardsContainer(){
-    // Placeholder de ejemplo si se quiere mostrar algo cuando no hay tarjetas
-    // No agrega nada por defecto para dejar el espacio limpio.
-  }
-
+  function ensureAutoCardsContainer(){ /* placeholder intencional */ }
   function escapeHtml(s){
     return String(s)
       .replace(/&/g,'&amp;')
@@ -255,3 +286,4 @@
 </script>
 </body>
 </html>
+
