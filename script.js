@@ -151,3 +151,58 @@ auth.onAuthStateChanged(async (u)=>{
 });
 
 const fmt = v => (v===null||v===undefined||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
+
+
+// === NUEVO BLOQUE: ANIMACIÓN DE LA GOTA DE MIEL ===
+(function(){
+  const orb = document.getElementById('bg-orb');
+  const footer = document.querySelector('.footer');
+  const solutionSection = document.getElementById('solucion');
+  if(!orb || !footer || !solutionSection) return;
+
+  const bodyHeight = document.body.scrollHeight - window.innerHeight;
+
+  // Movimiento principal
+  window.addEventListener('scroll', ()=>{
+    const scrollY = window.scrollY;
+    const progress = scrollY / bodyHeight;
+
+    // Movimiento horizontal desde el borde derecho hacia el centro
+    const startX = window.innerWidth + 100;
+    const endX = window.innerWidth / 2 - 90;
+    const x = startX - (startX - endX) * Math.min(progress * 2, 1);
+
+    // Movimiento vertical suave
+    const y = window.innerHeight / 2 + Math.sin(progress * Math.PI) * 100;
+
+    // Escala leve
+    const scale = 1 + progress * 0.3;
+
+    orb.style.left = `${x}px`;
+    orb.style.top = `${y}px`;
+    orb.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+    // Cambio de forma al llegar a la sección "solución"
+    const solRect = solutionSection.getBoundingClientRect();
+    if (solRect.top < window.innerHeight * 0.5) orb.classList.add('drop-shape');
+    else orb.classList.remove('drop-shape');
+  }, {passive:true});
+
+  // Al llegar al footer, simular la caída
+  const observer = new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        orb.style.transition = 'all 1.2s ease-in';
+        orb.style.top = `${footer.offsetTop + 50}px`;
+        orb.style.left = `${window.innerWidth / 2}px`;
+        orb.style.transform = 'translate(-50%, -50%) scale(1.2)';
+        footer.classList.add('honey');
+        setTimeout(()=> orb.style.opacity='0', 1000);
+      } else {
+        orb.style.opacity='1';
+        footer.classList.remove('honey');
+      }
+    });
+  }, {threshold:0.3});
+  observer.observe(footer);
+})();
