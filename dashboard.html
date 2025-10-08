@@ -10,11 +10,16 @@
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root{
       --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
       --text:#eef0f3;--muted:#b8bec7;--border:#262b35;
       --accent:#ffd54f;--accent-600:#f0c12c;--zebra:#141820;--focus:#7fb3ff;
+      --blue:#4da3ff;--blue-pt:rgba(77,163,255,.9);--blue-ln:rgba(77,163,255,.35);
+      --amber:#ffb74d;--amber-pt:rgba(255,183,77,.95);--amber-ln:rgba(255,183,77,.35);
+      --amber-hot:#ff7043;
     }
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
@@ -35,7 +40,6 @@
     .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
     .card h3{margin-top:0}
     .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    /* === Grid de colmenas: 2 por fila === */
     .cards-head{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px}
     .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
     @media(max-width:860px){.cards-grid{grid-template-columns:1fr}}
@@ -64,7 +68,8 @@
     .eye-btn:hover{background:#232936}
     .eye-btn svg{width:18px;height:18px}
     /* Overlay full-screen */
-    #deviceOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.85)}
+    #deviceOverlay{position:fixed;inset:0;display:none;z-index:1000;
+      background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
     #devicePanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
     .overlay-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#0f1218}
     .overlay-header h3{margin:0}
@@ -85,6 +90,11 @@
       75%{transform:translate(1px,0) rotate(-.2deg)}
       100%{transform:translate(0,0) rotate(0)}
     }
+    /* Área de gráficos */
+    #chartsWrap{display:none; margin-top:14px}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:860px){.charts-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -161,6 +171,20 @@
 
           <div class="center" style="margin-top:14px">
             <button id="btnChart" class="btn yellow" type="button">Mostrar gráfica</button>
+          </div>
+
+          <!-- Gráficos diarios -->
+          <div id="chartsWrap">
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 style="margin:0 0 8px">Temperatura de hoy</h3>
+                <canvas id="chartTemp" height="140"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3 style="margin:0 0 8px">Humedad de hoy</h3>
+                <canvas id="chartHum" height="140"></canvas>
+              </div>
+            </div>
           </div>
 
           <!-- Encabezado y botón Editar orden -->
@@ -336,7 +360,7 @@
   function renderDeviceCards(items){
     const wrap = $('autoCards'); if(!wrap) return;
 
-    // 1) IDs únicos válidos, excluir MOTHER, solo numéricos
+    // IDs únicos válidos
     const byId = new Map(); // id -> max ts
     const isNumericId = id => /^\d+$/.test(id);
     for(const d of (items||[])){
@@ -351,7 +375,6 @@
 
     if(!devices.length){ wrap.innerHTML = '<div class="muted">Sin colmenas detectadas.</div>'; return; }
 
-    // 2) Render
     wrap.innerHTML = devices.map(id=>{
       const safe = escapeHtml(id);
       return `
@@ -362,7 +385,6 @@
       `;
     }).join('');
 
-    // 3) Si está en modo edición, activar draggables
     if(editing) enableDragAndDrop();
   }
 
@@ -433,7 +455,6 @@
     if(!a || !b) return;
     const aNext = a.nextSibling;
     const bNext = b.nextSibling;
-    // Intercambio de posiciones
     if(aNext === b){ wrap.insertBefore(b, a); }
     else if(bNext === a){ wrap.insertBefore(a, b); }
     else {
@@ -447,9 +468,115 @@
     saveOrder(ids);
   }
 
+  // ====== Gráficos (TEM/HUM del día) ======
+  let chartTemp = null, chartHum = null;
+  function sameLocalDay(tsA, tsB){
+    const a = new Date(tsA), b = new Date(tsB);
+    return a.getFullYear()===b.getFullYear()
+      && a.getMonth()===b.getMonth()
+      && a.getDate()===b.getDate();
+  }
+  function seriesOfDay(items, sensorKey){
+    const now = new Date();
+    const arr = [];
+    for(const d of (items||[])){
+      if(String(d.sensor_key||'').toUpperCase()!==sensorKey) continue;
+      if(!sameLocalDay(d.ts, now)) continue;
+      const v = (d.value==null || Number.isNaN(+d.value)) ? null : Number(d.value);
+      if(v==null) continue;
+      const t = new Date(d.ts);
+      const hh = t.getHours().toString().padStart(2,'0');
+      const mm = t.getMinutes().toString().padStart(2,'0');
+      arr.push({ label: `${hh}:${mm}`, x: t.getTime(), y: v });
+    }
+    // ordenar por tiempo
+    arr.sort((a,b)=>a.x-b.x);
+    return arr;
+  }
+  function buildLineChart(canvas, labels, data, colorLine, colorPoint){
+    const ctx = canvas.getContext('2d');
+    return new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: '',
+          data: data.map(d=>d.y),
+          fill: false,
+          borderColor: colorLine,
+          backgroundColor: colorPoint,
+          tension: 0.25,
+          pointRadius: 3.5,
+          pointHoverRadius: 5,
+          pointBackgroundColor: colorPoint,
+          pointBorderColor: colorPoint
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'nearest', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items)=> items[0]?.label || '',
+              label: (item)=> ` ${item.raw} `
+            }
+          }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Hora' } },
+          y: { title: { display: true, text: '' }, ticks: { precision: 0 } }
+        }
+      }
+    });
+  }
+
+  function renderCharts(items){
+    // TEM
+    const tem = seriesOfDay(items, 'MOTHER.TEM');
+    const labelsT = tem.map(d=>d.label);
+    const valsT = tem.map(d=>d.y);
+    // HUM
+    const hum = seriesOfDay(items, 'MOTHER.HUM');
+    const labelsH = hum.map(d=>d.label);
+    const valsH = hum.map(d=>d.y);
+
+    const cT = $('chartTemp');
+    const cH = $('chartHum');
+
+    if(chartTemp){ chartTemp.destroy(); }
+    if(chartHum){ chartHum.destroy(); }
+
+    chartTemp = buildLineChart(cT, labelsT, tem, valsT.length ? 'linear-gradient' : 'var(--amber-ln)', getTempPointColor());
+    chartHum  = buildLineChart(cH, labelsH, hum, 'var(--blue-ln)', 'var(--blue-pt)');
+
+    // Ajuste: color línea temperatura con degradado leve (amarillo→rojo)
+    const ctx = cT.getContext('2d');
+    const grad = ctx.createLinearGradient(0,0,cT.width,0);
+    grad.addColorStop(0,'var(--amber-ln)');
+    grad.addColorStop(1,'rgba(255,112,67,.45)'); // rojo miel
+    chartTemp.data.datasets[0].borderColor = grad;
+    chartTemp.update();
+
+    function getTempPointColor(){ return 'var(--amber-pt)'; }
+  }
+
+  // Toggle de gráficos
+  let chartsVisible = false;
+  $('btnChart').onclick = ()=>{
+    chartsVisible = !chartsVisible;
+    $('chartsWrap').style.display = chartsVisible ? 'block' : 'none';
+    if(chartsVisible && lastItemsCache) renderCharts(lastItemsCache);
+    $('btnChart').textContent = chartsVisible ? 'Ocultar gráfica' : 'Mostrar gráfica';
+  };
+
   // --- Cargar lecturas + render UI ---
+  let lastItemsCache = null;
   async function loadDatapoints(){
     const { items } = await callWorker('/datapoints?limit=200');
+    lastItemsCache = items;
 
     // Tabla
     const tbody = document.querySelector('#tbl tbody');
@@ -473,6 +600,9 @@
     updateLastReading(items);
     updateSensorCards(items);
     renderDeviceCards(items);
+
+    // Si los gráficos están visibles, refrescarlos
+    if(chartsVisible) renderCharts(items);
   }
 
   // Toggle historial
@@ -480,9 +610,6 @@
     const wrap = $('tableWrap');
     wrap.style.display = wrap.style.display==='none' ? 'block' : 'none';
   };
-
-  // Botón "Mostrar gráfica" general
-  $('btnChart').onclick = ()=>{ /* pendiente */ };
 
   // Overlay handlers
   document.addEventListener('click', (e)=>{
