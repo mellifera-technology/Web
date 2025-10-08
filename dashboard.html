@@ -15,7 +15,6 @@
       --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
       --text:#eef0f3;--muted:#b8bec7;--border:#262b35;
       --accent:#ffd54f;--accent-600:#f0c12c;--zebra:#141820;--focus:#7fb3ff;
-      --danger:#ff6b6b;
     }
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
@@ -36,7 +35,10 @@
     .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
     .card h3{margin-top:0}
     .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:12px}
+    /* === Grid de colmenas: 2 por fila === */
+    .cards-head{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px}
+    .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    @media(max-width:860px){.cards-grid{grid-template-columns:1fr}}
     .pill{background:var(--accent);color:#111;border:2px solid var(--accent);border-radius:999px;font-weight:800;padding:8px 14px;cursor:default;white-space:nowrap}
     .pill[data-stale="1"]{background:#111;color:var(--accent)}
     .metric{display:flex;align-items:baseline;gap:8px}
@@ -47,6 +49,7 @@
     .btn:hover{background:#202631}
     .btn.yellow{background:var(--accent);border-color:var(--accent);color:#111}
     .btn.yellow:hover{background:var(--accent-600)}
+    .btn.small{padding:6px 10px;font-size:.9rem}
     .center{display:flex;justify-content:center;align-items:center}
     /* Tabla */
     table{border-collapse:separate;border-spacing:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
@@ -56,7 +59,7 @@
     tbody tr.row-alert{background:linear-gradient(0deg, rgba(255,213,79,.10), rgba(255,213,79,.10))}
     #tableWrap{box-shadow:0 1px 0 rgba(0,0,0,.2) inset}
     /* Eye toggle */
-    .reveal-wrap{display:flex;align-items:center;gap:8px}
+    .reveal-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .eye-btn{background:#1d212a;border:1px solid var(--border);color:#cfd6df;border-radius:8px;cursor:pointer;padding:4px 8px;display:inline-flex;align-items:center;gap:6px}
     .eye-btn:hover{background:#232936}
     .eye-btn svg{width:18px;height:18px}
@@ -69,6 +72,19 @@
     .overlay-content{padding:16px;overflow:auto}
     .overlay-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}
     @media(max-width:1000px){.split{grid-template-columns:1fr}.overlay-grid{grid-template-columns:1fr}}
+    /* Drag & drop edición */
+    .device-card{transition:transform .12s ease, box-shadow .12s ease}
+    .device-card.dragging{opacity:.7;transform:scale(.98)}
+    .device-card.drop-target{outline:2px dashed var(--accent)}
+    .editing .device-card{cursor:grab;animation:shake .9s ease-in-out infinite}
+    .editing .device-card:active{cursor:grabbing}
+    @keyframes shake{
+      0%{transform:translate(0,0) rotate(0)}
+      25%{transform:translate(1px,-1px) rotate(-.3deg)}
+      50%{transform:translate(-1px,1px) rotate(.3deg)}
+      75%{transform:translate(1px,0) rotate(-.2deg)}
+      100%{transform:translate(0,0) rotate(0)}
+    }
   </style>
 </head>
 <body>
@@ -117,22 +133,25 @@
               <span>Ocultar</span>
             </button>
           </p>
+          <div class="reveal-wrap" style="margin-top:6px">
+            <button id="btnTutorials" class="btn small" type="button">Tutoriales</button>
+          </div>
           <div id="msg" class="muted" style="margin-top:8px"></div>
           <hr style="border:0;border-top:1px solid var(--border)">
         </div>
 
-        <!-- Derecha: dos cartas -->
+        <!-- Derecha: dos cartas fijas + botón gráfico -->
         <div>
           <div class="side-cards">
             <div class="card">
-              <h3>Temperatura Exterior</h3>
+              <h3>Temperatura (MOTHER.TEM)</h3>
               <div class="metric" aria-live="polite">
                 <span id="temVal" class="val">—</span><span class="unit">°C</span>
               </div>
               <div id="temWhen" class="stamp">—</div>
             </div>
             <div class="card">
-              <h3>Humedad Exterior</h3>
+              <h3>Humedad (MOTHER.HUM)</h3>
               <div class="metric" aria-live="polite">
                 <span id="humVal" class="val">—</span><span class="unit">%</span>
               </div>
@@ -140,13 +159,16 @@
             </div>
           </div>
 
-          <!-- Botón Mostrar gráfica -->
           <div class="center" style="margin-top:14px">
             <button id="btnChart" class="btn yellow" type="button">Mostrar gráfica</button>
           </div>
 
+          <!-- Encabezado y botón Editar orden -->
+          <div class="cards-head">
+            <button id="btnEdit" class="btn small" type="button" aria-pressed="false">Editar orden</button>
+          </div>
           <!-- Cartas automáticas por colmena -->
-          <div id="autoCards" class="cards-grid" aria-live="polite" style="margin-top:14px">
+          <div id="autoCards" class="cards-grid" aria-live="polite">
             <!-- se inyectan tarjetas Colmena #### -->
           </div>
         </div>
@@ -185,7 +207,6 @@
     <div id="devicePanel">
       <div class="overlay-header">
         <button id="btnOverlayBack" class="btn overlay-back" type="button" title="Atrás">
-          <!-- Flecha atrás -->
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" style="margin-right:6px">
             <path d="M15 18l-6-6 6-6" stroke-width="2"/>
           </svg>
@@ -201,7 +222,6 @@
         <div class="center" style="margin-top:8px">
           <button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button>
         </div>
-        <!-- Aquí luego se podrá agregar más detalle de la colmena -->
       </div>
     </div>
   </div>
@@ -231,8 +251,10 @@
   const setText = (id, t)=>{ const el=$(id); if(el) el.textContent=t; };
 
   // --- Login guard ---
+  let currentUID = null;
   auth.onAuthStateChanged(async (u)=>{
     if(!u){ location.href = 'login.html'; return; }
+    currentUID = u.uid;
     setText('uEmail', u.email || '(sin email)');
     try {
       const { code } = await callWorker('/ensure_user', { method:'POST' });
@@ -245,6 +267,7 @@
   });
 
   $('btnLogout').onclick = ()=> auth.signOut().then(()=>location.href='login.html');
+  $('btnTutorials').onclick = ()=> location.href = 'tutoriales.html';
 
   // --- Llamadas al Worker ---
   async function callWorker(path, opts={}){
@@ -296,31 +319,40 @@
     else { setText('humVal','—'); setText('humWhen','—'); }
   }
 
-  // === Cards por colmena (device_id numérico; excluir cualquier MOTHER) ===
+  // ====== Cards por colmena (drag & drop con persistencia) ======
+  function getOrderKey(){ return `miellifera_order_${currentUID||'anon'}`; }
+  function loadSavedOrder(){ try{ return JSON.parse(localStorage.getItem(getOrderKey())||'[]'); }catch{return []} }
+  function saveOrder(ids){ try{ localStorage.setItem(getOrderKey(), JSON.stringify(ids)); }catch{} }
+
+  function sortedDevices(devices){
+    const saved = loadSavedOrder();
+    if(!saved.length) return devices;
+    const set = new Set(devices);
+    const head = saved.filter(id=>set.has(id));
+    const tail = devices.filter(id=>!saved.includes(id));
+    return [...head, ...tail];
+  }
+
   function renderDeviceCards(items){
     const wrap = $('autoCards'); if(!wrap) return;
 
-    // 1) IDs únicos válidos
+    // 1) IDs únicos válidos, excluir MOTHER, solo numéricos
     const byId = new Map(); // id -> max ts
     const isNumericId = id => /^\d+$/.test(id);
     for(const d of (items||[])){
       const raw = String(d.device_id||'').trim();
-      if(!raw) continue;
-      if(/mother/i.test(raw)) continue;     // excluir "MOTHER"
-      if(!isNumericId(raw)) continue;       // solo números
+      if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
       const t = new Date(d.ts).getTime();
       const prev = byId.get(raw) || 0;
       if(t>prev) byId.set(raw, t);
     }
-
-    const devices = Array.from(byId.entries())
-      .sort((a,b)=>b[1]-a[1])
-      .map(([id])=>id);
+    let devices = Array.from(byId.entries()).sort((a,b)=>b[1]-a[1]).map(([id])=>id);
+    devices = sortedDevices(devices);
 
     if(!devices.length){ wrap.innerHTML = '<div class="muted">Sin colmenas detectadas.</div>'; return; }
 
     // 2) Render
-    const html = devices.map(id=>{
+    wrap.innerHTML = devices.map(id=>{
       const safe = escapeHtml(id);
       return `
         <div class="card device-card" data-device="${safe}" tabindex="0" role="button" aria-label="Abrir Colmena ${safe}">
@@ -330,10 +362,92 @@
       `;
     }).join('');
 
-    wrap.innerHTML = html;
+    // 3) Si está en modo edición, activar draggables
+    if(editing) enableDragAndDrop();
   }
 
-  // --- Cargar lecturas ---
+  // Drag & Drop
+  let editing = false;
+  const editBtn = $('btnEdit');
+  editBtn.onclick = ()=>{
+    editing = !editing;
+    editBtn.setAttribute('aria-pressed', editing?'true':'false');
+    editBtn.textContent = editing ? 'Terminar edición' : 'Editar orden';
+    $('autoCards').classList.toggle('editing', editing);
+    if(editing) enableDragAndDrop(); else disableDragAndDrop();
+  };
+
+  function enableDragAndDrop(){
+    const wrap = $('autoCards');
+    const cards = wrap.querySelectorAll('.device-card');
+    cards.forEach(c=>{
+      c.setAttribute('draggable','true');
+      c.addEventListener('dragstart', onDragStart);
+      c.addEventListener('dragover', onDragOver);
+      c.addEventListener('drop', onDrop);
+      c.addEventListener('dragend', onDragEnd);
+    });
+  }
+  function disableDragAndDrop(){
+    const wrap = $('autoCards');
+    const cards = wrap.querySelectorAll('.device-card');
+    cards.forEach(c=>{
+      c.removeAttribute('draggable');
+      c.removeEventListener('dragstart', onDragStart);
+      c.removeEventListener('dragover', onDragOver);
+      c.removeEventListener('drop', onDrop);
+      c.removeEventListener('dragend', onDragEnd);
+      c.classList.remove('dragging','drop-target');
+    });
+  }
+
+  let dragId = null;
+  function onDragStart(e){
+    dragId = this.getAttribute('data-device');
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragOver(e){
+    e.preventDefault();
+    this.classList.add('drop-target');
+    e.dataTransfer.dropEffect = 'move';
+  }
+  function onDrop(e){
+    e.preventDefault();
+    const target = this.getAttribute('data-device');
+    if(!dragId || dragId===target) return;
+    swapCards(dragId, target);
+    dragId = null;
+    persistCurrentOrder();
+  }
+  function onDragEnd(){
+    this.classList.remove('dragging');
+    const wrap = $('autoCards');
+    wrap.querySelectorAll('.device-card').forEach(c=>c.classList.remove('drop-target'));
+  }
+
+  function swapCards(aId,bId){
+    const wrap = $('autoCards');
+    const a = wrap.querySelector(`.device-card[data-device="${CSS.escape(aId)}"]`);
+    const b = wrap.querySelector(`.device-card[data-device="${CSS.escape(bId)}"]`);
+    if(!a || !b) return;
+    const aNext = a.nextSibling;
+    const bNext = b.nextSibling;
+    // Intercambio de posiciones
+    if(aNext === b){ wrap.insertBefore(b, a); }
+    else if(bNext === a){ wrap.insertBefore(a, b); }
+    else {
+      wrap.insertBefore(a, bNext);
+      wrap.insertBefore(b, aNext);
+    }
+  }
+  function persistCurrentOrder(){
+    const ids = Array.from($('autoCards').querySelectorAll('.device-card'))
+      .map(c=>c.getAttribute('data-device'));
+    saveOrder(ids);
+  }
+
+  // --- Cargar lecturas + render UI ---
   async function loadDatapoints(){
     const { items } = await callWorker('/datapoints?limit=200');
 
@@ -356,7 +470,6 @@
     }).join('');
     if(tbody) tbody.innerHTML = rows;
 
-    // UI derivada
     updateLastReading(items);
     updateSensorCards(items);
     renderDeviceCards(items);
@@ -374,19 +487,17 @@
   // Overlay handlers
   document.addEventListener('click', (e)=>{
     const card = e.target.closest('.device-card');
-    if(card){
+    if(card && !editing){
       const id = card.getAttribute('data-device');
       openOverlay(id);
     }
   });
   $('btnOverlayBack').onclick = closeOverlay;
-
   function openOverlay(deviceId){
     setText('overlayTitle', 'Colmena ' + deviceId);
     const ov = $('deviceOverlay');
     ov.style.display = 'block';
     ov.setAttribute('aria-hidden','false');
-    // scroll to top of overlay
     document.getElementById('devicePanel').scrollTo({top:0,behavior:'instant'});
   }
   function closeOverlay(){
@@ -411,11 +522,7 @@
     el.textContent = codeShown ? codeReal : mask(codeReal);
     toggleEyeButtonUI($('toggleCode'), codeShown);
   };
-  function mask(s){
-    if(!s) return '••••';
-    const len = Math.min(4, s.length);
-    return '•'.repeat(len);
-  }
+  function mask(s){ if(!s) return '••••'; return '•'.repeat(Math.min(4, s.length)); }
   function toggleEyeButtonUI(btn, visible){
     if(!btn) return;
     btn.setAttribute('aria-pressed', visible ? 'false':'true');
