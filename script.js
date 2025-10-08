@@ -206,3 +206,68 @@ const fmt = v => (v===null||v===undefined||Number.isNaN(+v)) ? '' : Number(v).to
   }, {threshold:0.3});
   observer.observe(footer);
 })();
+
+                        // === BLOQUE FINAL: ANIMACIÓN GOTA DE MIEL ===
+(function(){
+  const orb = document.getElementById('bg-orb');
+  const footer = document.querySelector('.footer');
+  const solutionSection = document.getElementById('solucion');
+  if (!orb || !footer || !solutionSection) {
+    console.warn("⚠️ No se encontró bg-orb, footer o solucion");
+    return;
+  }
+
+  const bodyHeight = document.body.scrollHeight - window.innerHeight;
+
+  // Movimiento ligado al scroll
+  function updatePosition() {
+    const scrollY = window.scrollY;
+    const progress = Math.min(1, scrollY / bodyHeight);
+
+    // 1) Movimiento horizontal (de derecha al centro)
+    const startX = window.innerWidth + 100;
+    const endX = window.innerWidth / 2;
+    const currentX = startX - (startX - endX) * progress;
+
+    // 2) Movimiento vertical sutil
+    const currentY = window.innerHeight / 2 + Math.sin(progress * Math.PI) * 100;
+
+    // 3) Escala leve
+    const scale = 1 + progress * 0.3;
+
+    orb.style.left = `${currentX}px`;
+    orb.style.top = `${currentY}px`;
+    orb.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+    // 4) Cambia de forma cuando se alcanza la sección solución
+    const solRect = solutionSection.getBoundingClientRect();
+    if (solRect.top < window.innerHeight * 0.5) {
+      orb.classList.add('drop-shape');
+    } else {
+      orb.classList.remove('drop-shape');
+    }
+  }
+
+  window.addEventListener('scroll', () => requestAnimationFrame(updatePosition), {passive:true});
+  window.addEventListener('resize', () => requestAnimationFrame(updatePosition));
+  updatePosition(); // forzar posición inicial
+
+  // Al llegar al footer: simular la caída y pintar
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        orb.style.transition = 'all 1.2s ease-in';
+        orb.style.top = `${footer.offsetTop + 50}px`;
+        orb.style.left = `${window.innerWidth / 2}px`;
+        orb.style.transform = 'translate(-50%, -50%) scale(1.2)';
+        footer.classList.add('honey');
+        setTimeout(() => orb.style.opacity = '0', 1000);
+      } else {
+        orb.style.opacity = '1';
+        footer.classList.remove('honey');
+      }
+    });
+  }, {threshold: 0.3});
+
+  observer.observe(footer);
+})();
