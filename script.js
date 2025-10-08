@@ -19,27 +19,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   }, {passive:true});
 })();
 
-// Orb miel
-(function(){
-  const orb = document.getElementById('bg-orb');
-  if (!orb) return;
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
-  const baseTop = 18, baseLeftVW = 60, travelVW = 120;
-  function update(){
-    const y = window.scrollY || 0;
-    const p = Math.min(1, y / 1600);
-    const left = baseLeftVW - travelVW * p;
-    const top = baseTop + p * 6;
-    const scale = 1 + p * 0.06;
-    orb.style.left = `${left}vw`;
-    orb.style.top = `${top}vh`;
-    orb.style.transform = `scale(${scale})`;
-  }
-  update();
-  window.addEventListener('scroll', () => requestAnimationFrame(update), {passive:true});
-  window.addEventListener('resize', () => requestAnimationFrame(update));
-})();
+
 
 // Aparición
 (function(){
@@ -208,6 +188,7 @@ const fmt = v => (v===null||v===undefined||Number.isNaN(+v)) ? '' : Number(v).to
 })();
 
                         // === BLOQUE FINAL: ANIMACIÓN GOTA DE MIEL ===
+// === BLOQUE ÚNICO: ANIMACIÓN GOTA DE MIEL ===
 (function(){
   const orb = document.getElementById('bg-orb');
   const footer = document.querySelector('.footer');
@@ -217,29 +198,36 @@ const fmt = v => (v===null||v===undefined||Number.isNaN(+v)) ? '' : Number(v).to
     return;
   }
 
+  // tamaño más grande
+  orb.style.width = "260px";
+  orb.style.height = "260px";
+  orb.style.borderRadius = "50%";
+  orb.style.position = "fixed";
+  orb.style.zIndex = "2";
+  orb.style.pointerEvents = "none";
+
   const bodyHeight = document.body.scrollHeight - window.innerHeight;
 
-  // Movimiento ligado al scroll
   function updatePosition() {
     const scrollY = window.scrollY;
     const progress = Math.min(1, scrollY / bodyHeight);
 
-    // 1) Movimiento horizontal (de derecha al centro)
-    const startX = window.innerWidth + 100;
+    // Movimiento horizontal desde borde derecho hasta centro
+    const startX = window.innerWidth + 130;
     const endX = window.innerWidth / 2;
     const currentX = startX - (startX - endX) * progress;
 
-    // 2) Movimiento vertical sutil
-    const currentY = window.innerHeight / 2 + Math.sin(progress * Math.PI) * 100;
+    // Movimiento vertical sutil
+    const currentY = window.innerHeight / 2 + Math.sin(progress * Math.PI) * 120;
 
-    // 3) Escala leve
-    const scale = 1 + progress * 0.3;
+    // Escala leve
+    const scale = 1.1 + progress * 0.4;
 
     orb.style.left = `${currentX}px`;
     orb.style.top = `${currentY}px`;
     orb.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
-    // 4) Cambia de forma cuando se alcanza la sección solución
+    // Cambia de forma cuando se alcanza la sección solución
     const solRect = solutionSection.getBoundingClientRect();
     if (solRect.top < window.innerHeight * 0.5) {
       orb.classList.add('drop-shape');
@@ -248,18 +236,19 @@ const fmt = v => (v===null||v===undefined||Number.isNaN(+v)) ? '' : Number(v).to
     }
   }
 
+  // movimiento en scroll
   window.addEventListener('scroll', () => requestAnimationFrame(updatePosition), {passive:true});
   window.addEventListener('resize', () => requestAnimationFrame(updatePosition));
-  updatePosition(); // forzar posición inicial
+  updatePosition();
 
-  // Al llegar al footer: simular la caída y pintar
+  // caída y color al llegar al footer
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        orb.style.transition = 'all 1.2s ease-in';
-        orb.style.top = `${footer.offsetTop + 50}px`;
+        orb.style.transition = 'all 1.4s ease-in-out';
+        orb.style.top = `${footer.offsetTop + 80}px`;
         orb.style.left = `${window.innerWidth / 2}px`;
-        orb.style.transform = 'translate(-50%, -50%) scale(1.2)';
+        orb.style.transform = 'translate(-50%, -50%) scale(1.5)';
         footer.classList.add('honey');
         setTimeout(() => orb.style.opacity = '0', 1000);
       } else {
