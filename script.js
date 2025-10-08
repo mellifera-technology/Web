@@ -134,22 +134,22 @@ auth.onAuthStateChanged(async (u)=>{
   }catch(e){ msg(`ensure_user: ${e.message}`); }
 
   // 6.2 Cargar lecturas
-  try{
-    const data = await callWorker('/readings?limit=200');
-    const rows = (data.items || []).map(r=>{
-      const dt = new Date(r.ts);
-      return `<tr>
-        <td>${dt.toLocaleString()}</td>
-        <td>${fmt(r.t_in)}</td>
-        <td>${fmt(r.hr_in)}</td>
-        <td>${fmt(r.t_out)}</td>
-        <td>${fmt(r.hr_out)}</td>
-      </tr>`;
-    }).join('');
-    $('tbl')?.querySelector('tbody').innerHTML = rows;
-  }catch(e){ msg(`readings: ${e.message}`); }
-});
-
+try {
+  const data = await callWorker('/readings?limit=200');
+  const rows = (data.items || []).map(r => {
+    const dt = new Date(r.ts);
+    return `<tr>
+      <td>${dt.toLocaleString()}</td>
+      <td>${fmt(r.t_in)}</td>
+      <td>${fmt(r.hr_in)}</td>
+      <td>${fmt(r.t_out)}</td>
+      <td>${fmt(r.hr_out)}</td>
+    </tr>`;
+  }).join('');
+  $('tbl')?.querySelector('tbody').innerHTML = rows;
+} catch(e) {
+  msg(`readings: ${e.message}`);
+}
 const fmt = v => (v===null||v===undefined||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
 
 
