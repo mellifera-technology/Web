@@ -197,7 +197,7 @@ body{
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ffd94d, #f3b700 80%);
+  
   transform: translateY(-50%) translateX(-60px);
   transition: clip-path 1s ease, background 1s ease;
   z-index: 1;
