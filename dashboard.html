@@ -12,25 +12,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
   <style>
     :root{
-      --bg:#0e0f12;
-      --bg-soft:#13151a;
-      --card:#171a21;
-      --card-2:#1b1f27;
-      --text:#eef0f3;
-      --muted:#b8bec7;
-      --border:#262b35;
-      --accent:#ffd54f;        /* miel */
-      --accent-600:#f0c12c;    /* más oscuro para hover */
-      --accent-700:#d9ab12;
-      --focus:#7fb3ff;
-      --danger:#ff7676;
-      --zebra:#141820;
+      --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
+      --text:#eef0f3;--muted:#b8bec7;--border:#262b35;
+      --accent:#ffd54f;--accent-600:#f0c12c;--zebra:#141820;--focus:#7fb3ff;
     }
     html,body{height:100%}
-    body{
-      margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;
-      font-size:16.5px;line-height:1.6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
     .site{padding:24px}
     .header{position:sticky;top:0;background:rgba(14,15,18,.9);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--border)}
     .nav-grid{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:12px 16px}
@@ -49,27 +36,23 @@
     .card h3{margin-top:0}
     .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:12px}
-    .pill{background:#111;color:#111;border:2px solid var(--accent);border-radius:999px;font-weight:800;
-          padding:8px 14px; cursor:default; color:#111; background:var(--accent)}
-    .pill[data-stale="1"]{background:#111;color:var(--accent);border-color:var(--accent)}
+    .pill{background:var(--accent);color:#111;border:2px solid var(--accent);border-radius:999px;font-weight:800;padding:8px 14px;cursor:default;white-space:nowrap}
+    .pill[data-stale="1"]{background:#111;color:var(--accent)}
+    .metric{display:flex;align-items:baseline;gap:8px}
+    .metric .val{font-size:2.2rem;font-weight:800}
+    .metric .unit{font-size:1.1rem;color:#111;background:var(--accent);border-radius:6px;padding:2px 6px}
+    .stamp{font-size:.95rem;color:var(--muted)}
     .btn{background:var(--card-2);color:var(--text);border:1px solid var(--border);padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600}
     .btn:hover{background:#202631}
     .btn.yellow{background:var(--accent);border-color:var(--accent);color:#111}
     .btn.yellow:hover{background:var(--accent-600)}
-    .btn:focus{outline:3px solid var(--focus);outline-offset:2px}
     .center{display:flex;justify-content:center;align-items:center}
-    /* Tabla accesible */
     table{border-collapse:separate;border-spacing:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-    thead th{
-      position:sticky;top:0;background:var(--accent);color:#111;font-weight:800;text-transform:uppercase;
-      letter-spacing:.3px;font-size:.95rem;border-bottom:2px solid #caa332;z-index:1;padding:10px 10px
-    }
+    thead th{position:sticky;top:0;background:var(--accent);color:#111;font-weight:800;text-transform:uppercase;letter-spacing:.3px;font-size:.95rem;border-bottom:2px solid #caa332;z-index:1;padding:10px}
     tbody td{padding:10px;border-bottom:1px solid var(--border)}
     tbody tr:nth-child(odd){background:var(--zebra)}
     tbody tr.row-alert{background:linear-gradient(0deg, rgba(255,213,79,.10), rgba(255,213,79,.10))}
     #tableWrap{box-shadow:0 1px 0 rgba(0,0,0,.2) inset}
-    /* Accesibilidad de foco en links */
-    a:focus{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
     @media(max-width:1000px){.split{grid-template-columns:1fr}}
   </style>
 </head>
@@ -98,7 +81,6 @@
           <h2>Tu panel</h2>
           <p class="muted">Código de vinculación, dispositivos y lecturas.</p>
         </div>
-        <!-- Badge Última medición -->
         <button id="lastReading" class="pill" type="button" title="Fecha y hora de la última medición">Última medición: —</button>
       </div>
 
@@ -116,12 +98,18 @@
         <div>
           <div class="side-cards">
             <div class="card">
-              <h3>Card A</h3>
-              <p class="muted">Contenido a definir.</p>
+              <h3>Temperatura (MOTHER.TEM)</h3>
+              <div class="metric" aria-live="polite">
+                <span id="temVal" class="val">—</span><span class="unit">Cº</span>
+              </div>
+              <div id="temWhen" class="stamp">—</div>
             </div>
             <div class="card">
-              <h3>Card B</h3>
-              <p class="muted">Contenido a definir.</p>
+              <h3>Humedad (MOTHER.HUM)</h3>
+              <div class="metric" aria-live="polite">
+                <span id="humVal" class="val">—</span><span class="unit">%</span>
+              </div>
+              <div id="humWhen" class="stamp">—</div>
             </div>
           </div>
 
@@ -132,7 +120,7 @@
 
           <!-- Cartas automáticas -->
           <div id="autoCards" class="cards-grid" aria-live="polite" style="margin-top:14px">
-            <!-- aquí se inyectarán tarjetas -->
+            <!-- se inyectarán tarjetas dinámicas -->
           </div>
         </div>
       </div>
@@ -220,28 +208,60 @@
   }
 
   // --- Utilidades ---
-  const fmt = v => (v==null||Number.isNaN(+v)) ? '' : Number(v).toFixed(2);
+  const fmt = v => (v==null||Number.isNaN(+v)) ? null : Number(v).toFixed(2);
+  const dtAR = ts => new Date(ts).toLocaleString('es-AR');
 
   function updateLastReading(items){
     const el = $('lastReading');
     if(!items?.length){ if(el) el.textContent='Última medición: —'; return; }
     const latest = items.reduce((a,b)=> new Date(a.ts) > new Date(b.ts) ? a : b);
-    const dt = new Date(latest.ts).toLocaleString('es-AR');
+    const dt = dtAR(latest.ts);
     if(el) el.textContent = 'Última medición: ' + dt;
-
-    // Marca como "stale" si pasaron > 10 min sin lecturas
     const stale = (Date.now() - new Date(latest.ts).getTime()) > 10*60*1000;
     el?.setAttribute('data-stale', stale ? '1':'0');
     el?.setAttribute('title', stale ? 'Sin lecturas recientes (>10 min)' : 'Fecha y hora de la última medición');
   }
 
+  function findLatestBySensor(items, key){
+    if(!items?.length) return null;
+    let best=null, bt=0;
+    for(const d of items){
+      if(String(d.sensor_key||'').toUpperCase()!==String(key).toUpperCase()) continue;
+      const t = new Date(d.ts).getTime();
+      if(!best || t>bt){ best=d; bt=t; }
+    }
+    return best;
+  }
+
+  function updateSensorCards(items){
+    // TEM
+    const tem = findLatestBySensor(items,'MOTHER.TEM');
+    if(tem){
+      const v = fmt(tem.value);
+      setText('temVal', v!==null ? v : '—');
+      setText('temWhen', dtAR(tem.ts));
+    }else{
+      setText('temVal','—'); setText('temWhen','—');
+    }
+    // HUM
+    const hum = findLatestBySensor(items,'MOTHER.HUM');
+    if(hum){
+      const v = fmt(hum.value);
+      setText('humVal', v!==null ? v : '—');
+      setText('humWhen', dtAR(hum.ts));
+    }else{
+      setText('humVal','—'); setText('humWhen','—');
+    }
+  }
+
   // --- Cargar lecturas ---
   async function loadDatapoints(){
     const { items } = await callWorker('/datapoints?limit=200');
-    const tbody = document.querySelector('#tbl tbody');
 
+    // Tabla
+    const tbody = document.querySelector('#tbl tbody');
     const rows = (items||[]).map(d=>{
-      const dt = new Date(d.ts).toLocaleString('es-AR');
+      const dt = dtAR(d.ts);
       const isEvent = String(d.sensor_key||'').startsWith('EVENT.');
       const isAlert = String(d.device_id||'').toUpperCase()==='ALERT';
       const cls = isEvent || isAlert ? 'row-alert' : '';
@@ -252,12 +272,14 @@
         <td>${dt}</td>
         <td>${escapeHtml(d.device_id||'')}</td>
         <td>${escapeHtml(d.sensor_key||'')}</td>
-        <td>${escapeHtml(val)}</td>
+        <td>${escapeHtml(val ?? '')}</td>
       </tr>`;
     }).join('');
-
     if(tbody) tbody.innerHTML = rows;
+
+    // UI derivada
     updateLastReading(items);
+    updateSensorCards(items);
     ensureAutoCardsContainer();
   }
 
@@ -267,14 +289,14 @@
     wrap.style.display = wrap.style.display==='none' ? 'block' : 'none';
   };
 
-  // Botón "Mostrar gráfica" por ahora sin acción
+  // Botón "Mostrar gráfica"
   $('btnChart').onclick = ()=>{ /* pendiente */ };
 
   // Refresco periódico
   setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
 
   // Helpers
-  function ensureAutoCardsContainer(){ /* placeholder intencional */ }
+  function ensureAutoCardsContainer(){ /* placeholder */ }
   function escapeHtml(s){
     return String(s)
       .replace(/&/g,'&amp;')
@@ -286,4 +308,3 @@
 </script>
 </body>
 </html>
-
