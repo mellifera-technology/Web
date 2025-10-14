@@ -48,19 +48,16 @@
     .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
     @media(max-width:860px){.cards-grid{grid-template-columns:1fr}}
 
-    /* Tabla */
     table{border-collapse:separate;border-spacing:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
     thead th{position:sticky;top:0;background:var(--accent);color:#111;font-weight:800;padding:10px;border-bottom:2px solid #caa332}
     tbody td{padding:10px;border-bottom:1px solid var(--border)}
     tbody tr:nth-child(odd){background:var(--zebra)}
     #tableWrap{box-shadow:0 1px 0 rgba(0,0,0,.2) inset}
 
-    /* Ojo mostrar/ocultar */
     .reveal-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .eye-btn{background:#1d212a;border:1px solid var(--border);color:#cfd6df;border-radius:8px;cursor:pointer;padding:4px 8px;display:inline-flex;align-items:center;gap:6px}
     .eye-btn svg{width:18px;height:18px}
 
-    /* Overlay */
     #deviceOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
     #devicePanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
     .overlay-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#0f1218}
@@ -68,17 +65,13 @@
     .overlay-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}
     @media(max-width:860px){.overlay-grid{grid-template-columns:1fr}}
 
-    /* Edición shake */
     .editing .device-card{cursor:grab;animation:shake .9s ease-in-out infinite}
     @keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(1px,-1px)}50%{transform:translate(-1px,1px)}75%{transform:translate(1px,0)}100%{transform:translate(0,0)}}
 
-    /* ===== KPIs grandes con unidad en cuadrado amarillo ===== */
     .metric{display:flex;align-items:baseline;gap:10px;margin-top:6px}
     .metric .val{font-size:2.4rem;font-weight:800;letter-spacing:.3px}
     .metric .unit{font-size:1.05rem;font-weight:800;color:#111;background:var(--accent);border-radius:8px;padding:2px 8px;line-height:1.6;display:inline-block;border:2px solid var(--accent)}
-    /* ======================================================== */
 
-    /* Gráficos: altura fija */
     #chartsWrap{display:none;margin-top:14px}
     .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
     .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -94,8 +87,7 @@
   <header class="header">
     <div class="nav-grid">
       <a class="brand" href="index.html">MIELLIFERA</a>
-      <nav class="nav-center" aria-label="Principal">
-      </nav>
+      <nav class="nav-center" aria-label="Principal"></nav>
       <button id="btnLogout" class="cta" type="button">Salir</button>
     </div>
   </header>
@@ -111,7 +103,6 @@
       </div>
 
       <div class="split">
-        <!-- Cuenta -->
         <div class="card" style="max-width:420px">
           <h3>Cuenta</h3>
           <p class="reveal-wrap">
@@ -135,7 +126,6 @@
           <hr style="border:0;border-top:1px solid var(--border)">
         </div>
 
-        <!-- KPIs madre + gráficos -->
         <div>
           <div class="side-cards">
             <div class="card">
@@ -154,7 +144,6 @@
             <button id="btnChart" class="btn yellow" type="button">Mostrar gráfica</button>
           </div>
 
-          <!-- Gráficos + historial -->
           <div id="chartsWrap">
             <div class="charts-grid">
               <div class="chart-card">
@@ -183,6 +172,7 @@
               <div class="hist-actions">
                 <button id="btnShowRange" class="btn small" type="button">Mostrar</button>
                 <button id="btnDownloadCSV" class="btn small" type="button">Descargar CSV</button>
+                <button id="btnExitHistory" class="btn small" type="button" title="Volver a hoy">Volver a hoy</button>
               </div>
             </div>
           </div>
@@ -195,7 +185,6 @@
       </div>
     </section>
 
-    <!-- Historial tabla -->
     <section class="section" id="lecturas">
       <div class="section-head">
         <h3>Historial de mediciones</h3>
@@ -214,7 +203,6 @@
     <span>© <span id="year"></span> MIELLIFERA</span>
   </footer>
 
-  <!-- Overlay Colmena -->
   <div id="deviceOverlay" aria-hidden="true">
     <div id="devicePanel">
       <div class="overlay-header">
@@ -262,6 +250,7 @@
   // Estado
   let currentUID=null, editing=false;
   let chartTemp=null, chartHum=null, chartsVisible=false, lastItemsCache=null;
+  let historyMode=false; // <- bloquea auto-redraw mientras se ve un rango
 
   // Auth
   auth.onAuthStateChanged(async (u)=>{
@@ -296,6 +285,32 @@
   const dtAR = ts => new Date(ts).toLocaleString('es-AR');
   const isNumericId = id => /^\d+$/.test(id);
   function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+  // ==== Fix de fechas: normalización local e inclusión al 100% del día ====
+  function toLocalDayStart(dateInput){
+    // dateInput: "YYYY-MM-DD"
+    const d = new Date(dateInput+"T00:00:00");
+    return d.getTime();
+  }
+  function toLocalDayEnd(dateInput){
+    const d = new Date(dateInput+"T23:59:59.999");
+    return d.getTime();
+  }
+  function swapIfOutOfOrder(a,b){
+    if(!a || !b) return [a,b];
+    const ta = toLocalDayStart(a), tb = toLocalDayStart(b);
+    return ta<=tb ? [a,b] : [b,a];
+  }
+  function filterByLocalRange(items, df, dt){
+    if(!df || !dt) return items||[];
+    const fromT = toLocalDayStart(df);
+    const toT   = toLocalDayEnd(dt);
+    return (items||[]).filter(d=>{
+      const t = new Date(d.ts).getTime();
+      return t>=fromT && t<=toT;
+    });
+  }
+  // =======================================================================
 
   // KPIs y tabla
   function updateLastReading(items){
@@ -429,7 +444,10 @@
     chartsVisible=!chartsVisible;
     $('chartsWrap').style.display=chartsVisible?'block':'none';
     $('btnChart').textContent=chartsVisible?'Ocultar gráfica':'Mostrar gráfica';
-    if(chartsVisible && lastItemsCache) renderChartsDaily(lastItemsCache);
+    if(chartsVisible){
+      if(historyMode){ /* no tocar, está en rango */ }
+      else if(lastItemsCache) renderChartsDaily(lastItemsCache);
+    }
   };
 
   function buildLineChart(canvas, labels, values, lineColor, pointColor){
@@ -479,9 +497,10 @@
     arr.sort((a,b)=>a.x-b.x);
     return arr;
   }
-  function seriesByRange(items, key){
+  function seriesByRange(items, key, df, dt){
+    const rng = filterByLocalRange(items, df, dt);
     const arr=[];
-    for(const d of items||[]){
+    for(const d of rng){
       if(String(d.sensor_key||'').toUpperCase()!==key) continue;
       const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
       if(v==null) continue;
@@ -502,36 +521,56 @@
     setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
   }
 
-  // Historial
+  // Historial UI
   $('btnHistory').onclick=()=>{
     const c=$('histControls');
     c.style.display = c.style.display==='none' || c.style.display==='' ? 'flex' : 'none';
   };
   $('btnShowRange').onclick=()=>showRange();
   $('btnDownloadCSV').onclick=()=>downloadCSV();
+  $('btnExitHistory').onclick=exitHistory;
 
-  function normalizeDateRange(){
-    const df=$('dateFrom').value, dt=$('dateTo').value;
-    if(!df || !dt) return null;
-    const fromISO = new Date(df+'T00:00:00').toISOString();
-    const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-    return {fromISO,toISO, df, dt};
-  }
+  // Normalización inputs + defaults
+  (function initDateDefaults(){
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth()+1).padStart(2,'0');
+    const dd = String(today.getDate()).padStart(2,'0');
+    const val = `${yyyy}-${mm}-${dd}`;
+    $('dateFrom').value = val;
+    $('dateTo').value   = val;
+  })();
+
   async function fetchRange(fromISO, toISO){
     try{
       const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
       const { items } = await callWorker(q);
       return items||[];
     }catch(e){
-      const fromT=new Date(fromISO).getTime(), toT=new Date(toISO).getTime();
-      return (lastItemsCache||[]).filter(d=>{ const t=new Date(d.ts).getTime(); return t>=fromT && t<=toT; });
+      return lastItemsCache||[];
     }
   }
+
+  function normalizeDateRangeInputs(){
+    let df=$('dateFrom').value, dt=$('dateTo').value;
+    if(!df || !dt) return null;
+    [df,dt] = swapIfOutOfOrder(df,dt);
+    return { df, dt,
+      fromISO: new Date(df+'T00:00:00').toISOString(),
+      toISO:   new Date(dt+'T23:59:59.999').toISOString()
+    };
+  }
+
   async function showRange(){
-    const r = normalizeDateRange(); if(!r) return;
-    const items = await fetchRange(r.fromISO, r.toISO);
-    const tem=seriesByRange(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
-    const hum=seriesByRange(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
+    const r = normalizeDateRangeInputs(); if(!r) return;
+    historyMode = true; // <- evita que loadDatapoints reescriba
+    const itemsSrv = await fetchRange(r.fromISO, r.toISO);
+    // filtro SIEMPRE por fecha local para evitar respuestas del servidor por mes
+    const items = filterByLocalRange(itemsSrv, r.df, r.dt);
+
+    const tem=seriesByRange(items,'MOTHER.TEM', r.df, r.dt); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
+    const hum=seriesByRange(items,'MOTHER.HUM', r.df, r.dt); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
+
     if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
     chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, 'var(--amber-ln)', 'var(--amber-pt)');
     chartHum =buildLineChart($('chartHum'), labelsH, valsH, 'var(--blue-ln)', 'var(--blue-pt)');
@@ -539,9 +578,17 @@
     setText('titleHum',  `Humedad ${r.df} → ${r.dt}`);
   }
 
-  function toCSV(items){
+  function exitHistory(){
+    historyMode=false;
+    if(chartsVisible && lastItemsCache) renderChartsDaily(lastItemsCache);
+    setText('titleTemp','Temperatura de hoy');
+    setText('titleHum','Humedad de hoy');
+  }
+
+  function toCSV(items, df=null, dt=null){
+    const base = (df && dt) ? filterByLocalRange(items, df, dt) : (items||[]);
     const rows = [['timestamp_iso','fecha_local','hora_local','dispositivo','sensor','valor']];
-    for(const d of items||[]){
+    for(const d of base){
       if(!/^MOTHER\.(TEM|HUM)$/i.test(String(d.sensor_key||''))) continue;
       const ts=new Date(d.ts);
       const fecha=ts.toLocaleDateString('es-AR'); const hora=ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -550,9 +597,13 @@
     return rows.map(r=>r.map(cell=>/[,;\n"]/.test(cell)? `"${String(cell).replace(/"/g,'""')}"` : cell).join(',')).join('\n');
   }
   async function downloadCSV(){
-    const r = normalizeDateRange();
-    const items = r ? await fetchRange(r.fromISO, r.toISO) : (lastItemsCache||[]);
-    const csv = toCSV(items);
+    const r = normalizeDateRangeInputs();
+    let items = lastItemsCache||[];
+    if(r){
+      const itemsSrv = await fetchRange(r.fromISO, r.toISO);
+      items = filterByLocalRange(itemsSrv, r.df, r.dt);
+    }
+    const csv = toCSV(items, r?.df, r?.dt);
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -564,14 +615,21 @@
   $('toggleTbl').onclick=()=>{ const w=$('tableWrap'); w.style.display=w.style.display==='none'?'block':'none'; };
 
   // Carga y polling
+  let polling=false;
   async function loadDatapoints(){
-    const { items } = await callWorker('/datapoints?limit=200');
-    lastItemsCache = items;
-    renderTable(items);
-    updateLastReading(items);
-    updateMotherKPIs(items);
-    renderDeviceCards(items);
-    if(chartsVisible) renderChartsDaily(items);
+    if(polling) return;
+    polling=true;
+    try{
+      const { items } = await callWorker('/datapoints?limit=200');
+      lastItemsCache = items;
+      renderTable(items);
+      updateLastReading(items);
+      updateMotherKPIs(items);
+      renderDeviceCards(items);
+      if(chartsVisible && !historyMode) renderChartsDaily(items); // <- no pisar si hay rango activo
+    }finally{
+      polling=false;
+    }
   }
   setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
 </script>
