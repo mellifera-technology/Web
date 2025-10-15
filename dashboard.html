@@ -86,7 +86,7 @@
     .hist-controls{display:none;gap:10px;align-items:end;margin-top:10px;flex-wrap:wrap}
     .hist-actions{display:flex;gap:8px}
 
-    /* Date-chip con UN solo botón amarillo y sin ícono nativo */
+    /* Date-chip */
     .date-chip{display:flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px}
     .date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer}
     .date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
@@ -109,7 +109,7 @@
     /* Clima */
     .wx-card{background:linear-gradient(140deg,#0b0d12,#141926);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:12px;position:relative;overflow:hidden}
     .wx-blur{filter:blur(3px);opacity:.6;pointer-events:none}
-    .wx-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .wx-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
     .wx-title{font-weight:800}
     .wx-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
     .wx-tile{background:#10141a;border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center}
@@ -117,6 +117,9 @@
     .wx-small{color:var(--muted);font-size:.9rem}
     .wx-loc{color:var(--muted);font-size:.9rem}
     .wx-today{display:flex;justify-content:space-between;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+    .loc-chip{display:flex;gap:8px;align-items:center;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;padding:6px 6px}
+    .loc-chip input{background:transparent;border:0;color:#fff;padding:6px;font-weight:600;min-width:220px}
+    .loc-chip input::placeholder{color:#8fa1b3}
 
     /* Overlay Producción global */
     #prodOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
@@ -175,14 +178,26 @@
             <div id="wxCard" class="wx-card">
               <div class="wx-head">
                 <div class="wx-title">Pronóstico local</div>
-                <button id="btnWxLocate" class="btn small yellow" type="button">Permitir acceso a la ubicación</button>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button id="btnWxOpen" class="btn small yellow" type="button">Ingresar ubicación</button>
+                  <button id="btnWxReset" class="btn small" type="button" style="display:none">Resetear</button>
+                </div>
               </div>
+
+              <!-- Fila de entrada para buscar ubicación -->
+              <div id="wxInputRow" style="display:none;margin:6px 0 10px;gap:8px;align-items:center;flex-wrap:wrap">
+                <div class="loc-chip">
+                  <input id="wxQuery" type="text" placeholder="Ciudad, provincia, país o lat,lon" aria-label="Ubicación">
+                </div>
+                <button id="btnWxFind" class="btn small yellow" type="button">Buscar</button>
+              </div>
+
               <div id="wxContent" class="wx-blur">
                 <!-- Hoy -->
                 <div class="wx-today">
                   <div>
                     <div class="wx-big" id="wxNow">— °C</div>
-                    <div class="wx-loc" id="wxWhere">Ubicación desconocida</div>
+                    <div class="wx-loc" id="wxWhere">Ubicación no establecida</div>
                     <div class="wx-small" id="wxNowMeta">—</div>
                   </div>
                   <div class="wx-small" id="wxTodayMM">Máx —° · Mín —° · 💧 —mm</div>
@@ -447,6 +462,12 @@
   let historyMode=false;
   let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
 
+  // ======= NUEVO: Estado clima por almacenamiento local =======
+  const WX_KEY = 'miellifera.wxPlace'; // {lat,lon,label}
+  function saveWxPlace(p){ try{ localStorage.setItem(WX_KEY, JSON.stringify(p||null)); }catch{} }
+  function loadWxPlace(){ try{ const x = localStorage.getItem(WX_KEY); return x? JSON.parse(x): null; }catch{ return null; } }
+  function clearWxPlace(){ try{ localStorage.removeItem(WX_KEY); }catch{} }
+
   // Auth
   auth.onAuthStateChanged(async (u)=>{
     if(!u){ location.href = 'login.html'; return; }
@@ -458,11 +479,14 @@
       await loadDatapoints();
       initDateDefaults();
       initProdDefaults();
-      // clima: auto si ya está concedido
-      if(navigator.permissions && navigator.permissions.query){
-        navigator.permissions.query({name:'geolocation'}).then(p=>{
-          if(p.state==='granted') askLocation(); 
-        }).catch(()=>{});
+
+      // Clima: si hay ubicación guardada, cargar y fijar estado
+      const saved = loadWxPlace();
+      if(saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)){
+        await renderWeather(saved.lat, saved.lon, saved.label||(`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`));
+        setWxButtonsState('fixed');
+      } else {
+        setWxButtonsState('ready'); // mostrar "Ingresar ubicación"
       }
     }catch(e){ const m=$('msg'); if(m) m.textContent="Error cargando datos: "+(e.message||e); }
   });
@@ -513,11 +537,8 @@
   }
   function latestBySensor(items, key){
     let best=null, bt=0, KEY=String(key).toUpperCase();
-    for(const d of items||[]){
-      if(String(d.sensor_key||'').toUpperCase()!==KEY) continue;
-      const t=new Date(d.ts).getTime();
-      if(t>bt){ best=d; bt=t; }
-    }
+    for(const d of items||[]){ if(String(d.sensor_key||'').toUpperCase()!==KEY) continue;
+      const t=new Date(d.ts).getTime(); if(t>bt){ best=d; bt=t; } }
     return best;
   }
   function updateMotherKPIs(items){
@@ -544,11 +565,9 @@
   function renderDeviceCards(items){
     const wrap=$('autoCards'); if(!wrap) return;
     const lastById=new Map();
-    for(const d of items||[]){
-      const raw=String(d.device_id||'').trim();
+    for(const d of items||[]){ const raw=String(d.device_id||'').trim();
       if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
-      const t=new Date(d.ts).getTime();
-      const prev=lastById.get(raw)||0;
+      const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
       if(t>prev) lastById.set(raw,t);
     }
     const devices=[...lastById.entries()].sort((a,b)=>b[1]-a[1]).map(([id,ts])=>({id,ts}));
@@ -567,7 +586,6 @@
       </div>`;
     }).join('');
     if(editing) enableDnD();
-    // selector global producción
     const sel = $('prodDevice');
     if(sel){
       const cur = sel.value;
@@ -951,29 +969,64 @@
     const pf=$('prodFrom'), pt=$('prodTo'); if(pf) pf.value=t; if(pt) pt.value=t;
   }
 
-  // ===== Clima =====
+  // ===== Clima (nuevo flujo por texto) =====
   const wxMap = {0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla escarchada',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos'};
   function wxEmoji(code){ if([0].includes(code)) return '☀️'; if([1,2].includes(code)) return '🌤️'; if([3].includes(code)) return '☁️'; if([45,48].includes(code)) return '🌫️'; if([51,53,55].includes(code)) return '🌦️'; if([61,63,65,80,81,82].includes(code)) return '🌧️'; if([71,73,75].includes(code)) return '❄️'; return '⛅'; }
-  $('btnWxLocate').onclick = askLocation;
-  function askLocation(){
-    if(!navigator.geolocation){ alert('Geolocalización no disponible'); return; }
-    navigator.geolocation.getCurrentPosition(async pos=>{
-      const { latitude, longitude } = pos.coords;
-      $('btnWxLocate').style.display='none'; // ocultar botón tras permiso
-      await renderWeather(latitude, longitude);
-    }, ()=>{ alert('No se pudo obtener ubicación'); }, { enableHighAccuracy:false, timeout:10000, maximumAge:600000 });
+
+  function setWxButtonsState(state){
+    // state: 'ready' | 'input' | 'fixed'
+    const open=$('btnWxOpen'), reset=$('btnWxReset'), row=$('wxInputRow'), content=$('wxContent');
+    if(state==='ready'){ open.style.display='inline-flex'; reset.style.display='none'; row.style.display='none'; content.classList.add('wx-blur'); setText('wxWhere','Ubicación no establecida'); setText('wxNow','— °C'); setText('wxNowMeta','—'); setText('wxTodayMM','Máx —° · Mín —° · 💧 —mm'); $('wxTiles').innerHTML=''; }
+    if(state==='input'){ open.style.display='none'; reset.style.display='none'; row.style.display='flex'; }
+    if(state==='fixed'){ open.style.display='none'; reset.style.display='inline-flex'; row.style.display='none'; $('wxContent').classList.remove('wx-blur'); }
   }
-  async function renderWeather(lat, lon){
+
+  $('btnWxOpen').onclick = ()=>{ setWxButtonsState('input'); $('wxQuery').focus(); };
+  $('btnWxReset').onclick = ()=>{ clearWxPlace(); setWxButtonsState('ready'); };
+
+  $('btnWxFind').onclick = ()=> doWxSearch();
+  $('wxQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') doWxSearch(); });
+
+  async function doWxSearch(){
+    const q = String(($('wxQuery').value||'').trim());
+    if(!q) return;
+    // Si es lat,lon directo
+    const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+    if(m){
+      const lat = parseFloat(m[1]), lon=parseFloat(m[2]);
+      const label = `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`;
+      await renderWeather(lat, lon, label);
+      saveWxPlace({lat,lon,label});
+      setWxButtonsState('fixed');
+      return;
+    }
+    // Geocoding Open-Meteo
+    try{
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=es&format=json`;
+      const r = await fetch(url); const j = await r.json();
+      if(!j?.results?.length){ alert('No se encontró la ubicación. Probá con ciudad, provincia, país o “lat,lon”.'); return; }
+      const g = j.results[0];
+      const parts = [g.name, g.admin1, g.country].filter(Boolean);
+      const label = parts.join(', ');
+      await renderWeather(g.latitude, g.longitude, label);
+      saveWxPlace({lat:g.latitude, lon:g.longitude, label});
+      setWxButtonsState('fixed');
+    }catch(e){
+      alert('Error buscando ubicación');
+    }
+  }
+
+  async function renderWeather(lat, lon, label){
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=4`;
     const r = await fetch(url); const j = await r.json();
     const current = j.current || {};
     const daily = j.daily || {};
     document.getElementById('wxContent').classList.remove('wx-blur');
     setText('wxNow', (current.temperature_2m!=null? Math.round(current.temperature_2m)+' °C':'—'));
-    setText('wxWhere', `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
+    setText('wxWhere', label || `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
     setText('wxNowMeta', `${wxMap[current.weather_code]||'—'} · HR ${current.relative_humidity_2m??'—'}%`);
 
-    // Hoy (índice 0)
+    // Hoy
     if(daily.time?.length){
       const max0 = Math.round(daily.temperature_2m_max?.[0] ?? NaN);
       const min0 = Math.round(daily.temperature_2m_min?.[0] ?? NaN);
@@ -981,7 +1034,7 @@
       setText('wxTodayMM', `Máx ${isNaN(max0)?'—':max0}° · Mín ${isNaN(min0)?'—':min0}° · 💧 ${pr0}mm`);
     }
 
-    // Próximos 3 días (1..3)
+    // Próximos 3
     const tiles = (daily.time||[]).slice(1,4).map((d,i)=>{
       const idx = i+1;
       const code = daily.weather_code?.[idx], tmax = daily.temperature_2m_max?.[idx], tmin = daily.temperature_2m_min?.[idx], pr = daily.precipitation_sum?.[idx];
@@ -996,6 +1049,7 @@
     }).join('');
     $('wxTiles').innerHTML = tiles;
   }
+  // ===== Fin Clima =====
 </script>
 </body>
 </html>
