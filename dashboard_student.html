@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Panel Estudiante — MIELLIFERA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="assets/logo.svg" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
+  --text:#eef0f3;--muted:#b8bec7;--border:#262b35;--accent:#ffd54f;
+  --blue-ln:rgba(77,163,255,.45);--blue-pt:#4da3ff;
+  --amber-ln:rgba(255,183,77,.55);--amber-pt:#ff7043;
+}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial}
+header{background:#141419;position:sticky;top:0;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.brand{color:var(--accent);font-weight:800;text-decoration:none}
+.cta{background:var(--accent);color:#111;border:0;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer}
+main{max-width:1200px;margin:0 auto;padding:24px}
+.section{margin-bottom:28px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.metric{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+.metric .val{font-size:2.2rem;font-weight:800}
+.metric .unit{font-size:1.05rem;font-weight:800;background:var(--accent);color:#111;padding:2px 8px;border-radius:6px}
+.muted{color:var(--muted)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;z-index:1000;align-items:center;justify-content:center}
+.overlay-content{background:var(--card);border:1px solid var(--border);border-radius:12px;max-width:800px;width:90%;padding:20px}
+.btn{background:var(--card-2);color:var(--text);border:1px solid var(--border);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn.yellow{background:var(--accent);color:#111;border:0}
+.tutorial-box{position:fixed;bottom:24px;right:24px;background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:16px;max-width:320px;z-index:2000}
+.tutorial-nav{display:flex;justify-content:space-between;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="#">MIELLIFERA</a>
+  <button id="btnExit" class="cta">Salir</button>
+</header>
+
+<main>
+  <section class="section">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+      <h2>Panel Estudiante</h2>
+      <div class="muted">Código: <b>XXXX</b> · Usuario: <b>xxxx@xxxx.com</b></div>
+    </div>
+    <p class="muted">Vista de demostración con datos simulados.</p>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <h3>Clima — Buenos Aires, Argentina</h3>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div class="metric"><span id="wxTemp" class="val">24</span><span class="unit">°C</span></div>
+        <div class="metric"><span id="wxHum" class="val">55</span><span class="unit">%</span></div>
+        <div class="muted">Soleado · 15/10/2025</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3>Tus Colmenas</h3>
+    <div class="cards-grid" id="colmenas"></div>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <h3>Producción Global de Hoy</h3>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr><th style="text-align:left">Colmena</th><th style="text-align:right">Kilos</th></tr></thead>
+        <tbody id="prodBody"></tbody>
+        <tfoot><tr><th style="text-align:right">Total</th><th id="prodTotal" style="text-align:right">0</th></tr></tfoot>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div id="overlay" class="overlay">
+  <div class="overlay-content">
+    <h3 id="ovTitle">Colmena</h3>
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+      <div class="metric"><span id="ovTemp" class="val">--</span><span class="unit">°C</span></div>
+      <div class="metric"><span id="ovHum" class="val">--</span><span class="unit">%</span></div>
+      <div class="metric"><span id="ovProd" class="val">--</span><span class="unit">kg</span></div>
+    </div>
+    <canvas id="ovChart" style="width:100%;height:260px;margin-top:16px"></canvas>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn yellow" onclick="closeOverlay()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="tutorial" class="tutorial-box">
+  <div id="tutText"></div>
+  <div class="tutorial-nav">
+    <button id="tutSkip" class="btn">Omitir</button>
+    <button id="tutNext" class="btn yellow">Siguiente</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const nowDate = new Date().toLocaleDateString('es-AR');
+
+// ==== Datos ficticios ====
+const colmenas = [
+  {id:101, temp:34.2, hum:62, prod:3.1, series:[30,31,33,34,34,33,32]},
+  {id:203, temp:32.8, hum:58, prod:2.9, series:[29,30,31,32,33,32,31]},
+  {id:317, temp:35.5, hum:60, prod:3.5, series:[31,32,33,34,35,36,35]},
+  {id:404, temp:33.1, hum:63, prod:2.7, series:[28,29,30,31,32,32,33]}
+];
+
+// ==== Render colmenas ====
+function renderColmenas(){
+  const wrap = $('colmenas');
+  wrap.innerHTML = colmenas.map(c => `
+    <div class="card" onclick="openOverlay(${c.id})" style="cursor:pointer">
+      <h4>Colmena ${c.id}</h4>
+      <div class="metric"><span class="val">${c.temp}</span><span class="unit">°C</span></div>
+      <div class="metric"><span class="val">${c.hum}</span><span class="unit">%</span></div>
+      <div class="metric"><span class="val">${c.prod}</span><span class="unit">kg</span></div>
+      <div class="muted">Última lectura: ${nowDate}</div>
+    </div>
+  `).join('');
+
+  const tb = $('prodBody');
+  let total = 0;
+  tb.innerHTML = colmenas.map(c=>{
+    total += c.prod;
+    return `<tr><td>${c.id}</td><td style="text-align:right">${c.prod.toFixed(2)}</td></tr>`;
+  }).join('');
+  $('prodTotal').textContent = total.toFixed(2);
+}
+renderColmenas();
+
+// ==== Overlay ====
+function openOverlay(id){
+  const c = colmenas.find(x=>x.id==id);
+  if(!c) return;
+  $('overlay').style.display='flex';
+  $('ovTitle').textContent = 'Colmena '+id;
+  $('ovTemp').textContent = c.temp;
+  $('ovHum').textContent  = c.hum;
+  $('ovProd').textContent = c.prod;
+  renderChart(c.series);
+}
+function closeOverlay(){
+  $('overlay').style.display='none';
+}
+function renderChart(data){
+  const ctx = $('ovChart').getContext('2d');
+  if(window.currentChart){window.currentChart.destroy();}
+  window.currentChart = new Chart(ctx,{
+    type:'line',
+    data:{labels:['08h','10h','12h','14h','16h','18h','20h'],
+          datasets:[{data, borderColor:'var(--amber-ln)', backgroundColor:'var(--amber-pt)', tension:.25, pointRadius:3}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false}}}}
+  });
+}
+
+// ==== Tutorial ====
+const steps = [
+  "👋 Bienvenido al modo Estudiante de MIELLIFERA. Este panel muestra datos simulados de colmenas reales.",
+  "Aquí ves el clima actual de Buenos Aires, útil para comparar con el comportamiento de tus colmenas.",
+  "Cada tarjeta representa una colmena. Tocá una para ver su temperatura, humedad y producción.",
+  "En la parte inferior se muestra la producción total del día.",
+  "Fin del recorrido. Podés explorar libremente el panel."
+];
+let curStep = 0;
+function showStep(){
+  $('tutText').textContent = steps[curStep];
+  $('tutNext').textContent = curStep < steps.length-1 ? 'Siguiente' : 'Finalizar';
+}
+$('tutNext').onclick = ()=>{
+  curStep++;
+  if(curStep>=steps.length){ $('tutorial').style.display='none'; return; }
+  showStep();
+};
+$('tutSkip').onclick = ()=> $('tutorial').style.display='none';
+showStep();
+
+$('btnExit').onclick = ()=> location.href='login.html';
+</script>
+</body>
+</html>
