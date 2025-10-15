@@ -324,7 +324,28 @@
             <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
             <div id="ovHumWhen" class="muted">—</div>
           </div>
-          <div class="card">
+         
+  <!-- Trabajo -->
+<div class="card" id="workCard">
+  <h3>Trabajo</h3>
+  <div id="workToday" class="muted">Trabajo de hoy: —</div>
+  <div id="workWeek" class="muted">Trabajo de la semana: —</div>
+  <div id="workMonth" class="muted">Trabajo del mes: —</div>
+  <div id="workChartWrap" style="display:none;margin-top:10px">
+    <div class="chart-card">
+      <h3>Trabajo del día — Variables</h3>
+      <div class="chart-box"><canvas id="workChart"></canvas></div>
+    </div>
+  </div>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+  </div>
+</div>
+
+        <!-- Gráfica + historial por colmena -->
+        
+           <div class="card" style="margin-top:20px;width:100%">
             <h3>Producción</h3>
 
             <!-- Entrada alineada -->
@@ -354,59 +375,6 @@
             </div>
           </div>
         </div>
-  <!-- Trabajo -->
-<div class="card" id="workCard">
-  <h3>Trabajo</h3>
-  <div id="workToday" class="muted">Trabajo de hoy: —</div>
-  <div id="workWeek" class="muted">Trabajo de la semana: —</div>
-  <div id="workMonth" class="muted">Trabajo del mes: —</div>
-  <div id="workChartWrap" style="display:none;margin-top:10px">
-    <div class="chart-card">
-      <h3>Trabajo del día — Variables</h3>
-      <div class="chart-box"><canvas id="workChart"></canvas></div>
-    </div>
-  </div>
-  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
-  </div>
-</div>
-
-        <!-- Gráfica + historial por colmena -->
-        <div class="card" style="margin-top:12px">
-          <div class="center"><button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button></div>
-          <div id="ovChartsWrap" style="display:none;margin-top:10px">
-            <div class="charts-grid">
-              <div class="chart-card">
-                <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
-                <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
-              </div>
-              <div class="chart-card">
-                <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
-                <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
-              </div>
-            </div>
-            <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
-              <div class="date-chip">
-                <input type="date" id="ovDateFrom">
-                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="date-chip">
-                <input type="date" id="ovDateTo">
-                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="hist-actions">
-                <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
-                <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div> <!-- overlay-content -->
     </div>
   </div>
