@@ -276,32 +276,6 @@
           <div class="cards-head">
             <button id="btnEdit" class="btn small" type="button" aria-pressed="false">Editar orden</button>
           </div>
-          <!-- Tarjeta MODELO para edición (se muestra solo en modo edición) -->
-<div id="cardModel" class="card" style="display:none;margin-bottom:12px">
-  <h3 style="margin:0 0 8px">Colmena modelo XXXX</h3>
-  <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:var(--ok)"></span></div>
-  <div class="status-row"><span>Estado</span><span class="status-dot" style="background:var(--idle)"></span></div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-    <div class="input-chip">
-      <select id="cfgKilos" style="width:100%;background:transparent;border:0;color:#fff;padding:8px;font-weight:700">
-        <option value="mes">Kilos: mes</option>
-        <option value="anio">Kilos: año</option>
-      </select>
-    </div>
-    <div class="input-chip">
-      <select id="cfgTrabajo" style="width:100%;background:transparent;border:0;color:#fff;padding:8px;font-weight:700">
-        <option value="dia">Trabajo: día</option>
-        <option value="semana">Trabajo: semana</option>
-        <option value="mes">Trabajo: mes</option>
-        <option value="anio">Trabajo: año</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="muted" style="margin-top:8px">Arrastrá tarjetas abajo para reordenar. Los selects definen qué se muestra en todas las tarjetas.</div>
-</div>
-
           <div id="autoCards" class="cards-grid" aria-live="polite"></div>
         </div>
       </div>
@@ -532,13 +506,6 @@
       await loadDatapoints();
       initDateDefaults();
       initProdDefaults();
-      // Init selects del modelo según configuración persistente
-const ck=$('cfgKilos'), ct=$('cfgTrabajo');
-if(ck) ck.value = CARD_CFG.kilos;
-if(ct) ct.value = CARD_CFG.trabajo;
-if(ck) ck.onchange = ()=>{ CARD_CFG.kilos = ck.value; saveCardCfg(CARD_CFG); renderDeviceCards(lastItemsCache); };
-if(ct) ct.onchange = ()=>{ CARD_CFG.trabajo = ct.value; saveCardCfg(CARD_CFG); renderDeviceCards(lastItemsCache); };
-
 
       // Clima: si hay ubicación guardada, cargar y fijar estado
       const saved = loadWxPlace();
@@ -588,24 +555,6 @@ if(ct) ct.onchange = ()=>{ CARD_CFG.trabajo = ct.value; saveCardCfg(CARD_CFG); r
   function toLocalDayEnd(dateInput){ return new Date(dateInput+"T23:59:59.999").getTime(); }
   function tryOpenPicker(id){ const el=$(id); if(el?.showPicker) el.showPicker(); else el?.focus(); }
 
-// ===== Config de tarjetas (persistente) =====
-const CFG_KEY = 'miellifera.cardConfig';
-function loadCardCfg(){
-  try{
-    const j = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
-    return {
-      kilos: j.kilos === 'anio' ? 'anio' : 'mes',
-      trabajo: ['dia','semana','mes','anio'].includes(j.trabajo) ? j.trabajo : 'semana'
-    };
-  }catch{ return { kilos:'mes', trabajo:'semana' }; }
-}
-function saveCardCfg(cfg){
-  try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch{}
-}
-let CARD_CFG = loadCardCfg();
-
-
-  
   // KPIs madre
   function updateLastReading(items){
     const el=$('lastReading');
@@ -669,52 +618,19 @@ async function getMonthlyProduction(){
   }
 }
 
-  // Resumen de producción: devuelve kilosMes y kilosAnio por device_id
-async function getProdSummary(){
-  try{
-    const now = new Date();
-    const firstYear = new Date(now.getFullYear(), 0, 1);        // 1 Ene
-    const fromISO = firstYear.toISOString();
-    const toISO = new Date().toISOString();
-    const { items } = await prodList({ fromISO, toISO }); // trae todo el año
-
-    const map = {};
-    for(const it of items||[]){
-      const id = it.device_id;
-      if(!map[id]) map[id]={kilosMes:0,kilosAnio:0};
-      const k = Number(it.kilos||0);
-      map[id].kilosAnio += k;
-      const d = new Date(it.fecha+'T00:00:00');
-      if(d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()){
-        map[id].kilosMes += k;
-      }
-    }
-    return map;
-  }catch{ return {}; }
-}
-
- // Tarjetas colmena + estado con configuración dinámica
+  
+  // Tarjetas colmena + estado
+  // Tarjetas colmena + estado extendido
 async function renderDeviceCards(items){
   const wrap=$('autoCards'); if(!wrap) return;
 
-  // último timestamp por device
   const lastById=new Map();
-  for(const d of (items||[])){
+  for(const d of items||[]){
     const raw=String(d.device_id||'').trim();
     if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
     const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
     if(t>prev) lastById.set(raw,t);
   }
-  function extractWorkTimes(items, deviceId) {
-  return (items || []).filter(d => {
-    if (String(d.device_id) !== String(deviceId)) return false;
-    const k = String(d.sensor_key).toUpperCase();
-    return k === 'MS' || k.endsWith('.MS');
-  });
-}
-
-}
-
 
   const devices=[...lastById.entries()]
     .sort((a,b)=>b[1]-a[1])
@@ -764,8 +680,6 @@ async function renderDeviceCards(items){
     editing=!editing;
     $('btnEdit').textContent=editing?'Terminar edición':'Editar orden';
     $('autoCards').classList.toggle('editing',editing);
-    // NUEVO: mostrar/ocultar tarjeta modelo
-  const cm = $('cardModel'); if(cm) cm.style.display = editing ? 'block':'none';
     if(editing) enableDnD(); else disableDnD();
   };
   function enableDnD(){
@@ -1268,39 +1182,6 @@ function downloadWorkCSV(items, deviceId) {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-  function workMinutesByPeriod(items, deviceId, period){
-  // Usa extractWorkTimes ya definida; soporta *.MS
-  const ms = extractWorkTimes(items, deviceId);
-  const now = new Date();
-  let from = new Date(0), to = new Date(8640000000000000); // rango enorme por defecto
-
-  if(period==='dia'){
-    from = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0,0);
-    to   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23,59,59,999);
-  } else if(period==='semana'){
-    const s = new Date(now);
-    s.setDate(now.getDate() - now.getDay());
-    s.setHours(0,0,0,0);
-    from = s;
-    to = new Date(s); to.setDate(s.getDate()+7); to.setMilliseconds(-1);
-  } else if(period==='mes'){
-    from = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0,0);
-    to   = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59,999);
-  } else if(period==='anio'){
-    from = new Date(now.getFullYear(), 0, 1, 0,0,0,0);
-    to   = new Date(now.getFullYear(), 11, 31, 23,59,59,999);
-  }
-
-  let totalMs = 0;
-  for(const d of ms){
-    const t = new Date(d.ts);
-    if(t>=from && t<=to) totalMs += Number(d.value)||0;
-  }
-  return Math.round(totalMs/60000); // minutos
-}
-
-  
 
 // Botones de interfaz
 $('btnWorkChart').onclick = ()=>{
