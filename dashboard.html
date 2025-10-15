@@ -16,12 +16,10 @@
       --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
       --text:#eef0f3;--muted:#b8bec7;--border:#262b35;--zebra:#141820;
       --accent:#ffd54f;--accent-600:#f0c12c;--focus:#7fb3ff;
-      --blue-ln:rgba(77,163,255,.9);
-      --red-ln:rgba(255,99,132,.9);
+      --blue-ln:rgba(77,163,255,.45);--blue-pt:#4da3ff;
+      --amber-ln:rgba(255,183,77,.55);--amber-pt:#ff7043;
       --ok:#49d17d;--warn:#ffb74d;--bad:#ff6b6b;--idle:#9aa3ad;
       --chip-bg:#10141a;
-      --ctl-h:40px; /* altura uniforme de controles */
-      --ctl-w:148px; /* ancho acotado date */
     }
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6}
@@ -89,12 +87,22 @@
     .hist-actions{display:flex;gap:8px}
 
     /* Date-chip */
-    .date-chip{display:flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-    .date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:0 10px;cursor:pointer;height:var(--ctl-h);line-height:var(--ctl-h);width:var(--ctl-w);box-sizing:border-box}
-    .date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
-    .cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;height:var(--ctl-h)}
-    .cal-btn svg{width:18px;height:18px;color:#111}
-    .cal-btn:focus{outline:2px solid var(--focus)}
+.date-chip{display:inline-flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer;min-width:140px;line-height:1.2}
+.date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
+.cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
+.cal-btn svg{width:18px;height:18px;color:#111}
+.cal-btn:focus{outline:2px solid var(--focus)}
+
+/* Input-chip: para Kilos */
+.input-chip{display:flex;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.input-chip input{width:100%;background:transparent;border:0;color:#fff;padding:8px 10px;line-height:1.2}
+
+/* Grids overlay: mantener Producción al costado */
+.overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
+@media(max-width:900px){.overlay-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
+
 
     /* Producción “nice” */
     .nice-table{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
@@ -126,11 +134,6 @@
     /* Overlay Producción global */
     #prodOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
     #prodPanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
-
-    /* Inputs num acotados y alineados */
-    .num-input{width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:0 10px;border-radius:10px;height:var(--ctl-h);box-sizing:border-box}
-    /* Fila producción colmena alineada */
-    .prod-row{display:grid;grid-template-columns:var(--ctl-w) 1fr;gap:8px;margin:6px 0}
   </style>
 </head>
 <body>
@@ -324,15 +327,15 @@
           <div class="card">
             <h3>Producción</h3>
 
-            <!-- Entrada alineada y contenida -->
-            <div class="prod-row">
+            <!-- Entrada alineada -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
               <div class="date-chip">
                 <input type="date" id="ovProdDate">
                 <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
                   <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
                 </button>
               </div>
-              <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" class="num-input">
+              <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
             </div>
 
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
@@ -415,7 +418,7 @@
               </button>
             </div>
             <div>
-              <select id="prodDevice" class="num-input" style="background:#10141a">
+              <select id="prodDevice" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
                 <option value="">Todas</option>
               </select>
             </div>
@@ -493,7 +496,7 @@
         await renderWeather(saved.lat, saved.lon, saved.label||(`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`));
         setWxButtonsState('fixed');
       } else {
-        setWxButtonsState('ready');
+        setWxButtonsState('ready'); // mostrar "Ingresar ubicación"
       }
     }catch(e){ const m=$('msg'); if(m) m.textContent="Error cargando datos: "+(e.message||e); }
   });
@@ -695,29 +698,44 @@
     setText('ovHumWhen', h ? dtAR(h.ts) : '—');
   }
 
-  // ==== Charts ====
-  function buildLineChart(canvas, labels, values, lineColor){
-    const ctx=canvas.getContext('2d');
-    return new Chart(ctx,{
-      type:'line',
-      data:{ labels, datasets:[{
-        data: values,
-        borderColor: lineColor,
-        borderWidth: 2.5,
-        fill: false,
-        tension: .25,
-        pointRadius: 0,
-        pointHitRadius: 6
-      }]},
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        animation:false,
-        interaction:{mode:'nearest',intersect:false},
-        plugins:{legend:{display:false},tooltip:{callbacks:{ title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `}}},
-        scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
-      }
-    });
-  }
+  // Gráficos madre
+  $('btnChart').onclick=()=>{
+    chartsVisible=!chartsVisible;
+    $('chartsWrap').style.display=chartsVisible?'block':'none';
+    $('btnChart').textContent=chartsVisible?'Ocultar gráfica':'Mostrar gráfica';
+    if(chartsVisible){
+      if(historyMode){ /* noop */ }
+      else if(lastItemsCache) renderChartsDaily(lastItemsCache);
+    }
+    $('histControls').style.display = chartsVisible ? 'flex' : 'none';
+  };
+
+  function buildLineChart(canvas, labels, values, lineColor, pointColor){
+  const ctx=canvas.getContext('2d');
+  return new Chart(ctx,{
+    type:'line',
+    data:{ labels, datasets:[{
+      data: values,
+      borderColor: lineColor,
+      backgroundColor: 'transparent',
+      borderWidth: 2.5,
+      tension:.25,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointBackgroundColor: lineColor,
+      pointBorderColor: lineColor
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `
+      }}},
+      scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
+    }
+  });
+}
+
   function sameLocalDay(tsA, tsB){
     const a=new Date(tsA), b=new Date(tsB);
     return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
@@ -739,8 +757,9 @@
     const tem=seriesOfDay(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
     const hum=seriesOfDay(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
     if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, 'var(--red-ln)');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, 'var(--blue-ln)');
+    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+
     setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
   }
 
@@ -771,8 +790,9 @@
     const tem=seriesOfDayForDevice(items, deviceId, 'TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
     const hum=seriesOfDayForDevice(items, deviceId, 'HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
     if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), labelsT, valsT, 'var(--red-ln)');
-    ovChartHum =buildLineChart($('ovChartHum'), labelsH, valsH, 'var(--blue-ln)');
+    ovChartTemp=buildLineChart($('ovChartTemp'), labelsT, valsT, '#ff4d4f');
+    ovChartHum =buildLineChart($('ovChartHum'), labelsH, valsH, '#4da3ff');
+
     setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
   }
   $('ovBtnShowRange').onclick=()=>{
@@ -785,8 +805,9 @@
     const hum=items.filter(d=>keyIsHum(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
       const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
     if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), tem.map(x=>x.label), tem.map(x=>x.y), 'var(--red-ln)');
-    ovChartHum =buildLineChart($('ovChartHum'), hum.map(x=>x.label), hum.map(x=>x.y), 'var(--blue-ln)');
+    ovChartTemp=buildLineChart($('ovChartTemp'), tem.map(x=>x.label), tem.map(x=>x.y), '#ff4d4f');
+    ovChartHum =buildLineChart($('ovChartHum'), hum.map(x=>x.label), hum.map(x=>x.y), '#4da3ff');
+
     setText('ovTitleTemp', `Temperatura ${df} → ${dt}`);
     setText('ovTitleHum',  `Humedad ${df} → ${dt}`);
   };
@@ -834,8 +855,9 @@
     const tem=seriesByRange(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
     const hum=seriesByRange(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
     if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, 'var(--red-ln)');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, 'var(--blue-ln)');
+    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+
     setText('titleTemp', `Temperatura ${r.df} → ${r.dt}`);
     setText('titleHum',  `Humedad ${r.df} → ${r.dt}`);
   }
@@ -957,8 +979,8 @@
       lastItemsCache = items;
       renderTable(items);
       updateLastReading(items);
-      renderDeviceCards(items);
       updateMotherKPIs(items);
+      renderDeviceCards(items);
       if(chartsVisible && !historyMode) renderChartsDaily(items);
       if(currentOverlayDevice){
         updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
