@@ -444,11 +444,7 @@
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
             <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
-            <div style="display:flex;gap:8px;margin-top:10px">
-  <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
-  <button id="btnProdDownloadCSV" class="btn small" type="button">Descargar CSV</button>
-</div>
-
+            <button id="btnProdDownloadCSV" class="btn small" type="button">Descargar CSV</button>
           </div>
         </div>
 
@@ -1102,6 +1098,62 @@
     }).join('');
     $('wxTiles').innerHTML = tiles;
   }
+  // === CSV Producción individual (overlay) ===
+function toProdDeviceCSV(items, deviceId){
+  const rows = [['fecha','device_id','kilos']];
+  (items||[]).forEach(r=> rows.push([r.fecha, String(r.device_id||deviceId||''), Number(r.kilos||0).toFixed(2)]));
+  return rows.map(r=>r.join(',')).join('\n');
+}
+$('ovBtnCSV').onclick = ()=>{
+  const p = $('ovCSVPanel');
+  if(p.style.display==='none'){
+    // defaults
+    const today = ymd(new Date());
+    $('ovCSVFrom').value = today;
+    $('ovCSVTo').value = today;
+    p.style.display='flex';
+  }else{
+    p.style.display='none';
+  }
+};
+$('ovBtnDoCSV').onclick = async ()=>{
+  if(!currentOverlayDevice) return;
+  const df = $('ovCSVFrom').value, dt = $('ovCSVTo').value;
+  const fromISO = df? new Date(df+'T00:00:00').toISOString(): undefined;
+  const toISO   = dt? new Date(dt+'T23:59:59.999').toISOString(): undefined;
+  try{
+    const { items } = await prodList({ device_id: currentOverlayDevice, fromISO, toISO });
+    const csv = toProdDeviceCSV(items||[], currentOverlayDevice);
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `produccion_${currentOverlayDevice}_${df||'desde'}_a_${dt||'hoy'}.csv`;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }catch(e){ alert('Error generando CSV: ' + (e.message||e)); }
+};
+
+// === CSV Producción global ===
+function toProdGlobalCSV(items){
+  const rows = [['fecha','device_id','kilos']];
+  (items||[]).forEach(r=> rows.push([r.fecha, String(r.device_id||''), Number(r.kilos||0).toFixed(2)]));
+  return rows.map(r=>r.join(',')).join('\n');
+}
+$('btnProdDownloadCSV').onclick = async ()=>{
+  const df = $('prodFrom').value, dt = $('prodTo').value;
+  const dev= $('prodDevice').value || '';
+  const fromISO = df? new Date(df+'T00:00:00').toISOString(): undefined;
+  const toISO   = dt? new Date(dt+'T23:59:59.999').toISOString(): undefined;
+  try{
+    const { items } = await prodList({ device_id: dev || undefined, fromISO, toISO });
+    const csv = toProdGlobalCSV(items||[]);
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `produccion_global_${df||'desde'}_a_${dt||'hoy'}${dev?('_dev_'+dev):''}.csv`;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }catch(e){ alert('Error generando CSV: ' + (e.message||e)); }
+};
+
   // ===== Fin Clima =====
 </script>
 </body>
