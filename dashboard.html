@@ -354,6 +354,23 @@
             </div>
           </div>
         </div>
+  <!-- Trabajo -->
+<div class="card" id="workCard">
+  <h3>Trabajo</h3>
+  <div id="workToday" class="muted">Trabajo de hoy: —</div>
+  <div id="workWeek" class="muted">Trabajo de la semana: —</div>
+  <div id="workMonth" class="muted">Trabajo del mes: —</div>
+  <div id="workChartWrap" style="display:none;margin-top:10px">
+    <div class="chart-card">
+      <h3>Trabajo del día — Variables</h3>
+      <div class="chart-box"><canvas id="workChart"></canvas></div>
+    </div>
+  </div>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+  </div>
+</div>
 
         <!-- Gráfica + historial por colmena -->
         <div class="card" style="margin-top:12px">
@@ -983,9 +1000,11 @@
       renderDeviceCards(items);
       if(chartsVisible && !historyMode) renderChartsDaily(items);
       if(currentOverlayDevice){
-        updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
-        if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
-      }
+  updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+  if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
+  renderWorkSection(lastItemsCache, currentOverlayDevice); // ← NUEVO
+}
+
     }finally{
       polling=false;
     }
@@ -997,6 +1016,130 @@
     const ovd = $('ovProdDate'); if(ovd) ovd.value = t;
     const pf=$('prodFrom'), pt=$('prodTo'); if(pf) pf.value=t; if(pt) pt.value=t;
   }
+  // ======== NUEVO BLOQUE: TRABAJO ========
+
+// Variables globales
+let workChart = null;
+
+// Detectar sensor OPN = trabajo detectado
+function extractWorkEvents(items, deviceId) {
+  return (items || []).filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    String(d.sensor_key).toUpperCase().includes('OPN')
+  );
+}
+
+// Extraer valores MS (milisegundos de trabajo)
+function extractWorkTimes(items, deviceId) {
+  return (items || []).filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    String(d.sensor_key).toUpperCase() === 'MS'
+  );
+}
+
+// Extraer variables adicionales
+function extractWorkVars(items, deviceId) {
+  const keys = ['C2R', 'NHR', 'NXR', 'ALR', 'SMR'];
+  return (items || []).filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    keys.includes(String(d.sensor_key).toUpperCase())
+  );
+}
+
+// Calcular total diario, semanal, mensual (en minutos)
+function calcWorkTotals(items, deviceId) {
+  const msData = extractWorkTimes(items, deviceId);
+  let today = 0, week = 0, month = 0;
+  const now = new Date();
+  for (const d of msData) {
+    const t = new Date(d.ts);
+    const val = Number(d.value) || 0;
+    if (t.toDateString() === now.toDateString()) today += val;
+    if (isSameWeek(t, now)) week += val;
+    if (t.getMonth() === now.getMonth() && t.getFullYear() === now.getFullYear()) month += val;
+  }
+  return {
+    today: Math.round(today / 60000),
+    week: Math.round(week / 60000),
+    month: Math.round(month / 60000)
+  };
+}
+
+function isSameWeek(d1, d2) {
+  const start = new Date(d2);
+  start.setDate(d2.getDate() - d2.getDay());
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+  return d1 >= start && d1 < end;
+}
+
+// Renderizar resumen y gráficos
+function renderWorkSection(items, deviceId) {
+  const totals = calcWorkTotals(items, deviceId);
+  setText('workToday', `Trabajo de hoy: ${totals.today} min`);
+  setText('workWeek', `Trabajo de la semana: ${totals.week} min`);
+  setText('workMonth', `Trabajo del mes: ${totals.month} min`);
+}
+
+// Gráfico de variables C2R, NHR, NXR, ALR, SMR
+function renderWorkCharts(items, deviceId) {
+  const vars = extractWorkVars(items, deviceId);
+  if (!vars.length) return;
+
+  const grouped = {};
+  for (const v of vars) {
+    const key = v.sensor_key.toUpperCase();
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push({ x: new Date(v.ts), y: Number(v.value) || 0 });
+  }
+  for (const k of Object.keys(grouped)) grouped[k].sort((a,b)=>a.x-b.x);
+
+  const labels = [...new Set(grouped[Object.keys(grouped)[0]].map(v=>v.x.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})))];
+  const datasets = Object.keys(grouped).map(k=>({
+    label: k,
+    data: grouped[k].map(p=>p.y),
+    borderWidth: 2,
+    tension: 0.25
+  }));
+
+  if (workChart) workChart.destroy();
+  workChart = new Chart($('workChart').getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: { responsive: true, plugins:{legend:{display:true}}, scales:{x:{title:{text:'Hora',display:true}},y:{beginAtZero:true}} }
+  });
+}
+
+// CSV de trabajo
+function downloadWorkCSV(items, deviceId) {
+  const relevant = items.filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    ['OPN','MS','C2R','NHR','NXR','ALR','SMR'].includes(String(d.sensor_key).toUpperCase())
+  );
+  if (!relevant.length) return alert('Sin datos de trabajo');
+  const rows = [['timestamp','device_id','sensor','valor']];
+  for (const d of relevant) rows.push([d.ts, d.device_id, d.sensor_key, d.value]);
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `trabajo_${deviceId}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Botones de interfaz
+$('btnWorkChart').onclick = ()=>{
+  const wrap = $('workChartWrap');
+  const show = wrap.style.display === 'none';
+  wrap.style.display = show ? 'block' : 'none';
+  if (show && currentOverlayDevice && lastItemsCache) renderWorkCharts(lastItemsCache, currentOverlayDevice);
+};
+$('btnWorkCSV').onclick = ()=>{
+  if (!currentOverlayDevice || !lastItemsCache) return;
+  downloadWorkCSV(lastItemsCache, currentOverlayDevice);
+};
 
   // ===== Clima (nuevo flujo por texto) =====
   const wxMap = {0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla escarchada',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos'};
