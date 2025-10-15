@@ -588,38 +588,92 @@
     }).join('');
   }
 
-  // Tarjetas colmena + estado
-  function renderDeviceCards(items){
-    const wrap=$('autoCards'); if(!wrap) return;
-    const lastById=new Map();
-    for(const d of items||[]){ const raw=String(d.device_id||'').trim();
-      if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
-      const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
-      if(t>prev) lastById.set(raw,t);
+
+function formatMinutes(mins){
+  const h = Math.floor(mins/60);
+  const m = Math.round(mins%60);
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+// Simulación o carga real desde Worker de producción
+async function getMonthlyProduction(){
+  try{
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const fromISO = firstDay.toISOString();
+    const toISO = new Date().toISOString();
+    const { items } = await prodList({ fromISO, toISO });
+    // Agrupar kilos y sumar trabajo si existe
+    const map = {};
+    for(const it of items||[]){
+      const id = it.device_id;
+      if(!map[id]) map[id]={kilos:0,trabajoMin:0};
+      map[id].kilos += Number(it.kilos||0);
+      // si más adelante guardamos "trabajoMin", ya lo suma
+      map[id].trabajoMin += Number(it.trabajoMin||0);
     }
-    const devices=[...lastById.entries()].sort((a,b)=>b[1]-a[1]).map(([id,ts])=>({id,ts}));
-    if(!devices.length){ wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>'; return; }
-    const now=Date.now();
-    wrap.innerHTML=devices.map(({id,ts})=>{
-      const diff=(now-ts)/60000;
-      const color = diff<=15?'var(--ok)':diff<=360?'var(--warn)':'var(--bad)';
-      return `
+    return map;
+  }catch{
+    return {};
+  }
+}
+
+  
+  // Tarjetas colmena + estado
+  // Tarjetas colmena + estado extendido
+async function renderDeviceCards(items){
+  const wrap=$('autoCards'); if(!wrap) return;
+
+  const lastById=new Map();
+  for(const d of items||[]){
+    const raw=String(d.device_id||'').trim();
+    if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
+    const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
+    if(t>prev) lastById.set(raw,t);
+  }
+
+  const devices=[...lastById.entries()]
+    .sort((a,b)=>b[1]-a[1])
+    .map(([id,ts])=>({id,ts}));
+
+  if(!devices.length){
+    wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>';
+    return;
+  }
+
+  const now=Date.now();
+
+  // Pedimos info de producción para kilos/mes
+  const prodData = await getMonthlyProduction();
+
+  wrap.innerHTML=devices.map(({id,ts})=>{
+    const diff=(now-ts)/60000;
+    const conectado = diff<=15;
+    const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
+    const estadoColor = 'var(--idle)'; // gris por ahora
+
+    const kilosMes = (prodData[id]?.kilos || 0).toFixed(1);
+    const trabajoSem = formatMinutes(prodData[id]?.trabajoMin || 0);
+
+    return `
       <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
         <h3 style="margin:0">Colmena ${id}</h3>
-        <div class="status-row">
-          <span>Estado</span>
-          <span class="status-dot" style="background:${color}"></span>
-        </div>
+        <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:${colorConn}"></span></div>
+        <div class="status-row"><span>Estado</span><span class="status-dot" style="background:${estadoColor}"></span></div>
+        <div class="status-row"><span>Kilos mes</span><span style="font-weight:800;color:var(--accent)">${kilosMes}</span></div>
+        <div class="status-row"><span>Trabajo semanal</span><span style="font-weight:800;color:var(--focus)">${trabajoSem}</span></div>
       </div>`;
-    }).join('');
-    if(editing) enableDnD();
-    const sel = $('prodDevice');
-    if(sel){
-      const cur = sel.value;
-      sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
-      if(cur) sel.value = cur;
-    }
+  }).join('');
+
+  if(editing) enableDnD();
+
+  const sel = $('prodDevice');
+  if(sel){
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
+    if(cur) sel.value = cur;
   }
+}
 
   // DnD
   $('btnEdit').onclick=()=>{
