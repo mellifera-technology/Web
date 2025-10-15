@@ -1257,6 +1257,20 @@ $('wkCSV').onclick = async ()=>{
     try{
       const { items } = await callWorker('/datapoints?limit=200');
       lastItemsCache = items;
+      // Log de trabajo por eventos OPN (fallback local)
+try{
+  const ops = (items||[]).filter(d=> String(d.sensor_key||'').toUpperCase()==='OPN');
+  if(ops.length){
+    const LOGK = `worklog_${currentUID||'anon'}`;
+    const prev = JSON.parse(localStorage.getItem(LOGK)||'[]');
+    const news = ops.map(d=>({device_id:d.device_id, ts:d.ts}));
+    const merged = [...prev, ...news];
+    localStorage.setItem(LOGK, JSON.stringify(merged.slice(-5000)));
+    // Intento opcional de persistir en backend si existe /work
+    try{ await callWorker('/work', {method:'POST', body:{events:news}}); }catch{}
+  }
+}catch{}
+
       renderTable(items);
       updateLastReading(items);
       updateMotherKPIs(items);
