@@ -1,187 +1,383 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<title>Panel Estudiante — MIELLIFERA</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" href="assets/logo.svg" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<style>
-:root{
-  --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
-  --text:#eef0f3;--muted:#b8bec7;--border:#262b35;--accent:#ffd54f;
-  --blue-ln:rgba(77,163,255,.45);--blue-pt:#4da3ff;
-  --amber-ln:rgba(255,183,77,.55);--amber-pt:#ff7043;
-}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial}
-header{background:#141419;position:sticky;top:0;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
-.brand{color:var(--accent);font-weight:800;text-decoration:none}
-.cta{background:var(--accent);color:#111;border:0;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer}
-main{max-width:1200px;margin:0 auto;padding:24px}
-.section{margin-bottom:28px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.metric{display:flex;align-items:baseline;gap:10px;margin-top:6px}
-.metric .val{font-size:2.2rem;font-weight:800}
-.metric .unit{font-size:1.05rem;font-weight:800;background:var(--accent);color:#111;padding:2px 8px;border-radius:6px}
-.muted{color:var(--muted)}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;z-index:1000;align-items:center;justify-content:center}
-.overlay-content{background:var(--card);border:1px solid var(--border);border-radius:12px;max-width:800px;width:90%;padding:20px}
-.btn{background:var(--card-2);color:var(--text);border:1px solid var(--border);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600}
-.btn.yellow{background:var(--accent);color:#111;border:0}
-.tutorial-box{position:fixed;bottom:24px;right:24px;background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:16px;max-width:320px;z-index:2000}
-.tutorial-nav{display:flex;justify-content:space-between;margin-top:12px}
-</style>
+  <meta charset="utf-8" />
+  <title>Panel Estudiante — MIELLIFERA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="assets/logo.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
+      --text:#eef0f3;--muted:#b8bec7;--border:#262b35;--zebra:#141820;
+      --accent:#ffd54f;--accent-600:#f0c12c;--focus:#7fb3ff;
+      --blue-ln:rgba(77,163,255,.45);--blue-pt:#4da3ff;
+      --amber-ln:rgba(255,183,77,.55);--amber-pt:#ff7043;
+      --ok:#49d17d;--warn:#ffb74d;--bad:#ff6b6b;--idle:#9aa3ad;
+      --chip-bg:#10141a;
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6}
+    .site{padding:24px;max-width:1200px;margin:0 auto}
+    .header{position:sticky;top:0;background:rgba(14,15,18,.9);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--border)}
+    .nav-grid{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:12px 16px}
+    .brand{color:var(--accent);text-decoration:none;font-weight:800}
+    .nav-center a{color:#d6dae0;text-decoration:none;margin:0 10px}
+    .cta{background:var(--accent);color:#111;border:0;padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+
+    .section{margin:28px auto}
+    .section.alt{background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+    .split{display:grid;grid-template-columns:420px 1fr;gap:18px}
+    @media(max-width:980px){.split{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+    .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:860px){.side-cards{grid-template-columns:1fr}}
+
+    .pill{background:var(--accent);color:#111;border:2px solid var(--accent);border-radius:999px;font-weight:800;padding:8px 14px;white-space:nowrap}
+    .btn{background:var(--card-2);color:var(--text);border:1px solid var(--border);padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer}
+    .btn.yellow{background:var(--accent);border-color:var(--accent);color:#111}
+    .btn.small{padding:6px 10px;font-size:.9rem}
+    .center{display:flex;justify-content:center;align-items:center}
+    .muted{color:var(--muted)}
+
+    .cards-head{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px}
+    .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    @media(max-width:860px){.cards-grid{grid-template-columns:1fr}}
+
+    table{border-collapse:separate;border-spacing:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    thead th{position:sticky;top:0;background:var(--accent);color:#111;font-weight:800;padding:10px;border-bottom:2px solid #caa332}
+    tbody td{padding:10px;border-bottom:1px solid var(--border)}
+    tbody tr:nth-child(odd){background:var(--zebra)}
+    #tableWrap{box-shadow:0 1px 0 rgba(0,0,0,.2) inset}
+
+    .reveal-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .eye-btn{background:#1d212a;border:1px solid var(--border);color:#cfd6df;border-radius:8px;cursor:pointer;padding:4px 8px;display:inline-flex;align-items:center;gap:6px}
+    .eye-btn svg{width:18px;height:18px}
+
+    /* Overlay */
+    #deviceOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
+    #devicePanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
+    .overlay-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#0f1218}
+    .overlay-content{padding:16px;overflow:auto}
+    .overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
+    @media(max-width:1100px){.overlay-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
+
+    .metric{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+    .metric .val{font-size:2.4rem;font-weight:800;letter-spacing:.3px}
+    .metric .unit{font-size:1.05rem;font-weight:800;color:#111;background:var(--accent);border-radius:8px;padding:2px 8px;border:2px solid var(--accent)}
+
+    #chartsWrap{display:none;margin-top:14px}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:860px){.charts-grid{grid-template-columns:1fr}}
+    .chart-box{position:relative;height:240px}
+    .chart-box canvas{position:absolute;inset:0;width:100% !important;height:100% !important}
+    .hist-controls{display:none;gap:10px;align-items:end;margin-top:10px;flex-wrap:wrap}
+    .hist-actions{display:flex;gap:8px}
+
+    .date-chip{display:flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px}
+    .date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;padding:8px 10px;cursor:pointer}
+    .date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
+    .cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
+    .cal-btn svg{width:18px;height:18px;color:#111}
+    .cal-btn:focus{outline:2px solid var(--focus)}
+
+    .nice-table{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
+    .nice-table thead th{background:var(--accent);color:#111;border-bottom:1px solid #caa332}
+    .nice-table tbody tr:nth-child(odd){background:var(--zebra)}
+    .nice-table td,.nice-table th{padding:10px}
+    .badge{display:inline-block;background:#222;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-weight:700}
+
+    .status-row{display:flex;align-items:center;gap:8px;color:var(--muted);margin:.25rem 0 0}
+    .status-dot{width:10px;height:10px;border-radius:50%;background:var(--idle);box-shadow:0 0 0 2px rgba(0,0,0,.2) inset}
+
+    .wx-card{background:linear-gradient(140deg,#0b0d12,#141926);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:12px;position:relative;overflow:hidden}
+    .wx-blur{filter:blur(3px);opacity:.6;pointer-events:none}
+    .wx-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+    .wx-title{font-weight:800}
+    .wx-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .wx-tile{background:#10141a;border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center}
+    .wx-big{font-size:1.6rem;font-weight:800}
+    .wx-small{color:var(--muted);font-size:.9rem}
+    .wx-loc{color:var(--muted);font-size:.9rem}
+    .wx-today{display:flex;justify-content:space-between;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+    .loc-chip{display:flex;gap:8px;align-items:center;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;padding:6px 6px}
+    .loc-chip input{background:transparent;border:0;color:#fff;padding:6px;font-weight:600;min-width:220px}
+  </style>
 </head>
 <body>
-<header>
-  <a class="brand" href="#">MIELLIFERA</a>
-  <button id="btnExit" class="cta">Salir</button>
-</header>
-
-<main>
-  <section class="section">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
-      <h2>Panel Estudiante</h2>
-      <div class="muted">Código: <b>XXXX</b> · Usuario: <b>xxxx@xxxx.com</b></div>
+  <header class="header">
+    <div class="nav-grid">
+      <a class="brand" href="#">MIELLIFERA</a>
+      <nav class="nav-center" aria-label="Principal"></nav>
+      <button id="btnLogout" class="cta">Salir</button>
     </div>
-    <p class="muted">Vista de demostración con datos simulados.</p>
-  </section>
+  </header>
 
-  <section class="section">
-    <div class="card">
-      <h3>Clima — Buenos Aires, Argentina</h3>
-      <div style="display:flex;gap:20px;flex-wrap:wrap">
-        <div class="metric"><span id="wxTemp" class="val">24</span><span class="unit">°C</span></div>
-        <div class="metric"><span id="wxHum" class="val">55</span><span class="unit">%</span></div>
-        <div class="muted">Soleado · 15/10/2025</div>
+  <main class="site">
+    <div style="background:var(--accent);color:#111;text-align:center;padding:8px;font-weight:700;margin-bottom:16px">
+      🟡 MODO DEMOSTRACIÓN — Sin conexión real
+    </div>
+
+    <section class="section alt">
+      <div class="section-head">
+        <div>
+          <h2>Tu panel (Demo)</h2>
+          <p class="muted">Datos simulados para mostrar interfaz.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button id="lastReading" class="pill">Última medición: 15/10/2025 14:30</button>
+          <button id="btnProdMain" class="btn small">Producción</button>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <section class="section">
-    <h3>Tus Colmenas</h3>
-    <div class="cards-grid" id="colmenas"></div>
-  </section>
+      <div class="split">
+        <!-- Cuenta -->
+        <div class="card" style="max-width:420px">
+          <h3>Cuenta</h3>
+          <p class="reveal-wrap">
+            <span>Email: <b id="uEmail">xxxx@xxxx.com</b></span>
+            <button id="toggleEmail" class="eye-btn">
+              <span>Mostrar</span>
+            </button>
+          </p>
+          <p class="reveal-wrap">
+            <span>Código de 4 dígitos: <b id="uCode">XXXX</b></span>
+            <button id="toggleCode" class="eye-btn">
+              <span>Mostrar</span>
+            </button>
+          </p>
+          <div class="reveal-wrap" style="margin-top:6px">
+            <button id="btnTutorials" class="btn small">Tutoriales</button>
+          </div>
+          <div id="msg" class="muted" style="margin-top:8px"></div>
+          <hr style="border:0;border-top:1px solid var(--border)">
 
-  <section class="section">
-    <div class="card">
-      <h3>Producción Global de Hoy</h3>
-      <table style="width:100%;border-collapse:collapse">
-        <thead><tr><th style="text-align:left">Colmena</th><th style="text-align:right">Kilos</th></tr></thead>
-        <tbody id="prodBody"></tbody>
-        <tfoot><tr><th style="text-align:right">Total</th><th id="prodTotal" style="text-align:right">0</th></tr></tfoot>
-      </table>
-    </div>
-  </section>
-</main>
+          <div>
+            <h3 style="margin:10px 0 8px">Clima y pronóstico</h3>
+            <div id="wxCard" class="wx-card">
+              <div class="wx-head">
+                <div class="wx-title">Buenos Aires, Argentina</div>
+              </div>
+              <div id="wxContent">
+                <div class="wx-today">
+                  <div>
+                    <div class="wx-big" id="wxNow">22 °C</div>
+                    <div class="wx-loc">Buenos Aires, AR</div>
+                    <div class="wx-small">Nublado · HR 58 %</div>
+                  </div>
+                  <div class="wx-small">Máx 24° · Mín 18° · 💧 1mm</div>
+                </div>
+                <div class="wx-tiles" id="wxTiles">
+                  <div class="wx-tile">
+                    <div class="wx-small">Jue</div>
+                    <div>🌤️</div>
+                    <div class="wx-small">Parcial</div>
+                    <div class="wx-small">24° / 19°</div>
+                    <div class="wx-small">💧 0mm</div>
+                  </div>
+                  <div class="wx-tile">
+                    <div class="wx-small">Vie</div>
+                    <div>☀️</div>
+                    <div class="wx-small">Despejado</div>
+                    <div class="wx-small">25° / 20°</div>
+                    <div class="wx-small">💧 0mm</div>
+                  </div>
+                  <div class="wx-tile">
+                    <div class="wx-small">Sáb</div>
+                    <div>☁️</div>
+                    <div class="wx-small">Nublado</div>
+                    <div class="wx-small">23° / 18°</div>
+                    <div class="wx-small">💧 2mm</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-<div id="overlay" class="overlay">
-  <div class="overlay-content">
-    <h3 id="ovTitle">Colmena</h3>
-    <div style="display:flex;gap:20px;flex-wrap:wrap">
-      <div class="metric"><span id="ovTemp" class="val">--</span><span class="unit">°C</span></div>
-      <div class="metric"><span id="ovHum" class="val">--</span><span class="unit">%</span></div>
-      <div class="metric"><span id="ovProd" class="val">--</span><span class="unit">kg</span></div>
-    </div>
-    <canvas id="ovChart" style="width:100%;height:260px;margin-top:16px"></canvas>
-    <div style="text-align:right;margin-top:12px">
-      <button class="btn yellow" onclick="closeOverlay()">Cerrar</button>
-    </div>
-  </div>
-</div>
+        <!-- KPIs madre + gráficos -->
+        <div>
+          <div class="side-cards">
+            <div class="card">
+              <h3>Temperatura Exterior</h3>
+              <div class="metric"><span id="temVal" class="val">23.4</span><span class="unit">°C</span></div>
+              <div id="temWhen" class="muted">15/10/2025 14:25</div>
+            </div>
+            <div class="card">
+              <h3>Humedad Exterior</h3>
+              <div class="metric"><span id="humVal" class="val">56</span><span class="unit">%</span></div>
+              <div id="humWhen" class="muted">15/10/2025 14:25</div>
+            </div>
+          </div>
 
-<div id="tutorial" class="tutorial-box">
-  <div id="tutText"></div>
-  <div class="tutorial-nav">
-    <button id="tutSkip" class="btn">Omitir</button>
-    <button id="tutNext" class="btn yellow">Siguiente</button>
-  </div>
-</div>
+          <div class="center" style="margin-top:14px">
+            <button id="btnChart" class="btn yellow">Mostrar gráfica</button>
+          </div>
+
+          <div id="chartsWrap">
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 id="titleTemp">Temperatura de hoy</h3>
+                <div class="chart-box"><canvas id="chartTemp"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <h3 id="titleHum">Humedad de hoy</h3>
+                <div class="chart-box"><canvas id="chartHum"></canvas></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cards-head">
+            <button id="btnEdit" class="btn small">Editar orden</button>
+          </div>
+          <div id="autoCards" class="cards-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="lecturas">
+      <div class="section-head">
+        <h3>Historial de mediciones</h3>
+        <button id="toggleTbl" class="btn">Mostrar / Ocultar historial</button>
+      </div>
+      <div id="tableWrap" style="overflow:auto;max-height:60vh;display:none;border-radius:12px">
+        <table id="tbl">
+          <thead><tr><th>Fecha</th><th>Dispositivo</th><th>Sensor</th><th>Valor / Info</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
 <script>
 const $ = id => document.getElementById(id);
-const nowDate = new Date().toLocaleDateString('es-AR');
 
-// ==== Datos ficticios ====
+// Datos simulados generales
+const now = new Date();
+function fmtDate(d){ return d.toLocaleString('es-AR'); }
+const madreTemps = [21,22,23,24,23,22,21].map((v,i)=>({x:i,y:v + Math.random()}));
+const madreHums = [50,52,55,60,58,55,53].map((v,i)=>({x:i,y:v + Math.random()*2}));
+
 const colmenas = [
-  {id:101, temp:34.2, hum:62, prod:3.1, series:[30,31,33,34,34,33,32]},
-  {id:203, temp:32.8, hum:58, prod:2.9, series:[29,30,31,32,33,32,31]},
-  {id:317, temp:35.5, hum:60, prod:3.5, series:[31,32,33,34,35,36,35]},
-  {id:404, temp:33.1, hum:63, prod:2.7, series:[28,29,30,31,32,32,33]}
+  {id: 101, temps: [30,31,32,33,32,31,30], hums: [60,61,59,62,60,59,61], prodToday: 3.1},
+  {id: 203, temps: [29,30,31,32,31,30,29], hums: [55,56,54,57,55,54,56], prodToday: 2.9},
+  {id: 317, temps: [33,34,35,36,35,34,33], hums: [58,59,60,61,60,59,60], prodToday: 3.5},
+  {id: 404, temps: [28,29,30,31,30,29,28], hums: [62,63,61,64,62,61,63], prodToday: 2.7}
 ];
 
-// ==== Render colmenas ====
+// Poner tarjetas de colmenas simuladas
 function renderColmenas(){
-  const wrap = $('colmenas');
-  wrap.innerHTML = colmenas.map(c => `
-    <div class="card" onclick="openOverlay(${c.id})" style="cursor:pointer">
-      <h4>Colmena ${c.id}</h4>
-      <div class="metric"><span class="val">${c.temp}</span><span class="unit">°C</span></div>
-      <div class="metric"><span class="val">${c.hum}</span><span class="unit">%</span></div>
-      <div class="metric"><span class="val">${c.prod}</span><span class="unit">kg</span></div>
-      <div class="muted">Última lectura: ${nowDate}</div>
-    </div>
-  `).join('');
-
-  const tb = $('prodBody');
-  let total = 0;
-  tb.innerHTML = colmenas.map(c=>{
-    total += c.prod;
-    return `<tr><td>${c.id}</td><td style="text-align:right">${c.prod.toFixed(2)}</td></tr>`;
+  const wrap = $('autoCards');
+  wrap.innerHTML = colmenas.map(c=>{
+    return `<div class="card device-card" style="cursor:pointer" data-id="${c.id}">
+      <h3>Colmena ${c.id}</h3>
+      <div class="metric"><span class="val">${(c.temps.slice(-1)[0]).toFixed(1)}</span><span class="unit">°C</span></div>
+      <div class="metric"><span class="val">${(c.hums.slice(-1)[0]).toFixed(1)}</span><span class="unit">%</span></div>
+      <div class="metric"><span class="val">${c.prodToday.toFixed(2)}</span><span class="unit">kg</span></div>
+      <div class="muted">Última lectura: ${fmtDate(now)}</div>
+    </div>`;
   }).join('');
-  $('prodTotal').textContent = total.toFixed(2);
 }
-renderColmenas();
 
-// ==== Overlay ====
+// Overlay manejo
 function openOverlay(id){
-  const c = colmenas.find(x=>x.id==id);
+  const ov = $('deviceOverlay');
+  ov.style.display = 'block';
+  const c = colmenas.find(c=>c.id == id);
   if(!c) return;
-  $('overlay').style.display='flex';
-  $('ovTitle').textContent = 'Colmena '+id;
-  $('ovTemp').textContent = c.temp;
-  $('ovHum').textContent  = c.hum;
-  $('ovProd').textContent = c.prod;
-  renderChart(c.series);
+  $('overlayTitle').textContent = `Colmena ${c.id}`;
+  $('ovTemVal').textContent = c.temps.slice(-1)[0].toFixed(1);
+  $('ovHumVal').textContent = c.hums.slice(-1)[0].toFixed(1);
+  $('ovProd').textContent = c.prodToday.toFixed(2);
+  $('ovTemWhen').textContent = fmtDate(now);
+  $('ovHumWhen').textContent = fmtDate(now);
+  // gráfica
+  renderOverlayChart(c);
 }
 function closeOverlay(){
-  $('overlay').style.display='none';
+  $('deviceOverlay').style.display = 'none';
 }
-function renderChart(data){
-  const ctx = $('ovChart').getContext('2d');
-  if(window.currentChart){window.currentChart.destroy();}
-  window.currentChart = new Chart(ctx,{
+document.addEventListener('click', e=>{
+  const c = e.target.closest('.device-card');
+  if(c) openOverlay(c.dataset.id);
+});
+$('btnOverlayBack').onclick = closeOverlay;
+
+// Gráficas madre
+let chartT=null, chartH=null;
+$('btnChart').onclick = ()=>{
+  const wrap = $('chartsWrap');
+  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+  if(wrap.style.display === 'block'){
+    renderMotherCharts();
+  }
+};
+
+function renderMotherCharts(){
+  const ctxT = $('chartTemp').getContext('2d');
+  const labels = madreTemps.map(d=>`${d.x}:00`);
+  const valsT = madreTemps.map(d=>d.y);
+  const valsH = madreHums.map(d=>d.y);
+  if(chartT) chartT.destroy();
+  if(chartH) chartH.destroy();
+  chartT = new Chart(ctxT, {
     type:'line',
-    data:{labels:['08h','10h','12h','14h','16h','18h','20h'],
-          datasets:[{data, borderColor:'var(--amber-ln)', backgroundColor:'var(--amber-pt)', tension:.25, pointRadius:3}]},
-    options:{plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false}}}}
+    data:{labels, datasets:[{data: valsT, borderColor: 'var(--amber-ln)', backgroundColor: 'var(--amber-pt)', tension: .25}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+  const ctxH = $('chartHum').getContext('2d');
+  chartH = new Chart(ctxH, {
+    type:'line',
+    data:{labels, datasets:[{data: valsH, borderColor: 'var(--blue-ln)', backgroundColor: 'var(--blue-pt)', tension: .25}]},
+    options:{plugins:{legend:{display:false}}}
   });
 }
 
-// ==== Tutorial ====
-const steps = [
-  "👋 Bienvenido al modo Estudiante de MIELLIFERA. Este panel muestra datos simulados de colmenas reales.",
-  "Aquí ves el clima actual de Buenos Aires, útil para comparar con el comportamiento de tus colmenas.",
-  "Cada tarjeta representa una colmena. Tocá una para ver su temperatura, humedad y producción.",
-  "En la parte inferior se muestra la producción total del día.",
-  "Fin del recorrido. Podés explorar libremente el panel."
-];
-let curStep = 0;
-function showStep(){
-  $('tutText').textContent = steps[curStep];
-  $('tutNext').textContent = curStep < steps.length-1 ? 'Siguiente' : 'Finalizar';
+// Overlay chart por colmena
+let ovChart=null;
+function renderOverlayChart(c){
+  const ctx = $('ovChartTemp').getContext('2d');
+  const labels = c.temps.map((v,i)=>`${i+8}:00`);
+  const vals = c.temps;
+  if(ovChart) ovChart.destroy();
+  ovChart = new Chart(ctx, {
+    type:'line',
+    data:{labels, datasets:[{data: vals, borderColor: 'var(--amber-ln)', backgroundColor: 'var(--amber-pt)', tension: .25}]},
+    options:{plugins:{legend:{display:false}}}
+  });
 }
-$('tutNext').onclick = ()=>{
-  curStep++;
-  if(curStep>=steps.length){ $('tutorial').style.display='none'; return; }
-  showStep();
-};
-$('tutSkip').onclick = ()=> $('tutorial').style.display='none';
-showStep();
 
-$('btnExit').onclick = ()=> location.href='login.html';
+// Tabla simulada de lecturas
+function renderTable(){
+  const tb = document.querySelector('#tbl tbody');
+  const rows = [];
+  colmenas.forEach(c=>{
+    c.temps.forEach((v,i)=>{
+      rows.push(`<tr><td>${fmtDate(now)}</td><td>${c.id}</td><td>TEM</td><td>${v.toFixed(1)}</td></tr>`);
+    });
+    c.hums.forEach((v,i)=>{
+      rows.push(`<tr><td>${fmtDate(now)}</td><td>${c.id}</td><td>HUM</td><td>${v.toFixed(1)}</td></tr>`);
+    });
+  });
+  tb.innerHTML = rows.join('');
+}
+
+// Init
+(function(){
+  renderColmenas();
+  renderTable();
+})();
+
+$('toggleTbl').onclick = ()=> {
+  const w = $('tableWrap');
+  w.style.display = w.style.display === 'none' ? 'block' : 'none';
+};
+$('btnLogout').onclick = ()=> window.location.href = 'login.html';
 </script>
 </body>
 </html>
