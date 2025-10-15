@@ -6,16 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="assets/logo.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
 
   <style>
     :root{
-      --bg:#0f0f12; --panel:#141419; --muted:#a6a6b3; --ink:#eaeaea;
-      --line:#24242b; --accent:#ffd24a; --danger:#ff7a7a;
-      --ink-weak:#8f8fa0; --field:#0f0f14; --google:#ea4335;
+      --bg:#0f0f12;--panel:#141419;--muted:#a6a6b3;--ink:#eaeaea;
+      --line:#24242b;--accent:#ffd24a;--danger:#ff7a7a;
+      --ink-weak:#8f8fa0;--field:#0f0f14;--google:#ea4335;
     }
     *{box-sizing:border-box}
     body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Arial;margin:0}
@@ -26,144 +24,126 @@
     .brand svg{width:34px;height:34px}
     h1{font-size:1.6rem;margin:0}
     .sub{color:var(--muted);margin:4px 0 16px}
-    form{margin:0}
     label{display:block;font-size:.92rem;margin:.75rem 0 .35rem}
-    .field{position:relative}
     input{width:100%;padding:.78rem .9rem;border-radius:10px;border:1px solid #2a2a33;
           background:var(--field);color:var(--ink)}
-    .toggle{
-      position:absolute;right:8px;top:50%;transform:translateY(-50%);
-      background:transparent;border:0;color:var(--ink-weak);cursor:pointer;
-      padding:6px;border-radius:8px
-    }
-    .toggle:focus{outline:2px solid #3a3a44}
     .row{display:flex;gap:10px;margin-top:14px}
     .btn{flex:1;padding:.85rem 1rem;border:0;border-radius:10px;cursor:pointer;font-weight:700}
     .btn.primary{background:var(--accent);color:#111}
     .btn.google{background:var(--google);color:#fff}
-    .or{display:flex;align-items:center;gap:10px;color:var(--ink-weak);margin:14px 0}
-    .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-    #msg{min-height:1.1rem;color:var(--danger);margin-top:10px}
-    .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;color:var(--ink-weak);font-size:.92rem}
-    .link{color:var(--accent);text-decoration:none}
-    .cta{
-      display:block;margin-top:12px;width:100%;text-align:center;font-weight:800;
-      background:transparent;color:var(--accent);border:1.5px solid var(--accent);
-      padding:.85rem;border-radius:10px;text-decoration:none
-    }
+    .cta{display:block;margin-top:12px;width:100%;text-align:center;font-weight:800;
+         background:transparent;color:var(--accent);border:1.5px solid var(--accent);
+         padding:.85rem;border-radius:10px;text-decoration:none}
     .cta:hover{background:rgba(255,210,74,.08)}
-    .help{margin-top:10px;text-align:right}
-    .help a{color:var(--ink-weak);text-decoration:none}
-    .help a:hover{color:var(--ink)}
-    /* Mejor foco */
-    input:focus{outline:2px solid #3a3a44}
+    #msg{min-height:1.1rem;color:var(--danger);margin-top:10px}
+    .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;
+          color:var(--ink-weak);font-size:.92rem}
+    .link{color:var(--accent);text-decoration:none}
+    /* MODAL */
+    #modalEst{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;
+      justify-content:center;z-index:1000}
+    .modal-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+      padding:22px;max-width:400px;width:90%;color:var(--ink)}
+    .modal-box h2{margin-top:0;color:var(--accent)}
+    .modal-box input{margin-top:10px}
+    .modal-actions{display:flex;gap:10px;margin-top:14px}
+    .modal-actions button{flex:1;padding:.8rem;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    .yellow{background:var(--accent);color:#111}
+    .gray{background:#2a2a33;color:var(--ink)}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="card" role="main" aria-labelledby="ttl">
+  <div class="card">
     <div class="brand">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path fill="#ffd24a" d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z"/>
-      </svg>
-      <div>
-        <h1 id="ttl">Iniciar sesión</h1>
-        <div class="sub">Accedé a tu panel de MIELLIFERA</div>
-      </div>
+      <svg viewBox="0 0 24 24" fill="none"><path fill="#ffd24a" d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z"/></svg>
+      <div><h1>Iniciar sesión</h1><div class="sub">Accedé a tu panel de MIELLIFERA</div></div>
     </div>
 
-    <form id="loginForm" novalidate>
-      <label for="email">Email</label>
-      <div class="field">
-        <input id="email" type="email" placeholder="tu@email.com" autocomplete="email" required />
-      </div>
+    <label>Email</label>
+    <input id="email" type="email" placeholder="tu@email.com" autocomplete="email">
+    <label>Contraseña</label>
+    <input id="pass" type="password" placeholder="********" autocomplete="current-password">
 
-      <label for="pass">Contraseña</label>
-      <div class="field">
-        <input id="pass" type="password" placeholder="********" autocomplete="current-password" required />
-        <button id="btnToggle" class="toggle" type="button" aria-label="Mostrar u ocultar contraseña">👁️</button>
-      </div>
+    <div class="row">
+      <button id="btnLogin" class="btn primary" type="button">Ingresar</button>
+      <button id="btnGoogle" class="btn google" type="button">Google</button>
+    </div>
 
-      <div class="row">
-        <button id="btnLogin" class="btn primary" type="submit">Ingresar</button>
-        <button id="btnGoogle" class="btn google" type="button" aria-label="Ingresar con Google">Google</button>
-      </div>
+    <div class="cta" id="btnEstudiante">Modo Estudiante</div>
 
-      <div class="or" aria-hidden="true">o</div>
+    <div id="msg" role="alert"></div>
 
-      <!-- Llamado a la acción de registro bien visible -->
-      <a class="cta" href="register.html">Crear cuenta</a>
+    <div class="foot"><a class="link" href="index.html">← Volver</a></div>
+  </div>
+</div>
 
-      <div id="msg" role="alert" aria-live="polite"></div>
-
-      <div class="foot">
-        <a class="link" href="index.html">← Volver</a>
-        <div class="help"><a href="#" id="forgot">¿Olvidaste tu contraseña?</a></div>
-      </div>
-    </form>
+<!-- Modal Estudiante -->
+<div id="modalEst">
+  <div class="modal-box">
+    <h2>Modo Estudiante</h2>
+    <p>Podés ingresar con un código que te haya dado la institución o entrar al modo demostración.</p>
+    <input id="studentCode" type="text" maxlength="4" placeholder="Código de 4 dígitos">
+    <div class="modal-actions">
+      <button class="yellow" id="btnCode">Ingresar con código</button>
+      <button class="gray" id="btnDemo">No tengo código</button>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="gray" id="btnClose">Cancelar</button>
+    </div>
   </div>
 </div>
 
 <script>
-  // Firebase config — tu proyecto
-  const firebaseConfig = {
-    apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
-    authDomain: "mellifera-technology.firebaseapp.com",
-    projectId: "mellifera-technology",
-    storageBucket: "mellifera-technology.firebasestorage.app",
-    messagingSenderId: "68043353319",
-    appId: "1:68043353319:web:20a1aafde7b37d3457c642",
-    measurementId: "G-FCW1E604DG"
-  };
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+const firebaseConfig={
+ apiKey:"AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
+ authDomain:"mellifera-technology.firebaseapp.com",
+ projectId:"mellifera-technology",
+ storageBucket:"mellifera-technology.firebasestorage.app",
+ messagingSenderId:"68043353319",
+ appId:"1:68043353319:web:20a1aafde7b37d3457c642",
+ measurementId:"G-FCW1E604DG"
+};
+if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
 
-  const $ = id => document.getElementById(id);
-  const showErr = e => $('msg').textContent = (e && e.message) ? e.message : String(e||"");
+const $=id=>document.getElementById(id);
+const msg=t=>$('msg').textContent=t;
 
-  // Redirige si ya hay sesión
-  auth.onAuthStateChanged(u => { if (u) location.href = 'dashboard.html'; });
+auth.onAuthStateChanged(u=>{if(u)location.href='dashboard.html';});
 
-  // Submit con Enter
-  $('loginForm').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    try{
-      const email = $('email').value.trim();
-      const pass  = $('pass').value;
-      if(!email || !pass) throw new Error('Completá email y contraseña');
-      await auth.signInWithEmailAndPassword(email, pass);
-      location.href = 'dashboard.html';
-    }catch(e){ showErr(e); }
-  });
+$('btnLogin').onclick=async()=>{
+ try{
+  const email=$('email').value.trim(),pass=$('pass').value;
+  if(!email||!pass)throw new Error("Completá los campos");
+  await auth.signInWithEmailAndPassword(email,pass);
+  location.href='dashboard.html';
+ }catch(e){msg(e.message);}
+};
+$('btnGoogle').onclick=async()=>{
+ try{
+  const p=new firebase.auth.GoogleAuthProvider();
+  p.setCustomParameters({prompt:'select_account'});
+  await auth.signInWithPopup(p);
+  location.href='dashboard.html';
+ }catch(e){msg(e.message);}
+};
 
-  // Google
-  $('btnGoogle').onclick = async ()=>{
-    try{
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await auth.signInWithPopup(provider);
-      location.href = 'dashboard.html';
-    }catch(e){ showErr(e); }
-  };
-
-  // Toggle contraseña
-  $('btnToggle').onclick = ()=>{
-    const f = $('pass');
-    f.type = f.type === 'password' ? 'text' : 'password';
-  };
-
-  // Recuperación de contraseña
-  $('forgot').onclick = async (e)=>{
-    e.preventDefault();
-    const email = $('email').value.trim();
-    if(!email){ showErr('Ingresá tu email para enviar el enlace de recuperación'); return; }
-    try{
-      await auth.sendPasswordResetEmail(email);
-      $('msg').style.color = '#79d08a';
-      $('msg').textContent = 'Te enviamos un enlace para restablecer la contraseña.';
-      setTimeout(()=>{$('msg').style.color = '#ff7a7a';}, 4000);
-    }catch(err){ showErr(err); }
-  };
+// ---- MODO ESTUDIANTE ----
+$('btnEstudiante').onclick=()=>{$('modalEst').style.display='flex';};
+$('btnClose').onclick=()=>{$('modalEst').style.display='none';};
+$('btnCode').onclick=()=>{
+ const code=$('studentCode').value.trim();
+ if(!/^\d{4}$/.test(code)){alert('Ingresá un código de 4 dígitos');return;}
+ sessionStorage.setItem('student_mode','1');
+ sessionStorage.setItem('student_code',code);
+ location.href='dashboard_student.html';
+};
+$('btnDemo').onclick=()=>{
+ sessionStorage.setItem('student_mode','2'); // demo
+ location.href='dashboard_demo.html';
+};
 </script>
 </body>
 </html>
+
