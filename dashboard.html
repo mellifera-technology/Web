@@ -87,12 +87,22 @@
     .hist-actions{display:flex;gap:8px}
 
     /* Date-chip */
-    .date-chip{display:flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px}
-    .date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer}
-    .date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
-    .cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
-    .cal-btn svg{width:18px;height:18px;color:#111}
-    .cal-btn:focus{outline:2px solid var(--focus)}
+.date-chip{display:inline-flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer;min-width:140px;line-height:1.2}
+.date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
+.cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
+.cal-btn svg{width:18px;height:18px;color:#111}
+.cal-btn:focus{outline:2px solid var(--focus)}
+
+/* Input-chip: para Kilos */
+.input-chip{display:flex;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.input-chip input{width:100%;background:transparent;border:0;color:#fff;padding:8px 10px;line-height:1.2}
+
+/* Grids overlay: mantener Producción al costado */
+.overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
+@media(max-width:900px){.overlay-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
+
 
     /* Producción “nice” */
     .nice-table{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
@@ -701,16 +711,31 @@
   };
 
   function buildLineChart(canvas, labels, values, lineColor, pointColor){
-    const ctx=canvas.getContext('2d');
-    return new Chart(ctx,{
-      type:'line',
-      data:{ labels, datasets:[{ data: values, borderColor: lineColor, backgroundColor: pointColor, tension:.25, pointRadius:3.5, pointHoverRadius:5, pointBackgroundColor:pointColor, pointBorderColor:pointColor }]},
-      options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'nearest',intersect:false},
-        plugins:{legend:{display:false},tooltip:{callbacks:{ title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `}}},
-        scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
-      }
-    });
-  }
+  const ctx=canvas.getContext('2d');
+  return new Chart(ctx,{
+    type:'line',
+    data:{ labels, datasets:[{
+      data: values,
+      borderColor: lineColor,
+      backgroundColor: 'transparent',
+      borderWidth: 2.5,
+      tension:.25,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointBackgroundColor: lineColor,
+      pointBorderColor: lineColor
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `
+      }}},
+      scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
+    }
+  });
+}
+
   function sameLocalDay(tsA, tsB){
     const a=new Date(tsA), b=new Date(tsB);
     return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
@@ -732,8 +757,9 @@
     const tem=seriesOfDay(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
     const hum=seriesOfDay(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
     if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, 'var(--amber-ln)', 'var(--amber-pt)');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, 'var(--blue-ln)', 'var(--blue-pt)');
+    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+
     setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
   }
 
@@ -764,8 +790,9 @@
     const tem=seriesOfDayForDevice(items, deviceId, 'TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
     const hum=seriesOfDayForDevice(items, deviceId, 'HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
     if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), labelsT, valsT, 'var(--amber-ln)', 'var(--amber-pt)');
-    ovChartHum =buildLineChart($('ovChartHum'), labelsH, valsH, 'var(--blue-ln)', 'var(--blue-pt)');
+    ovChartTemp=buildLineChart($('ovChartTemp'), labelsT, valsT, '#ff4d4f');
+    ovChartHum =buildLineChart($('ovChartHum'), labelsH, valsH, '#4da3ff');
+
     setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
   }
   $('ovBtnShowRange').onclick=()=>{
@@ -778,8 +805,9 @@
     const hum=items.filter(d=>keyIsHum(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
       const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
     if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), tem.map(x=>x.label), tem.map(x=>x.y), 'var(--amber-ln)', 'var(--amber-pt)');
-    ovChartHum =buildLineChart($('ovChartHum'), hum.map(x=>x.label), hum.map(x=>x.y), 'var(--blue-ln)', 'var(--blue-pt)');
+    ovChartTemp=buildLineChart($('ovChartTemp'), tem.map(x=>x.label), tem.map(x=>x.y), '#ff4d4f');
+    ovChartHum =buildLineChart($('ovChartHum'), hum.map(x=>x.label), hum.map(x=>x.y), '#4da3ff');
+
     setText('ovTitleTemp', `Temperatura ${df} → ${dt}`);
     setText('ovTitleHum',  `Humedad ${df} → ${dt}`);
   };
@@ -827,8 +855,9 @@
     const tem=seriesByRange(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
     const hum=seriesByRange(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
     if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, 'var(--amber-ln)', 'var(--amber-pt)');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, 'var(--blue-ln)', 'var(--blue-pt)');
+    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+
     setText('titleTemp', `Temperatura ${r.df} → ${r.dt}`);
     setText('titleHum',  `Humedad ${r.df} → ${r.dt}`);
   }
