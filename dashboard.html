@@ -705,45 +705,14 @@ async function renderDeviceCards(items){
     const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
     if(t>prev) lastById.set(raw,t);
   }
-  const devices=[...lastById.entries()].sort((a,b)=>b[1]-a[1]).map(([id,ts])=>({id,ts}));
-  if(!devices.length){ wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>'; return; }
+  function extractWorkTimes(items, deviceId) {
+  return (items || []).filter(d => {
+    if (String(d.device_id) !== String(deviceId)) return false;
+    const k = String(d.sensor_key).toUpperCase();
+    return k === 'MS' || k.endsWith('.MS');
+  });
+}
 
-  const now=Date.now();
-  // producción: mes y año
-  const prodSummary = await getProdSummary();
-
-  wrap.innerHTML = devices.map(({id,ts})=>{
-    const diff=(now-ts)/60000;
-    const colorConn = diff<=15?'var(--ok)':diff<=360?'var(--warn)':'var(--bad)';
-    const estadoColor='var(--idle)';
-
-    const kilos = CARD_CFG.kilos==='anio'
-      ? (prodSummary[id]?.kilosAnio || 0)
-      : (prodSummary[id]?.kilosMes  || 0);
-    const kilosLabel = CARD_CFG.kilos==='anio' ? 'Kilos año' : 'Kilos mes';
-
-    const mins = workMinutesByPeriod(items, id, CARD_CFG.trabajo);
-    const trabajoLabel = `Trabajo ${CARD_CFG.trabajo}`;
-
-    return `
-      <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
-        <h3 style="margin:0">Colmena ${id}</h3>
-        <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:${colorConn}"></span></div>
-        <div class="status-row"><span>Estado</span><span class="status-dot" style="background:${estadoColor}"></span></div>
-        <div class="status-row"><span>${kilosLabel}</span><span style="font-weight:800;color:var(--accent)">${kilos.toFixed(1)}</span></div>
-        <div class="status-row"><span>${trabajoLabel}</span><span style="font-weight:800;color:var(--focus)">${formatMinutes(mins)}</span></div>
-      </div>`;
-  }).join('');
-
-  if(editing) enableDnD();
-
-  // select de filtro global producción
-  const sel=$('prodDevice');
-  if(sel){
-    const cur=sel.value;
-    sel.innerHTML='<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
-    if(cur) sel.value=cur;
-  }
 }
 
 
