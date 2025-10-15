@@ -134,6 +134,20 @@
     /* Overlay Producción global */
     #prodOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
     #prodPanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
+    /* Dots y stats */
+.dot{width:10px;height:10px;border-radius:50%}
+.dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.neutral{background:var(--idle)}
+.stat{display:flex;align-items:center;gap:8px;font-size:.95rem}
+.stat .label{color:var(--muted)}
+.kpi-mini{display:inline-block;background:#10141a;border:1px solid var(--border);padding:4px 8px;border-radius:8px;font-weight:800}
+.kpi-mini.blue{border-color:#2b6cb0;color:#9cc9ff}
+.kpi-mini.rose{border-color:#b02b2b;color:#ff9c9c}
+
+/* Trabajo */
+.work-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:860px){.work-grid{grid-template-columns:1fr}}
+.work-head{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+
   </style>
 </head>
 <body>
@@ -311,7 +325,7 @@
         <h3 id="overlayTitle" style="margin:0">Colmena —</h3>
       </div>
       <div class="overlay-content">
-
+      
         <!-- Mini dashboard: Temp, Hum, Producción -->
         <div class="overlay-grid">
           <div class="card">
@@ -411,6 +425,48 @@
 
       </div> <!-- overlay-content -->
     </div>
+
+
+<!-- TRABAJO -->
+<div class="card" style="margin-top:12px">
+  <h3 style="margin:0 0 8px">Trabajo</h3>
+
+  <!-- Totales -->
+  <div class="work-grid">
+    <div>
+      <div class="stat"><span class="label">Hoy</span><span id="wkToday" class="kpi-mini rose">— h</span></div>
+      <div class="stat"><span class="label">Semana</span><span id="wkWeek" class="kpi-mini blue">— h</span></div>
+      <div class="stat"><span class="label">Mes</span><span id="wkMonth" class="kpi-mini">— h</span></div>
+    </div>
+    <div>
+      <div class="work-head">
+        <div class="date-chip">
+          <input type="date" id="wkFrom">
+          <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('wkFrom')">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+          </button>
+        </div>
+        <div class="date-chip">
+          <input type="date" id="wkTo">
+          <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('wkTo')">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+          </button>
+        </div>
+        <button id="wkShow" class="btn small" type="button">Mostrar</button>
+        <button id="wkCSV" class="btn small" type="button">Descargar CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico variables de trabajo -->
+  <div class="chart-card" style="margin-top:10px">
+    <h3 id="wkTitle" style="margin:0 0 8px">Trabajo de hoy (C2R, NHR, NXR, ALR, SMR)</h3>
+    <div class="chart-box"><canvas id="wkChart"></canvas></div>
+  </div>
+</div>
+
+
+    
   </div>
 
   <!-- Overlay Global Producción -->
@@ -491,6 +547,8 @@
   let chartTemp=null, chartHum=null, chartsVisible=false, lastItemsCache=null;
   let historyMode=false;
   let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
+  let wkChart=null;
+
 
   // ======= NUEVO: Estado clima por almacenamiento local =======
   const WX_KEY = 'miellifera.wxPlace'; // {lat,lon,label}
@@ -557,7 +615,40 @@
   function toLocalDayStart(dateInput){ return new Date(dateInput+"T00:00:00").getTime(); }
   function toLocalDayEnd(dateInput){ return new Date(dateInput+"T23:59:59.999").getTime(); }
   function tryOpenPicker(id){ const el=$(id); if(el?.showPicker) el.showPicker(); else el?.focus(); }
+  function startOfTodayISO(){ return new Date(ymd(new Date())+'T00:00:00').toISOString(); }
+function endOfTodayISO(){ return new Date(ymd(new Date())+'T23:59:59.999').toISOString(); }
+function msToHhMm(ms){
+  const h = Math.floor(ms/3600000);
+  const m = Math.floor((ms%3600000)/60000);
+  return `${h}h ${String(m).padStart(2,'0')}m`;
+}
+async function fetchDeviceDatapoints(deviceId, fromISO, toISO, keys=null){
+  const qp = new URLSearchParams();
+  if(fromISO) qp.set('from', fromISO);
+  if(toISO) qp.set('to', toISO);
+  qp.set('limit','5000');
+  const { items } = await callWorker(`/datapoints?${qp.toString()}`);
+  return (items||[]).filter(d => String(d.device_id||'')===String(deviceId) && (!keys || keys.includes(String(d.sensor_key||'').toUpperCase())));
+}
 
+
+function buildMultiLineChart(canvas, labels, series){
+  const ctx=canvas.getContext('2d');
+  const palette = ['#ff4d4f','#4da3ff','#ff9f40','#9b59b6','#2ecc71','#e67e22'];
+  const datasets = series.map((s,i)=>({
+    label:s.name, data:s.values, borderColor: palette[i%palette.length], backgroundColor:'transparent', borderWidth:2, tension:.25, pointRadius:0
+  }));
+  return new Chart(ctx,{
+    type:'line',
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true}}, scales:{x:{},y:{}} }
+  });
+}
+
+
+
+
+  
   // KPIs madre
   function updateLastReading(items){
     const el=$('lastReading');
@@ -591,15 +682,82 @@
     }).join('');
   }
 
+
+
+
+  
   // Tarjetas colmena + estado
   function renderDeviceCards(items){
-    const wrap=$('autoCards'); if(!wrap) return;
-    const lastById=new Map();
-    for(const d of items||[]){ const raw=String(d.device_id||'').trim();
-      if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
-      const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
-      if(t>prev) lastById.set(raw,t);
-    }
+  const wrap=$('autoCards'); if(!wrap) return;
+  // último timestamp por device id numérico, excluye MOTHER
+  const lastById=new Map();
+  for(const d of items||[]){
+    const raw=String(d.device_id||'').trim();
+    if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
+    const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
+    if(t>prev) lastById.set(raw,t);
+  }
+  const devices=[...lastById.entries()].sort((a,b)=>b[1]-a[1]).map(([id,ts])=>({id,ts}));
+  if(!devices.length){ wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>'; return; }
+
+  const now=Date.now();
+  wrap.innerHTML=devices.map(({id,ts})=>{
+    const diffMin=(now-ts)/60000;
+    const connClass = diffMin<=15?'ok':(diffMin<=360?'neutral':'bad');
+    return `
+      <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
+        <h3 style="margin:0 0 6px">Colmena ${id}</h3>
+        <div class="stat"><span class="label">Conectado</span><span class="dot ${connClass}"></span></div>
+        <div class="stat"><span class="label">Estado</span><span class="dot neutral" title="Pendiente de lógica"></span></div>
+        <div class="stat"><span class="label">Kilos mes</span><span class="kpi-mini" id="kpiMonth_${id}">—</span></div>
+        <div class="stat"><span class="label">Trabajo semanal</span><span class="kpi-mini" id="kpiWeek_${id}">— h</span></div>
+      </div>`;
+  }).join('');
+
+  if(editing) enableDnD();
+
+  // Select filtrado
+  const sel = $('prodDevice');
+  if(sel){
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
+    if(cur) sel.value = cur;
+  }
+
+  // Completar KPIs asíncronos
+  fillDeviceCardStats(devices).catch(()=>{});
+}
+async function fillDeviceCardStats(devices){
+  // Rango mes y semana
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const weekStart = new Date(now); weekStart.setDate(now.getDate()-6);
+  const mFromISO = new Date(ymd(monthStart)+'T00:00:00').toISOString();
+  const mToISO   = new Date(ymd(now)+'T23:59:59.999').toISOString();
+  const wFromISO = new Date(ymd(weekStart)+'T00:00:00').toISOString();
+  const wToISO   = mToISO;
+
+  for(const d of devices){
+    // Kilos mes
+    try{
+      const { items:prod } = await prodList({ device_id: d.id, fromISO:mFromISO, toISO:mToISO });
+      const total = (prod||[]).reduce((a,b)=> a + Number(b.kilos||0), 0);
+      setText(`kpiMonth_${d.id}`, total.toFixed(2));
+    }catch{}
+
+    // Trabajo semanal: suma de sensor MS en ms -> horas
+    try{
+      const msItems = await fetchDeviceDatapoints(d.id, wFromISO, wToISO, ['MS']);
+      const totalMs = msItems.reduce((a,b)=> a + (Number(b.value)||0), 0);
+      setText(`kpiWeek_${d.id}`, msToHhMm(totalMs));
+    }catch{}
+  }
+}
+
+
+
+
+  
     const devices=[...lastById.entries()].sort((a,b)=>b[1]-a[1]).map(([id,ts])=>({id,ts}));
     if(!devices.length){ wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>'; return; }
     const now=Date.now();
@@ -689,11 +847,113 @@
     if(ovChartHum){ ovChartHum.destroy(); ovChartHum=null; }
     $('ovDateFrom').value = ymd(new Date());
     $('ovDateTo').value = ymd(new Date());
+    $('wkFrom').value = ymd(new Date());
+$('wkTo').value = ymd(new Date());
+updateWorkTotalsTodayWeekMonth().catch(()=>{});
+renderWorkChartToday().catch(()=>{});
+
   }
   function closeOverlay(){
     const ov=$('deviceOverlay'); ov.style.display='none'; ov.setAttribute('aria-hidden','true');
     currentOverlayDevice=null;
   }
+
+
+
+
+
+async function updateWorkTotalsTodayWeekMonth(){
+  if(!currentOverlayDevice) return;
+  const todayFrom = startOfTodayISO(), todayTo = endOfTodayISO();
+  const week = new Date(); week.setDate(week.getDate()-6);
+  const weekFrom = new Date(ymd(week)+'T00:00:00').toISOString();
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const monthFrom = new Date(ymd(monthStart)+'T00:00:00').toISOString();
+  const toISO = endOfTodayISO();
+
+  const todayMs = await sumMs(currentOverlayDevice, todayFrom, todayTo);
+  const weekMs  = await sumMs(currentOverlayDevice, weekFrom, toISO);
+  const monthMs = await sumMs(currentOverlayDevice, monthFrom, toISO);
+
+  setText('wkToday', msToHhMm(todayMs));
+  setText('wkWeek',  msToHhMm(weekMs));
+  setText('wkMonth', msToHhMm(monthMs));
+}
+async function sumMs(deviceId, fromISO, toISO){
+  const msItems = await fetchDeviceDatapoints(deviceId, fromISO, toISO, ['MS']);
+  return msItems.reduce((a,b)=> a + (Number(b.value)||0), 0);
+}
+async function renderWorkChartToday(){
+  if(!currentOverlayDevice) return;
+  const fromISO = startOfTodayISO(), toISO = endOfTodayISO();
+  await renderWorkChartRange(fromISO, toISO, 'Trabajo de hoy (C2R, NHR, NXR, ALR, SMR)');
+}
+async function renderWorkChartRange(fromISO, toISO, title){
+  if(!currentOverlayDevice) return;
+  const keys = ['C2R','NHR','NXR','ALR','SMR'];
+  const items = await fetchDeviceDatapoints(currentOverlayDevice, fromISO, toISO, null);
+  // labels por minuto
+  const sorted = items.slice().sort((a,b)=> new Date(a.ts)-new Date(b.ts));
+  const labels = sorted.map(d=>{ const t=new Date(d.ts); return `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; });
+  const series = keys.map(k=>{
+    const vals = sorted.map(d=> String(d.sensor_key||'').toUpperCase()===k ? Number(d.value)||0 : null);
+    // interpolación simple: mantener último valor conocido
+    let last=null; for(let i=0;i<vals.length;i++){ if(vals[i]==null) vals[i]= last; else last=vals[i]; }
+    return {name:k, values: vals.map(v=> v==null? 0 : v)};
+  });
+  if(wkChart){ wkChart.destroy(); wkChart=null; }
+  wkChart = buildMultiLineChart($('wkChart'), labels, series);
+  setText('wkTitle', title);
+}
+
+
+
+
+
+
+$('wkShow').onclick = async ()=>{
+  const df=$('wkFrom').value, dt=$('wkTo').value;
+  if(!df || !dt) return;
+  const fromISO = new Date(df+'T00:00:00').toISOString();
+  const toISO   = new Date(dt+'T23:59:59.999').toISOString();
+  await renderWorkChartRange(fromISO, toISO, `Trabajo ${df} → ${dt} (C2R, NHR, NXR, ALR, SMR)`);
+};
+
+$('wkCSV').onclick = async ()=>{
+  if(!currentOverlayDevice) return;
+  const df=$('wkFrom').value, dt=$('wkTo').value;
+  const fromISO = df? new Date(df+'T00:00:00').toISOString(): startOfTodayISO();
+  const toISO   = dt? new Date(dt+'T23:59:59.999').toISOString(): endOfTodayISO();
+  const items = await fetchDeviceDatapoints(currentOverlayDevice, fromISO, toISO, null);
+  const rows = [['timestamp_iso','fecha_local','C2R','NHR','NXR','ALR','SMR','MS']];
+  const byTs = {};
+  for(const d of items){
+    const key = new Date(d.ts).toISOString();
+    const K = String(d.sensor_key||'').toUpperCase();
+    if(!byTs[key]) byTs[key] = {ts:key};
+    if(['C2R','NHR','NXR','ALR','SMR','MS'].includes(K)) byTs[key][K]=d.value;
+  }
+  const ordered = Object.values(byTs).sort((a,b)=> new Date(a.ts)-new Date(b.ts));
+  for(const r of ordered){
+    const dtLoc = new Date(r.ts).toLocaleString('es-AR');
+    rows.push([r.ts, dtLoc, r.C2R??'', r.NHR??'', r.NXR??'', r.ALR??'', r.SMR??'', r.MS??'']);
+  }
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `trabajo_${currentOverlayDevice}_${$('wkFrom').value||'hoy'}_a_${$('wkTo').value||'hoy'}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+};
+
+
+
+
+  
+
+
+
+  
 
   // KPIs colmena
   function keyIsTemp(k){ const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.TEM')||K==='TEM'||K.includes('TEMP'); }
