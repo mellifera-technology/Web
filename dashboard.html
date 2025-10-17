@@ -1091,33 +1091,65 @@ function extractWorkTimes(items, deviceId) {
   );
 }
 
-// Extraer variables adicionales
-function extractWorkVars(items, deviceId) {
-  const keys = ['C2R', 'NHR', 'NXR', 'ALR', 'SMR'];
-  return (items || []).filter(d =>
-    String(d.device_id) === String(deviceId) &&
-    keys.includes(String(d.sensor_key).toUpperCase())
-  );
+// Reemplazo
+function extractWorkTimes(items, deviceId) {
+  const devId = String(deviceId);
+  return (items || []).filter(d => {
+    if (String(d.device_id) !== devId) return false;
+    const k = String(d.sensor_key || '').toUpperCase().trim();
+    // Acepta "MS", "WORK.MS", "DEVICE.MS", etc.
+    return k === 'MS' || k.endsWith('.MS');
+  });
 }
 
+// Helper NUEVO
+function formatHM_fromMs(ms){
+  const totalMin = Math.round((Number(ms)||0) / 60000);
+  const h = Math.floor(totalMin/60);
+  const m = totalMin % 60;
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+  
 // Calcular total diario, semanal, mensual (en minutos)
+// Reemplazo
+function isSameISOWeek(d1, ref){
+  // Semana ISO: lunes 00:00 a lunes 00:00
+  const a = new Date(ref);
+  const day = (a.getDay() + 6) % 7; // 0=lunes
+  a.setHours(0,0,0,0);
+  a.setDate(a.getDate() - day);
+  const start = a;                 // lunes
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);  // próximo lunes
+  return d1 >= start && d1 < end;
+}
+
 function calcWorkTotals(items, deviceId) {
   const msData = extractWorkTimes(items, deviceId);
-  let today = 0, week = 0, month = 0;
+  let todayMs = 0, weekMs = 0, monthMs = 0;
   const now = new Date();
+
   for (const d of msData) {
     const t = new Date(d.ts);
-    const val = Number(d.value) || 0;
-    if (t.toDateString() === now.toDateString()) today += val;
-    if (isSameWeek(t, now)) week += val;
-    if (t.getMonth() === now.getMonth() && t.getFullYear() === now.getFullYear()) month += val;
+    const valMs = Number(d.value) || 0;
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth() &&
+        t.getDate() === now.getDate()) {
+      todayMs += valMs;
+    }
+    if (isSameISOWeek(t, now)) {
+      weekMs += valMs;
+    }
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth()) {
+      monthMs += valMs;
+    }
   }
-  return {
-    today: Math.round(today / 60000),
-    week: Math.round(week / 60000),
-    month: Math.round(month / 60000)
-  };
+
+  return { todayMs, weekMs, monthMs };
 }
+
 
 function isSameWeek(d1, d2) {
   const start = new Date(d2);
@@ -1130,11 +1162,12 @@ function isSameWeek(d1, d2) {
 
 // Renderizar resumen y gráficos
 function renderWorkSection(items, deviceId) {
-  const totals = calcWorkTotals(items, deviceId);
-  setText('workToday', `Trabajo de hoy: ${totals.today} min`);
-  setText('workWeek', `Trabajo de la semana: ${totals.week} min`);
-  setText('workMonth', `Trabajo del mes: ${totals.month} min`);
+  const { todayMs, weekMs, monthMs } = calcWorkTotals(items, deviceId);
+  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
+  setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
+  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
 }
+
 
 // Gráfico de variables C2R, NHR, NXR, ALR, SMR
 function renderWorkCharts(items, deviceId) {
