@@ -1167,7 +1167,7 @@ function getPeriodBounds(period, refDate){
     const day = (ref.getDay()+6)%7; // ISO lunes
     from.setHours(0,0,0,0); from.setDate(from.getDate()-day);
     to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
-  }else{ // 'mes'
+  }else{ // mes
     from = new Date(ref.getFullYear(), ref.getMonth(), 1, 0,0,0,0);
     to   = new Date(ref.getFullYear(), ref.getMonth()+1, 0, 23,59,59,999);
   }
@@ -1175,34 +1175,47 @@ function getPeriodBounds(period, refDate){
 }
 
 function filterWorkSeries(items, deviceId, fromT, toT){
-  const keys = ['C2R','NHR','NXR','ALR','SMR'];
-  const byKey = Object.fromEntries(keys.map(k=>[k,[]]));
+  const KEYS = ['C2R','NHR','NXR','ALR','SMR'];
+  const byKey = Object.fromEntries(KEYS.map(k=>[k,[]]));
+  const labelSet = new Set();
+
   for(const d of (items||[])){
     if(String(d.device_id)!==String(deviceId)) continue;
     const k = String(d.sensor_key||'').toUpperCase().trim();
-    if(!keys.includes(k)) continue;
+    if(!KEYS.includes(k)) continue;
     const t = new Date(d.ts).getTime();
-    if(!(t>=fromT && t<=toT)) continue;
-    byKey[k].push({ t, y: Number(d.value)||0 });
+    if(t<fromT || t>toT) continue;
+    const y = Number(d.value)||0;
+    // redondeo a minuto para alinear
+    const tMin = Math.floor(t/60000)*60000;
+    byKey[k].push({ t: tMin, y });
+    labelSet.add(tMin);
   }
-  for(const k of Object.keys(byKey)) byKey[k].sort((a,b)=>a.t-b.t);
-  const labels = [...new Set((byKey[keys.find(k=>byKey[k].length)||keys[0]]||[]).map(p=>(
-    new Date(p.t).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})
-  )))];
-  const palette = {
-    C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d'
-  };
-  const datasets = keys.map(k=>({
+
+  const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
+  const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
+
+  // map rápido por clave->timestamp->valor
+  const maps = {};
+  for(const k of Object.keys(byKey)){
+    const m = new Map();
+    byKey[k].sort((a,b)=>a.t-b.t);
+    for(const p of byKey[k]) m.set(p.t, p.y);
+    maps[k] = m;
+  }
+
+  const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
+  const datasets = Object.keys(byKey).map(k=>({
     label:k,
-    data: labels.map((lab,i)=>{
-      const row = byKey[k][i]; return row? row.y : null;
-    }),
+    data: labelsTs.map(ts=> maps[k].has(ts) ? maps[k].get(ts) : null),
     borderColor: palette[k]||'#ccc',
     backgroundColor: 'transparent',
-    borderWidth:2, tension:.25, pointRadius:0
+    borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
   }));
+
   return { labels, datasets };
 }
+
 
   
 // Calcular total diario, semanal, mensual (en minutos)
@@ -1279,11 +1292,13 @@ function renderWorkCharts(items, deviceId, range){
       responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:true} },
       interaction:{mode:'nearest',intersect:false},
-      scales:{ x:{ title:{display:true,text:'Hora'} }, y:{ beginAtZero:true } }
+      scales:{
+        x:{ title:{display:true,text:'Hora'} },
+        y:{ beginAtZero:true }
+      }
     }
   });
 }
-
 
 // CSV de trabajo
 // Reemplazo
@@ -1321,12 +1336,13 @@ async function downloadWorkCSV(deviceId, df=null, dt=null) {
 
 // Botones de interfaz
 // Reemplazo
-$('btnWorkChart').onclick = ()=>{
+  $('btnWorkChart').onclick = ()=>{
   const wrap = $('workChartWrap');
-  const show = wrap.style.display === 'none';
-  wrap.style.display = show ? 'block' : 'none';
-  $('btnWorkChart').textContent = show ? 'Ocultar gráficos' : 'Mostrar gráficos';
-  if (show && currentOverlayDevice && lastItemsCache){
+  const visible = getComputedStyle(wrap).display !== 'none';
+  wrap.style.display = visible ? 'none' : 'block';
+  $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
+
+  if (!visible && currentOverlayDevice && lastItemsCache){
     const period = $('workRange')?.value || 'dia';
     const {fromT, toT} = getPeriodBounds(period, new Date());
     renderWorkCharts(lastItemsCache, currentOverlayDevice, {fromT, toT});
@@ -1357,14 +1373,17 @@ $('btnWorkCSV').onclick = ()=>{
   $('wxQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') doWxSearch(); });
 
   // Agregado
-$('workRange').onchange = ()=>{
-  if ($('workChartWrap').style.display !== 'none' && currentOverlayDevice && lastItemsCache){
+  $('workRange').onchange = ()=>{
+  const wrap = $('workChartWrap');
+  const visible = getComputedStyle(wrap).display !== 'none';
+  if (visible && currentOverlayDevice && lastItemsCache){
     const period = $('workRange').value;
     const {fromT, toT} = getPeriodBounds(period, new Date());
     renderWorkCharts(lastItemsCache, currentOverlayDevice, {fromT, toT});
   }
 };
 
+  
 $('btnWorkHistToggle').onclick = ()=>{
   const c = $('workHistControls');
   const show = c.style.display === 'none';
