@@ -799,6 +799,34 @@ async function renderDeviceCards(items){
     setText('ovHumWhen', h ? dtAR(h.ts) : '—');
   }
 
+
+  // AGREGADO: bounds en ms + ISO según período
+function periodBounds(period, ref=new Date()){
+  const r = new Date(ref);
+  let from = new Date(r), to = new Date(r);
+  if(period==='dia'){
+    from.setHours(0,0,0,0); to.setHours(23,59,59,999);
+  }else if(period==='semana'){
+    const d=(r.getDay()+6)%7; // lunes
+    from.setHours(0,0,0,0); from.setDate(from.getDate()-d);
+    to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
+  }else{ // mes
+    from = new Date(r.getFullYear(), r.getMonth(), 1, 0,0,0,0);
+    to   = new Date(r.getFullYear(), r.getMonth()+1, 0, 23,59,59,999);
+  }
+  return { fromT:+from, toT:+to,
+           fromISO: from.toISOString(), toISO: to.toISOString() };
+}
+
+// AGREGADO: obtiene datos según período
+async function getWorkDataFor(period, deviceId){
+  if(period==='dia') return lastItemsCache || [];
+  const { fromISO, toISO } = periodBounds(period);
+  return await workFetchRange(fromISO, toISO, deviceId);
+}
+
+  
+
   // Gráficos madre
   $('btnChart').onclick=()=>{
     chartsVisible=!chartsVisible;
@@ -1336,18 +1364,22 @@ async function downloadWorkCSV(deviceId, df=null, dt=null) {
 
 // Botones de interfaz
 // Reemplazo
-  $('btnWorkChart').onclick = ()=>{
+ // Reemplazo
+$('btnWorkChart').onclick = async ()=>{
   const wrap = $('workChartWrap');
   const visible = getComputedStyle(wrap).display !== 'none';
   wrap.style.display = visible ? 'none' : 'block';
   $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
+  if (visible) return; // se ocultó
 
-  if (!visible && currentOverlayDevice && lastItemsCache){
+  if (currentOverlayDevice){
     const period = $('workRange')?.value || 'dia';
-    const {fromT, toT} = getPeriodBounds(period, new Date());
-    renderWorkCharts(lastItemsCache, currentOverlayDevice, {fromT, toT});
+    const data = await getWorkDataFor(period, currentOverlayDevice);
+    const { fromT, toT } = periodBounds(period);
+    renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
   }
 };
+
 
 $('btnWorkCSV').onclick = ()=>{
   if (!currentOverlayDevice || !lastItemsCache) return;
@@ -1373,14 +1405,16 @@ $('btnWorkCSV').onclick = ()=>{
   $('wxQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') doWxSearch(); });
 
   // Agregado
-  $('workRange').onchange = ()=>{
+  // Reemplazo
+$('workRange').onchange = async ()=>{
   const wrap = $('workChartWrap');
   const visible = getComputedStyle(wrap).display !== 'none';
-  if (visible && currentOverlayDevice && lastItemsCache){
-    const period = $('workRange').value;
-    const {fromT, toT} = getPeriodBounds(period, new Date());
-    renderWorkCharts(lastItemsCache, currentOverlayDevice, {fromT, toT});
-  }
+  if (!visible || !currentOverlayDevice) return;
+
+  const period = $('workRange').value || 'dia';
+  const data = await getWorkDataFor(period, currentOverlayDevice);
+  const { fromT, toT } = periodBounds(period);
+  renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
 };
 
   
