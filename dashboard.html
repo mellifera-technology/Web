@@ -134,118 +134,6 @@
     /* Overlay Producción global */
     #prodOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
     #prodPanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
-
-  /* ======= Configuración de tarjeta modelo (modo Editar orden) ======= */
-
-/* Capa oscura y centrado */
-#editModelWrap{
-  position:fixed; inset:0; display:none;
-  align-items:center; justify-content:center;
-  background:rgba(8,10,14,.6); backdrop-filter:blur(3px);
-  z-index:950;
-}
-
-/* Carta modelo centrada */
-.edit-model-card{
-  width:min(92vw,420px);
-  background:var(--card-2);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-}
-
-/* Encabezado de la carta */
-.edit-model-head{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  margin-bottom:10px;
-}
-.edit-model-title{
-  margin:0; font-size:1.15rem; font-weight:800; letter-spacing:.2px;
-}
-.edit-model-sub{
-  color:var(--muted); font-size:.92rem;
-}
-
-/* Vista previa “parecida” a las device-card */
-.model-preview{
-  background:var(--card);
-  border:1px dashed var(--border);
-  border-radius:12px;
-  padding:12px; margin-top:8px;
-}
-.model-title{
-  margin:0 0 8px; font-weight:800;
-}
-.model-rows{ display:grid; gap:6px }
-.model-row{
-  display:flex; align-items:center; gap:8px; color:var(--muted);
-}
-.model-dot{
-  width:10px; height:10px; border-radius:50%;
-  background:var(--idle); box-shadow:0 0 0 2px rgba(0,0,0,.2) inset;
-}
-.model-chip{
-  display:inline-block; background:#10141a; color:#e6e9ee;
-  border:1px solid var(--border); padding:2px 8px; border-radius:999px;
-  font-weight:700; font-variant-numeric:tabular-nums;
-}
-
-/* Controles */
-.edit-controls{ margin-top:12px; display:grid; gap:10px }
-.ctrl-row{ display:grid; grid-template-columns:1fr; gap:8px }
-.ctrl-label{ font-weight:700 }
-.ctrl-help{ color:var(--muted); font-size:.9rem }
-
-/* Selector segmentado */
-.seg{
-  display:inline-flex; background:#10141a; border:1px solid var(--border);
-  border-radius:10px; overflow:hidden;
-}
-.seg button{
-  background:transparent; color:#dfe5ec; border:0; padding:8px 10px; cursor:pointer;
-  font-weight:700; min-width:90px;
-}
-.seg button + button{ border-left:1px solid var(--border) }
-.seg button[aria-pressed="true"]{
-  background:var(--accent); color:#111; border-left-color:var(--accent);
-}
-
-/* Select estándar (fallback) */
-.select{
-  width:100%; background:#10141a; color:#fff;
-  border:1px solid var(--border); border-radius:10px; padding:8px 10px;
-}
-
-/* Pie de acciones */
-.edit-actions{
-  display:flex; gap:8px; justify-content:flex-end; margin-top:12px; flex-wrap:wrap;
-}
-.btn.outline{
-  background:transparent; color:#e2e7ee; border-color:var(--border);
-}
-.btn.confirm{
-  background:var(--accent); color:#111; border-color:var(--accent); font-weight:800;
-}
-
-/* Estado de edición en la grilla: deja visible la carta modelo */
-.editing #editModelWrap{ display:flex }
-
-/* Responsivo */
-@media (max-width:520px){
-  .edit-model-card{ padding:14px }
-  .seg button{ min-width:72px; padding:8px 8px }
-}
-
-/* Utilidades pequeñas para la vista previa */
-.kv{
-  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
-}
-.kv .k{ color:#c7ced8 }
-.kv .v{ font-weight:800; color:var(--accent) }
-.kv .v.blue{ color:var(--focus) }
-
-    
   </style>
 </head>
 <body>
@@ -271,19 +159,19 @@
       </div>
 
       <div class="split">
-        <!-- ======= Cuenta ======= -->
+        <!-- Cuenta -->
         <div class="card" style="max-width:420px">
           <h3>Cuenta</h3>
           <p class="reveal-wrap">
             <span>Email: <b id="uEmail" data-real="">—</b></span>
-            <button id="toggleEmail" class="eye-btn" type="button">
+            <button id="toggleEmail" class="eye-btn" type="button" aria-pressed="false" title="Mostrar/ocultar email">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3l18 18" stroke-width="2"/><path d="M21 12s-3.5-7-9-7" stroke-width="2"/></svg>
               <span>Ocultar</span>
             </button>
           </p>
           <p class="reveal-wrap">
             <span>Código de 4 dígitos: <b id="uCode" data-real="">—</b></span>
-            <button id="toggleCode" class="eye-btn" type="button">
+            <button id="toggleCode" class="eye-btn" type="button" aria-pressed="false" title="Mostrar/ocultar código">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3l18 18" stroke-width="2"/><path d="M21 12s-3.5-7-9-7" stroke-width="2"/></svg>
               <span>Ocultar</span>
             </button>
@@ -294,7 +182,7 @@
           <div id="msg" class="muted" style="margin-top:8px"></div>
           <hr style="border:0;border-top:1px solid var(--border)">
 
-          <!-- ======= Clima ======= -->
+          <!-- Clima y pronóstico -->
           <div>
             <h3 style="margin:10px 0 8px">Clima y pronóstico</h3>
             <div id="wxCard" class="wx-card">
@@ -305,13 +193,17 @@
                   <button id="btnWxReset" class="btn small" type="button" style="display:none">Resetear</button>
                 </div>
               </div>
+
+              <!-- Fila de entrada para buscar ubicación -->
               <div id="wxInputRow" style="display:none;margin:6px 0 10px;gap:8px;align-items:center;flex-wrap:wrap">
                 <div class="loc-chip">
-                  <input id="wxQuery" type="text" placeholder="Ciudad, provincia, país o lat,lon">
+                  <input id="wxQuery" type="text" placeholder="Ciudad, provincia, país o lat,lon" aria-label="Ubicación">
                 </div>
                 <button id="btnWxFind" class="btn small yellow" type="button">Buscar</button>
               </div>
+
               <div id="wxContent" class="wx-blur">
+                <!-- Hoy -->
                 <div class="wx-today">
                   <div>
                     <div class="wx-big" id="wxNow">— °C</div>
@@ -320,13 +212,15 @@
                   </div>
                   <div class="wx-small" id="wxTodayMM">Máx —° · Mín —° · 💧 —mm</div>
                 </div>
+                <!-- Próximos 3 -->
                 <div class="wx-tiles" id="wxTiles"></div>
               </div>
             </div>
           </div>
+          <!-- /Clima -->
         </div>
 
-        <!-- ======= KPIs madre + gráficos ======= -->
+        <!-- KPIs madre + gráficos -->
         <div>
           <div class="side-cards">
             <div class="card">
@@ -345,14 +239,15 @@
             <button id="btnChart" class="btn yellow" type="button">Mostrar gráfica</button>
           </div>
 
+          <!-- Gráficos + historial -->
           <div id="chartsWrap">
             <div class="charts-grid">
               <div class="chart-card">
-                <h3 id="titleTemp">Temperatura de hoy</h3>
+                <h3 id="titleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
                 <div class="chart-box"><canvas id="chartTemp"></canvas></div>
               </div>
               <div class="chart-card">
-                <h3 id="titleHum">Humedad de hoy</h3>
+                <h3 id="titleHum" style="margin:0 0 8px">Humedad de hoy</h3>
                 <div class="chart-box"><canvas id="chartHum"></canvas></div>
               </div>
             </div>
@@ -360,13 +255,13 @@
             <div class="hist-controls" id="histControls">
               <div class="date-chip">
                 <input type="date" id="dateFrom">
-                <button class="cal-btn" type="button" onclick="tryOpenPicker('dateFrom')">
+                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('dateFrom')">
                   <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
                 </button>
               </div>
               <div class="date-chip">
                 <input type="date" id="dateTo">
-                <button class="cal-btn" type="button" onclick="tryOpenPicker('dateTo')">
+                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('dateTo')">
                   <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
                 </button>
               </div>
@@ -386,6 +281,7 @@
       </div>
     </section>
 
+    <!-- Historial tabla -->
     <section class="section" id="lecturas">
       <div class="section-head">
         <h3>Historial de mediciones</h3>
@@ -404,45 +300,192 @@
     <span>© <span id="year"></span> MIELLIFERA</span>
   </footer>
 
-  <!-- ======= Modal de configuración de modelo ======= -->
-  <div id="editModelWrap">
-    <div class="edit-model-card">
-      <div class="edit-model-head">
-        <h3 class="edit-model-title">Configuración de vista</h3>
-        <span class="edit-model-sub" id="editModelHive">Colmena —</span>
+  <!-- Overlay Colmena -->
+  <div id="deviceOverlay" aria-hidden="true">
+    <div id="devicePanel">
+      <div class="overlay-header">
+        <button id="btnOverlayBack" class="btn small" type="button" title="Atrás">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" style="margin-right:6px"><path d="M15 18l-6-6 6-6" stroke-width="2"/></svg>
+          Atrás
+        </button>
+        <h3 id="overlayTitle" style="margin:0">Colmena —</h3>
       </div>
+      <div class="overlay-content">
 
-      <div class="model-preview">
-        <h4 class="model-title">Vista previa</h4>
-        <div class="model-rows">
-          <div class="model-row"><span class="model-dot" style="background:var(--ok)"></span><span>Kilos mes</span><span class="model-chip">12.3</span></div>
-          <div class="model-row"><span class="model-dot" style="background:var(--focus)"></span><span>Trabajo semanal</span><span class="model-chip">8h 20m</span></div>
+        <!-- Mini dashboard: Temp, Hum, Producción -->
+        <div class="overlay-grid">
+          <div class="card">
+            <h3>Temperatura Colmena</h3>
+            <div class="metric"><span id="ovTemVal" class="val">—</span><span class="unit">°C</span></div>
+            <div id="ovTemWhen" class="muted">—</div>
+          </div>
+          <div class="card">
+            <h3>Humedad Colmena</h3>
+            <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
+            <div id="ovHumWhen" class="muted">—</div>
+          </div>
+          <div class="card">
+            <h3>Producción</h3>
+
+            <!-- Entrada alineada -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
+              <div class="date-chip">
+                <input type="date" id="ovProdDate">
+                <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                </button>
+              </div>
+              <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+              <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
+              <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
+            </div>
+
+            <!-- Historial oculto hasta tocar "Ver historial" -->
+            <div id="ovProdHistWrap" style="display:none">
+              <div class="nice-table">
+                <table style="width:100%">
+                  <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
+                  <tbody id="ovProdTbody"><tr><td class="muted" colspan="2">Sin datos</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+  <!-- Trabajo -->
+<div class="card" id="workCard">
+  <h3>Trabajo</h3>
+  <div id="workToday" class="muted">Trabajo de hoy: —</div>
+  <div id="workWeek" class="muted">Trabajo de la semana: —</div>
+  <div id="workMonth" class="muted">Trabajo del mes: —</div>
+  <div id="workChartWrap" style="display:none;margin-top:10px">
+    <div class="chart-card">
+      <h3>Trabajo del día — Variables</h3>
+      <div class="chart-box"><canvas id="workChart"></canvas></div>
+    </div>
+  </div>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+            <!-- REEMPLAZO: barra de acciones -->
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            <option value="dia">Día</option>
+            <option value="semana">Semana</option>
+            <option value="mes">Mes</option>
+          </select>
+          <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+          <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
+        </div>
+        
+        <!-- AGREGADO: controles de Historial -->
+        <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
+          <div class="date-chip">
+            <input type="date" id="workDateFrom">
+            <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="date-chip">
+            <input type="date" id="workDateTo">
+            <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="hist-actions">
+            <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
+            <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
+          </div>
+        </div>
+  </div>
+</div>
 
-      <div class="edit-controls">
-        <div class="ctrl-row">
-          <label class="ctrl-label">Mostrar kilos por</label>
-          <div class="seg" id="segKilos">
-            <button type="button" data-mode="mes" aria-pressed="true">Mes</button>
-            <button type="button" data-mode="semana">Semana</button>
-            <button type="button" data-mode="anio">Año</button>
+        <!-- Gráfica + historial por colmena -->
+        <div class="card" style="margin-top:12px">
+          <div class="center"><button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button></div>
+          <div id="ovChartsWrap" style="display:none;margin-top:10px">
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
+                <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
+                <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
+              </div>
+            </div>
+            <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
+              <div class="date-chip">
+                <input type="date" id="ovDateFrom">
+                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                </button>
+              </div>
+              <div class="date-chip">
+                <input type="date" id="ovDateTo">
+                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                </button>
+              </div>
+              <div class="hist-actions">
+                <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
+                <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="ctrl-row">
-          <label class="ctrl-label">Mostrar trabajo por</label>
-          <div class="seg" id="segTrabajo">
-            <button type="button" data-mode="semana" aria-pressed="true">Semanal</button>
-            <button type="button" data-mode="dia">Diario</button>
-            <button type="button" data-mode="anio">Anual</button>
+      </div> <!-- overlay-content -->
+    </div>
+  </div>
+
+  <!-- Overlay Global Producción -->
+  <div id="prodOverlay" aria-hidden="true">
+    <div id="prodPanel">
+      <div class="overlay-header">
+        <button id="btnProdBack" class="btn small" type="button">Atrás</button>
+        <h3 style="margin:0">Producción — Panel</h3>
+      </div>
+      <div class="overlay-content">
+        <div class="card">
+          <h3>Filtros</h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div class="date-chip">
+              <input type="date" id="prodFrom">
+              <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+              </button>
+            </div>
+            <div class="date-chip">
+              <input type="date" id="prodTo">
+              <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+              </button>
+            </div>
+            <div>
+              <select id="prodDevice" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+                <option value="">Todas</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
           </div>
         </div>
-      </div>
 
-      <div class="edit-actions">
-        <button id="btnCancelEdit" class="btn outline" type="button">Cancelar</button>
-        <button id="btnConfirmEdit" class="btn confirm" type="button">Confirmar</button>
+        <div class="card" style="margin-top:12px">
+          <h3>Historial</h3>
+          <div class="nice-table" style="overflow:auto;max-height:60vh">
+            <table style="width:100%">
+              <thead><tr><th>Fecha</th><th>Colmena</th><th class="num">Kilos</th></tr></thead>
+              <tbody id="prodGlobalTbody"></tbody>
+              <tfoot><tr><th colspan="2" style="text-align:right">Total</th><th id="prodGlobalTotal" class="num">0.00</th></tr></tfoot>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -476,23 +519,6 @@
   let historyMode=false;
   let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
 
-  // ===== Prefs por colmena (kilos/trabajo) =====
-  const PREF_KEY='miellifera.cardPref.v1'; // { [deviceId]: { kilos:'mes|semana|anio', trabajo:'dia|semana|anio' } }
-  function loadPrefs(){ try{ return JSON.parse(localStorage.getItem(PREF_KEY)||'{}'); }catch{ return {}; } }
-  function savePrefs(p){ try{ localStorage.setItem(PREF_KEY, JSON.stringify(p||{})); }catch{} }
-  function getPrefFor(deviceId){
-    const all=loadPrefs();
-    const d=String(deviceId||'');
-    const def={kilos:'mes', trabajo:'semana'};
-    if(!d) return def;
-    return Object.assign({}, def, all[d]||{});
-  }
-  function setPrefFor(deviceId, pref){
-    const all=loadPrefs();
-    all[String(deviceId)] = Object.assign({}, getPrefFor(deviceId), pref||{});
-    savePrefs(all);
-  }
-
   // ======= NUEVO: Estado clima por almacenamiento local =======
   const WX_KEY = 'miellifera.wxPlace'; // {lat,lon,label}
   function saveWxPlace(p){ try{ localStorage.setItem(WX_KEY, JSON.stringify(p||null)); }catch{} }
@@ -511,13 +537,13 @@
       initDateDefaults();
       initProdDefaults();
 
-      // Clima: restituir
+      // Clima: si hay ubicación guardada, cargar y fijar estado
       const saved = loadWxPlace();
       if(saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)){
         await renderWeather(saved.lat, saved.lon, saved.label||(`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`));
         setWxButtonsState('fixed');
       } else {
-        setWxButtonsState('ready');
+        setWxButtonsState('ready'); // mostrar "Ingresar ubicación"
       }
     }catch(e){ const m=$('msg'); if(m) m.textContent="Error cargando datos: "+(e.message||e); }
   });
@@ -550,7 +576,7 @@
   }
 
   // Utils
-  const fmt = v => (v==null||Number.isNaN(+v)) ? null : Number(v).toFixed(1);
+  const fmt = v => (v==null||Number.isNaN(+v)) ? null : Number(v).toFixed(2);
   const dtAR = ts => new Date(ts).toLocaleString('es-AR');
   const isNumericId = id => /^\d+$/.test(id);
   function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
@@ -592,229 +618,99 @@
     }).join('');
   }
 
-  function formatMinutes(mins){
-    const h = Math.floor(mins/60);
-    const m = Math.round(mins%60);
-    return h>0 ? `${h}h ${m}m` : `${m}m`;
-  }
 
-  // ===== Producción: helpers por período =====
-  async function prodInsert(device_id, fecha, kilos){
-    if(!(Number(kilos)>0)) throw new Error('kilos debe ser > 0');
-    return callWorker('/production', { method:'POST', body:{ device_id, fecha, kilos }});
-  }
-  async function prodList(params){
-    const url = new URL(BASE + '/production');
-    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
-    if(params?.fromISO)    url.searchParams.set('from', params.fromISO);
-    if(params?.toISO)      url.searchParams.set('to', params.toISO);
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
-    const t = await u.getIdToken();
-    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` }});
-    if(!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
+function formatMinutes(mins){
+  const h = Math.floor(mins/60);
+  const m = Math.round(mins%60);
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
 
-  function periodBounds(period, ref=new Date()){
-    const r = new Date(ref);
-    let from = new Date(r), to = new Date(r);
-    if(period==='dia'){
-      from.setHours(0,0,0,0); to.setHours(23,59,59,999);
-    }else if(period==='semana'){
-      const d=(r.getDay()+6)%7; // lunes
-      from.setHours(0,0,0,0); from.setDate(from.getDate()-d);
-      to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
-    }else if(period==='mes'){
-      from = new Date(r.getFullYear(), r.getMonth(), 1, 0,0,0,0);
-      to   = new Date(r.getFullYear(), r.getMonth()+1, 0, 23,59,59,999);
-    }else{ // anio
-      from = new Date(r.getFullYear(), 0, 1, 0,0,0,0);
-      to   = new Date(r.getFullYear(), 11, 31, 23,59,59,999);
-    }
-    return { fromT:+from, toT:+to, fromISO: from.toISOString(), toISO: to.toISOString() };
-  }
-
-  // Cache producción por período para render rápido
-  const prodCache = { mes:null, semana:null, anio:null };
-  async function getProductionMap(period){
-    if(prodCache[period]) return prodCache[period];
-    const { fromISO, toISO } = periodBounds(period==='anio'?'anio':period);
+// Simulación o carga real desde Worker de producción
+async function getMonthlyProduction(){
+  try{
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const fromISO = firstDay.toISOString();
+    const toISO = new Date().toISOString();
     const { items } = await prodList({ fromISO, toISO });
-    const map={}; // { device_id: totalKilos }
+    // Agrupar kilos y sumar trabajo si existe
+    const map = {};
     for(const it of items||[]){
-      const id = String(it.device_id||'');
-      map[id] = (map[id]||0) + Number(it.kilos||0);
+      const id = it.device_id;
+      if(!map[id]) map[id]={kilos:0,trabajoMin:0};
+      map[id].kilos += Number(it.kilos||0);
+      // si más adelante guardamos "trabajoMin", ya lo suma
+      map[id].trabajoMin += Number(it.trabajoMin||0);
     }
-    prodCache[period]=map;
     return map;
+  }catch{
+    return {};
+  }
+}
+
+  
+  // Tarjetas colmena + estado
+  // Tarjetas colmena + estado extendido
+async function renderDeviceCards(items){
+  const wrap=$('autoCards'); if(!wrap) return;
+
+  const lastById=new Map();
+  for(const d of items||[]){
+    const raw=String(d.device_id||'').trim();
+    if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
+    const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
+    if(t>prev) lastById.set(raw,t);
   }
 
-  // ===== Trabajo: helpers y totales =====
-  async function workFetchRange(fromISO, toISO, deviceId){
-    try{
-      const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
-      const { items } = await callWorker(q);
-      const keys = ['C2R','NHR','NXR','ALR','SMR','MS','OPN'];
-      return (items||[]).filter(d =>
-        String(d.device_id)===String(deviceId) &&
-        keys.includes(String(d.sensor_key||'').toUpperCase().trim())
-      );
-    }catch(e){ return lastItemsCache||[]; }
-  }
-  function extractWorkTimes(items, deviceId) {
-    const devId = String(deviceId);
-    return (items || []).filter(d => {
-      if (String(d.device_id) !== devId) return false;
-      const k = String(d.sensor_key || '').toUpperCase().trim();
-      return k === 'MS' || k.endsWith('.MS');
-    });
-  }
-  function formatHM_fromMs(ms){
-    const totalMin = Math.round((Number(ms)||0) / 60000);
-    const h = Math.floor(totalMin/60);
-    const m = totalMin % 60;
-    return h>0 ? `${h}h ${m}m` : `${m}m`;
-  }
-  function isSameISOWeek(t, ref){
-    const a = new Date(ref);
-    const day = (a.getDay() + 6) % 7;
-    a.setHours(0,0,0,0);
-    a.setDate(a.getDate() - day);
-    const start = a;
-    const end = new Date(start); end.setDate(end.getDate()+7);
-    return t >= start && t < end;
-  }
-  function calcWorkTotals_fromItems(items, deviceId, ref=new Date()){
-    const msData = extractWorkTimes(items, deviceId);
-    let day=0, week=0, month=0, year=0;
-    for(const d of msData){
-      const t=new Date(d.ts);
-      const v=Number(d.value)||0;
-      if(t.getFullYear()===ref.getFullYear()) year+=v;
-      if(t.getFullYear()===ref.getFullYear() && t.getMonth()===ref.getMonth()) month+=v;
-      if(isSameISOWeek(t, ref)) week+=v;
-      if(t.getFullYear()===ref.getFullYear() && t.getMonth()===ref.getMonth() && t.getDate()===ref.getDate()) day+=v;
-    }
-    return { dayMs:day, weekMs:week, monthMs:month, yearMs:year };
-  }
-  async function getWorkTotal(deviceId, period){
-    if(!deviceId) return 0;
-    if(period==='dia'){
-      // usar cache de los últimos 200 puntos
-      const ref=new Date();
-      const totals = calcWorkTotals_fromItems(lastItemsCache||[], deviceId, ref);
-      return totals.dayMs;
-    }
-    const { fromISO, toISO } = periodBounds(period==='anio'?'anio':period);
-    const items = await workFetchRange(fromISO, toISO, deviceId);
-    const totals = calcWorkTotals_fromItems(items, deviceId, new Date());
-    if(period==='semana') return totals.weekMs;
-    if(period==='mes')    return totals.monthMs;
-    return totals.yearMs; // anio
+  const devices=[...lastById.entries()]
+    .sort((a,b)=>b[1]-a[1])
+    .map(([id,ts])=>({id,ts}));
+
+  if(!devices.length){
+    wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>';
+    return;
   }
 
-  // Tarjetas colmena
-  async function getMonthlyProduction(){
-    try{
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-      const fromISO = firstDay.toISOString();
-      const toISO = new Date().toISOString();
-      const { items } = await prodList({ fromISO, toISO });
-      const map = {};
-      for(const it of items||[]){
-        const id = it.device_id;
-        if(!map[id]) map[id]={kilos:0,trabajoMin:0};
-        map[id].kilos += Number(it.kilos||0);
-        map[id].trabajoMin += Number(it.trabajoMin||0);
-      }
-      return map;
-    }catch{ return {}; }
+  const now=Date.now();
+
+  // Pedimos info de producción para kilos/mes
+  const prodData = await getMonthlyProduction();
+
+  wrap.innerHTML=devices.map(({id,ts})=>{
+    const diff=(now-ts)/60000;
+    const conectado = diff<=15;
+    const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
+    const estadoColor = 'var(--idle)'; // gris por ahora
+
+    const kilosMes = (prodData[id]?.kilos || 0).toFixed(1);
+    const trabajoSem = formatMinutes(prodData[id]?.trabajoMin || 0);
+
+    return `
+      <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
+        <h3 style="margin:0">Colmena ${id}</h3>
+        <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:${colorConn}"></span></div>
+        <div class="status-row"><span>Estado</span><span class="status-dot" style="background:${estadoColor}"></span></div>
+        <div class="status-row"><span>Kilos mes</span><span style="font-weight:800;color:var(--accent)">${kilosMes}</span></div>
+        <div class="status-row"><span>Trabajo semanal</span><span style="font-weight:800;color:var(--focus)">${trabajoSem}</span></div>
+      </div>`;
+  }).join('');
+
+  if(editing) enableDnD();
+
+  const sel = $('prodDevice');
+  if(sel){
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
+    if(cur) sel.value = cur;
   }
-
-  async function renderDeviceCards(items){
-    const wrap=$('autoCards'); if(!wrap) return;
-
-    const lastById=new Map();
-    for(const d of items||[]){
-      const raw=String(d.device_id||'').trim();
-      if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
-      const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
-      if(t>prev) lastById.set(raw,t);
-    }
-
-    const devices=[...lastById.entries()].sort((a,b)=>b[1]-a[1]).map(([id,ts])=>({id,ts}));
-    if(!devices.length){
-      wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>';
-      // vaciar selector en Producción
-      const sel=$('prodDevice'); if(sel){ sel.innerHTML='<option value="">Todas</option>'; }
-      return;
-    }
-
-    const now=Date.now();
-    // precache producción segun necesidades
-    // Colectar qué períodos se requieren por preferencias
-    const needPeriods = new Set();
-    for(const d of devices){ const pref=getPrefFor(d.id); needPeriods.add(pref.kilos); }
-    const prodMaps = {};
-    for(const p of needPeriods){ prodMaps[p] = await getProductionMap(p); }
-
-    wrap.innerHTML = await (async ()=>{
-      const parts=[];
-      for(const {id,ts} of devices){
-        const diff=(now-ts)/60000;
-        const conectado = diff<=15;
-        const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
-        const estadoColor = 'var(--idle)';
-
-        const pref = getPrefFor(id);
-        // Kilos por período elegido
-        const kMap = prodMaps[pref.kilos] || {};
-        const kilosVal = Number(kMap[id]||0);
-        const kilosLabel = `Kilos ${pref.kilos==='anio'?'año':pref.kilos}`;
-        // Trabajo por período elegido
-        const workMs = await getWorkTotal(id, pref.trabajo); // puede tardar
-        const trabajoLabel = `Trabajo ${pref.trabajo==='dia'?'diario':pref.trabajo==='anio'?'anual':pref.trabajo}`;
-        const trabajoVal = formatHM_fromMs(workMs/60000*60); // workMs ya en ms → formatHM_fromMs espera ms; truco no necesario
-        // corregir: formatHM_fromMs espera ms
-        const trabajoText = formatHM_fromMs(workMs);
-
-        parts.push(`
-          <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
-            <h3 style="margin:0">Colmena ${id}</h3>
-            <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:${colorConn}"></span></div>
-            <div class="status-row"><span>Estado</span><span class="status-dot" style="background:${estadoColor}"></span></div>
-            <div class="status-row"><span>${escapeHtml(kilosLabel)}</span><span style="font-weight:800;color:var(--accent)">${fmt(kilosVal)||'0.0'}</span></div>
-            <div class="status-row"><span>${escapeHtml(trabajoLabel)}</span><span style="font-weight:800;color:var(--focus)">${escapeHtml(trabajoText)}</span></div>
-          </div>`);
-      }
-      return parts.join('');
-    })();
-
-    if(editing) enableDnD();
-
-    const sel = $('prodDevice');
-    if(sel){
-      const cur = sel.value;
-      sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
-      if(cur) sel.value = cur;
-    }
-  }
+}
 
   // DnD
   $('btnEdit').onclick=()=>{
     editing=!editing;
     $('btnEdit').textContent=editing?'Terminar edición':'Editar orden';
     $('autoCards').classList.toggle('editing',editing);
-    if(editing){
-      enableDnD();
-      // abrir modal con primera colmena si existe
-      const first = document.querySelector('.device-card');
-      if(first) openEditModel(first.dataset.device);
-    }else{
-      disableDnD();
-      closeEditModel();
-    }
+    if(editing) enableDnD(); else disableDnD();
   };
   function enableDnD(){
     document.querySelectorAll('.device-card').forEach(c=>{
@@ -851,16 +747,10 @@
   }
   function onDragEnd(){ this.classList.remove('dragging'); }
 
-  // Click en card
+  // Overlay por colmena
   document.addEventListener('click',(e)=>{
     const card=e.target.closest('.device-card');
-    if(!card) return;
-    const id = card.dataset.device;
-    if(editing){
-      openEditModel(id);
-      return;
-    }
-    if(card && !editing){ openOverlay(id); }
+    if(card && !editing){ openOverlay(card.dataset.device); }
   });
   $('btnOverlayBack').onclick=closeOverlay;
 
@@ -909,7 +799,35 @@
     setText('ovHumWhen', h ? dtAR(h.ts) : '—');
   }
 
-  // ===== Gráficos madre =====
+
+  // AGREGADO: bounds en ms + ISO según período
+function periodBounds(period, ref=new Date()){
+  const r = new Date(ref);
+  let from = new Date(r), to = new Date(r);
+  if(period==='dia'){
+    from.setHours(0,0,0,0); to.setHours(23,59,59,999);
+  }else if(period==='semana'){
+    const d=(r.getDay()+6)%7; // lunes
+    from.setHours(0,0,0,0); from.setDate(from.getDate()-d);
+    to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
+  }else{ // mes
+    from = new Date(r.getFullYear(), r.getMonth(), 1, 0,0,0,0);
+    to   = new Date(r.getFullYear(), r.getMonth()+1, 0, 23,59,59,999);
+  }
+  return { fromT:+from, toT:+to,
+           fromISO: from.toISOString(), toISO: to.toISOString() };
+}
+
+// AGREGADO: obtiene datos según período
+async function getWorkDataFor(period, deviceId){
+  if(period==='dia') return lastItemsCache || [];
+  const { fromISO, toISO } = periodBounds(period);
+  return await workFetchRange(fromISO, toISO, deviceId);
+}
+
+  
+
+  // Gráficos madre
   $('btnChart').onclick=()=>{
     chartsVisible=!chartsVisible;
     $('chartsWrap').style.display=chartsVisible?'block':'none';
@@ -921,31 +839,31 @@
     $('histControls').style.display = chartsVisible ? 'flex' : 'none';
   };
 
-  function buildLineChart(canvas, labels, values, lineColor){
-    const ctx=canvas.getContext('2d');
-    return new Chart(ctx,{
-      type:'line',
-      data:{ labels, datasets:[{
-        data: values,
-        borderColor: lineColor,
-        backgroundColor: 'transparent',
-        borderWidth: 2.5,
-        tension:.25,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        pointBackgroundColor: lineColor,
-        pointBorderColor: lineColor
-      }]},
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        interaction:{mode:'nearest',intersect:false},
-        plugins:{legend:{display:false},tooltip:{callbacks:{
-          title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `
-        }}},
-        scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
-      }
-    });
-  }
+  function buildLineChart(canvas, labels, values, lineColor, pointColor){
+  const ctx=canvas.getContext('2d');
+  return new Chart(ctx,{
+    type:'line',
+    data:{ labels, datasets:[{
+      data: values,
+      borderColor: lineColor,
+      backgroundColor: 'transparent',
+      borderWidth: 2.5,
+      tension:.25,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointBackgroundColor: lineColor,
+      pointBorderColor: lineColor
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `
+      }}},
+      scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
+    }
+  });
+}
 
   function sameLocalDay(tsA, tsB){
     const a=new Date(tsA), b=new Date(tsB);
@@ -974,7 +892,7 @@
     setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
   }
 
-  // ===== Gráficos por colmena =====
+  // Gráficos por colmena + historial por colmena
   $('overlayBtnChart').onclick=()=>{
     if(!currentOverlayDevice) return;
     ovChartsVisible = !ovChartsVisible;
@@ -1107,7 +1025,39 @@
     document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
 
-  // ===== Producción mini-dashboard en overlay colmena =====
+  // Agregado
+async function workFetchRange(fromISO, toISO, deviceId){
+  try{
+    const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
+    const { items } = await callWorker(q);
+    const keys = ['C2R','NHR','NXR','ALR','SMR','MS','OPN'];
+    return (items||[]).filter(d =>
+      String(d.device_id)===String(deviceId) &&
+      keys.includes(String(d.sensor_key||'').toUpperCase().trim())
+    );
+  }catch(e){ return lastItemsCache||[]; }
+}
+
+  
+
+  // ===== Producción Worker =====
+  async function prodInsert(device_id, fecha, kilos){
+    if(!(Number(kilos)>0)) throw new Error('kilos debe ser > 0');
+    return callWorker('/production', { method:'POST', body:{ device_id, fecha, kilos }});
+  }
+  async function prodList(params){
+    const url = new URL(BASE + '/production');
+    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if(params?.fromISO)    url.searchParams.set('from', params.fromISO);
+    if(params?.toISO)      url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` }});
+    if(!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  // Producción mini-dashboard
   $('ovBtnSaveProd').onclick = async ()=>{
     if(!currentOverlayDevice) return;
     const fecha = $('ovProdDate').value;
@@ -1117,9 +1067,6 @@
       await prodInsert(currentOverlayDevice, fecha, kilos);
       $('ovProdKilos').value='';
       if($('ovProdHistWrap').style.display!=='none'){ await loadOvProdHistory(); }
-      // invalidate cache para tarjetas
-      prodCache.mes = null; prodCache.semana=null; prodCache.anio=null;
-      await renderDeviceCards(lastItemsCache||[]);
     }catch(e){ alert('Error guardando: ' + (e.message||e)); }
   };
   $('ovBtnToggleHist').onclick = async ()=>{
@@ -1137,90 +1084,104 @@
     tb.innerHTML = items.map(r=>`<tr><td>${escapeHtml(r.fecha)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`).join('');
   }
 
-  // ===== Overlay global Producción =====
+  // Producción global
   $('btnProdMain').onclick = ()=>{ openProdOverlay(); };
   $('btnProdBack').onclick = ()=>{ closeProdOverlay(); };
   $('btnProdShow').onclick = async ()=>{
-    const df=$('prodFrom').value, dt=$('prodTo').value;
-    const dev=$('prodDevice').value||'';
-    const fromISO=df?new Date(df+'T00:00:00').toISOString():undefined;
-    const toISO=dt?new Date(dt+'T23:59:59.999').toISOString():undefined;
-    try{
-      const { items }=await prodList({device_id:dev||undefined,fromISO,toISO});
-      const tb=$('prodGlobalTbody');
-      if(!items?.length){
-        tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-        setText('prodGlobalTotal','0.00');
-        $('btnProdCSV').style.display='none';
-        return;
-      }
-      tb.innerHTML=items.map(r=>
-        `<tr><td>${escapeHtml(r.fecha)}</td><td>${escapeHtml(r.device_id)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`
-      ).join('');
-      const total=items.reduce((a,b)=>a+Number(b.kilos||0),0);
-      setText('prodGlobalTotal',total.toFixed(2));
-      $('btnProdCSV').style.display='inline-flex';
-    }catch(e){ alert('Error consultando: '+(e.message||e)); }
-  };
-  function prodDownloadCSV(){
-    const rows=[['fecha','colmena','kilos']];
-    const tb=document.querySelectorAll('#prodGlobalTbody tr');
-    tb.forEach(tr=>{
-      const c=tr.querySelectorAll('td');
-      if(c.length===3) rows.push([c[0].innerText,c[1].innerText,c[2].innerText]);
-    });
-    if(rows.length<=1){ alert('Sin datos para exportar'); return; }
-    const csv=rows.map(r=>r.join(',')).join('\n');
-    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='produccion.csv';
-    a.click();
-  }
-  function openProdOverlay(){
-    $('prodOverlay').style.display='block';
-    $('prodOverlay').setAttribute('aria-hidden','false');
-
-    ['prodFrom','prodTo'].forEach(id=>{
-      const el=$(id);
-      if(el){ el.style.width='150px'; el.style.minWidth='120px'; el.style.maxWidth='160px'; }
-    });
-
-    if(!$('btnProdReset')){
-      const sel=$('prodDevice');
-      const btn=document.createElement('button');
-      btn.id='btnProdReset';
-      btn.type='button';
-      btn.className='btn small';
-      btn.textContent='Borrar';
-      btn.onclick=prodResetFilters;
-      sel.parentElement.style.display='flex';
-      sel.parentElement.style.gap='8px';
-      sel.parentElement.appendChild(btn);
-    }
-
-    const showBtn=$('btnProdShow');
-    if(showBtn && !$('btnProdCSV')){
-      const csv=document.createElement('button');
-      csv.id='btnProdCSV';
-      csv.type='button';
-      csv.className='btn small';
-      csv.textContent='Descargar CSV';
-      csv.style.display='none';
-      csv.onclick=prodDownloadCSV;
-      showBtn.parentElement.appendChild(csv);
-    }
-  }
-  function prodResetFilters(){
-    const hoy=ymd(new Date());
-    $('prodFrom').value=hoy;
-    $('prodTo').value=hoy;
-    $('prodDevice').value='';
+  const df=$('prodFrom').value, dt=$('prodTo').value;
+  const dev=$('prodDevice').value||'';
+  const fromISO=df?new Date(df+'T00:00:00').toISOString():undefined;
+  const toISO=dt?new Date(dt+'T23:59:59.999').toISOString():undefined;
+  try{
+    const { items }=await prodList({device_id:dev||undefined,fromISO,toISO});
     const tb=$('prodGlobalTbody');
-    tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-    setText('prodGlobalTotal','0.00');
-    if($('btnProdCSV')) $('btnProdCSV').style.display='none';
+    if(!items?.length){
+      tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+      setText('prodGlobalTotal','0.00');
+      $('btnProdCSV').style.display='none';
+      return;
+    }
+    tb.innerHTML=items.map(r=>
+      `<tr><td>${escapeHtml(r.fecha)}</td><td>${escapeHtml(r.device_id)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`
+    ).join('');
+    const total=items.reduce((a,b)=>a+Number(b.kilos||0),0);
+    setText('prodGlobalTotal',total.toFixed(2));
+    $('btnProdCSV').style.display='inline-flex'; // mostrar CSV
+  }catch(e){ alert('Error consultando: '+(e.message||e)); }
+};
+
+function prodDownloadCSV(){
+  const rows=[['fecha','colmena','kilos']];
+  const tb=document.querySelectorAll('#prodGlobalTbody tr');
+  tb.forEach(tr=>{
+    const c=tr.querySelectorAll('td');
+    if(c.length===3) rows.push([c[0].innerText,c[1].innerText,c[2].innerText]);
+  });
+  if(rows.length<=1){ alert('Sin datos para exportar'); return; }
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='produccion.csv';
+  a.click();
+}
+
+  
+  function openProdOverlay(){
+  $('prodOverlay').style.display='block';
+  $('prodOverlay').setAttribute('aria-hidden','false');
+
+  // Achicar cuadros de fecha
+  ['prodFrom','prodTo'].forEach(id=>{
+    const el=$(id);
+    if(el){ el.style.width='150px'; el.style.minWidth='120px'; el.style.maxWidth='160px'; }
+  });
+
+  // Botón BORRAR (si no existe)
+  if(!$('btnProdReset')){
+    const sel=$('prodDevice');
+    const btn=document.createElement('button');
+    btn.id='btnProdReset';
+    btn.type='button';
+    btn.className='btn small';
+    btn.textContent='Borrar';
+    btn.onclick=prodResetFilters;
+    sel.parentElement.style.display='flex';
+    sel.parentElement.style.gap='8px';
+    sel.parentElement.appendChild(btn);
   }
+
+  // Botón CSV (si no existe)
+  const showBtn=$('btnProdShow');
+  if(showBtn && !$('btnProdCSV')){
+    const csv=document.createElement('button');
+    csv.id='btnProdCSV';
+    csv.type='button';
+    csv.className='btn small';
+    csv.textContent='Descargar CSV';
+    csv.style.display='none';
+    csv.onclick=prodDownloadCSV;
+    showBtn.parentElement.appendChild(csv);
+  }
+}
+
+
+
+  function prodResetFilters(){
+  const hoy=ymd(new Date());
+  $('prodFrom').value=hoy;
+  $('prodTo').value=hoy;
+  $('prodDevice').value='';
+  const tb=$('prodGlobalTbody');
+  tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+  setText('prodGlobalTotal','0.00');
+  if($('btnProdCSV')) $('btnProdCSV').style.display='none';
+}
+
+
+
+  
+
   function closeProdOverlay(){
     $('prodOverlay').style.display='none';
     $('prodOverlay').setAttribute('aria-hidden','true');
@@ -1240,13 +1201,14 @@
       renderTable(items);
       updateLastReading(items);
       updateMotherKPIs(items);
-      await renderDeviceCards(items);
+      renderDeviceCards(items);
       if(chartsVisible && !historyMode) renderChartsDaily(items);
       if(currentOverlayDevice){
-        updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
-        if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
-        renderWorkSection(lastItemsCache, currentOverlayDevice);
-      }
+  updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+  if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
+  renderWorkSection(lastItemsCache, currentOverlayDevice); // ← NUEVO
+}
+
     }finally{
       polling=false;
     }
@@ -1258,250 +1220,316 @@
     const ovd = $('ovProdDate'); if(ovd) ovd.value = t;
     const pf=$('prodFrom'), pt=$('prodTo'); if(pf) pf.value=t; if(pt) pt.value=t;
   }
+  // ======== NUEVO BLOQUE: TRABAJO ========
 
-  // ======== TRABAJO sección en overlay ========
-  let workChart = null;
+// Variables globales
+let workChart = null;
 
-  function filterWorkSeries(items, deviceId, fromT, toT){
-    const KEYS = ['C2R','NHR','NXR','ALR','SMR'];
-    const byKey = Object.fromEntries(KEYS.map(k=>[k,[]]));
-    const labelSet = new Set();
+// Detectar sensor OPN = trabajo detectado
+function extractWorkEvents(items, deviceId) {
+  return (items || []).filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    String(d.sensor_key).toUpperCase().includes('OPN')
+  );
+}
 
-    for(const d of (items||[])){
-      if(String(d.device_id)!==String(deviceId)) continue;
-      const k = String(d.sensor_key||'').toUpperCase().trim();
-      if(!KEYS.includes(k)) continue;
-      const t = new Date(d.ts).getTime();
-      if(t<fromT || t>toT) continue;
-      const y = Number(d.value)||0;
-      const tMin = Math.floor(t/60000)*60000;
-      byKey[k].push({ t: tMin, y });
-      labelSet.add(tMin);
-    }
+// Extraer valores MS (milisegundos de trabajo)
+function extractWorkTimes(items, deviceId) {
+  return (items || []).filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    String(d.sensor_key).toUpperCase() === 'MS'
+  );
+}
 
-    const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
-    const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
-    const maps = {};
-    for(const k of Object.keys(byKey)){
-      const m = new Map();
-      byKey[k].sort((a,b)=>a.t-b.t);
-      for(const p of byKey[k]) m.set(p.t, p.y);
-      maps[k] = m;
-    }
-    const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
-    const datasets = Object.keys(byKey).map(k=>({
-      label:k,
-      data: labelsTs.map(ts=> maps[k].has(ts) ? maps[k].get(ts) : null),
-      borderColor: palette[k]||'#ccc',
-      backgroundColor: 'transparent',
-      borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
-    }));
-    return { labels, datasets };
+// Reemplazo
+function extractWorkTimes(items, deviceId) {
+  const devId = String(deviceId);
+  return (items || []).filter(d => {
+    if (String(d.device_id) !== devId) return false;
+    const k = String(d.sensor_key || '').toUpperCase().trim();
+    // Acepta "MS", "WORK.MS", "DEVICE.MS", etc.
+    return k === 'MS' || k.endsWith('.MS');
+  });
+}
+
+// Helper NUEVO
+function formatHM_fromMs(ms){
+  const totalMin = Math.round((Number(ms)||0) / 60000);
+  const h = Math.floor(totalMin/60);
+  const m = totalMin % 60;
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+
+// Agregado
+function getPeriodBounds(period, refDate){
+  const ref = new Date(refDate);
+  let from = new Date(ref), to = new Date(ref);
+  if(period === 'dia'){
+    from.setHours(0,0,0,0);
+    to.setHours(23,59,59,999);
+  }else if(period === 'semana'){
+    const day = (ref.getDay()+6)%7; // ISO lunes
+    from.setHours(0,0,0,0); from.setDate(from.getDate()-day);
+    to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
+  }else{ // mes
+    from = new Date(ref.getFullYear(), ref.getMonth(), 1, 0,0,0,0);
+    to   = new Date(ref.getFullYear(), ref.getMonth()+1, 0, 23,59,59,999);
+  }
+  return { fromT: +from, toT: +to };
+}
+
+function filterWorkSeries(items, deviceId, fromT, toT){
+  const KEYS = ['C2R','NHR','NXR','ALR','SMR'];
+  const byKey = Object.fromEntries(KEYS.map(k=>[k,[]]));
+  const labelSet = new Set();
+
+  for(const d of (items||[])){
+    if(String(d.device_id)!==String(deviceId)) continue;
+    const k = String(d.sensor_key||'').toUpperCase().trim();
+    if(!KEYS.includes(k)) continue;
+    const t = new Date(d.ts).getTime();
+    if(t<fromT || t>toT) continue;
+    const y = Number(d.value)||0;
+    // redondeo a minuto para alinear
+    const tMin = Math.floor(t/60000)*60000;
+    byKey[k].push({ t: tMin, y });
+    labelSet.add(tMin);
   }
 
-  function renderWorkSection(items, deviceId) {
-    const { dayMs, weekMs, monthMs, yearMs } = calcWorkTotals_fromItems(items, deviceId);
-    setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(dayMs)}`);
-    setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
-    setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
+  const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
+  const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
+
+  // map rápido por clave->timestamp->valor
+  const maps = {};
+  for(const k of Object.keys(byKey)){
+    const m = new Map();
+    byKey[k].sort((a,b)=>a.t-b.t);
+    for(const p of byKey[k]) m.set(p.t, p.y);
+    maps[k] = m;
   }
 
-  function renderWorkCharts(items, deviceId, range){
-    if (!items || !deviceId) return;
-    const fromT = range?.fromT ?? 0;
-    const toT   = range?.toT   ?? Date.now();
-    const { labels, datasets } = filterWorkSeries(items, deviceId, fromT, toT);
+  const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
+  const datasets = Object.keys(byKey).map(k=>({
+    label:k,
+    data: labelsTs.map(ts=> maps[k].has(ts) ? maps[k].get(ts) : null),
+    borderColor: palette[k]||'#ccc',
+    backgroundColor: 'transparent',
+    borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
+  }));
 
-    if (workChart) workChart.destroy();
-    workChart = new Chart($('workChart').getContext('2d'), {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:true} },
-        interaction:{mode:'nearest',intersect:false},
-        scales:{
-          x:{ title:{display:true,text:'Hora'} },
-          y:{ beginAtZero:true }
-        }
+  return { labels, datasets };
+}
+
+
+  
+// Calcular total diario, semanal, mensual (en minutos)
+// Reemplazo
+function isSameISOWeek(d1, ref){
+  // Semana ISO: lunes 00:00 a lunes 00:00
+  const a = new Date(ref);
+  const day = (a.getDay() + 6) % 7; // 0=lunes
+  a.setHours(0,0,0,0);
+  a.setDate(a.getDate() - day);
+  const start = a;                 // lunes
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);  // próximo lunes
+  return d1 >= start && d1 < end;
+}
+
+function calcWorkTotals(items, deviceId) {
+  const msData = extractWorkTimes(items, deviceId);
+  let todayMs = 0, weekMs = 0, monthMs = 0;
+  const now = new Date();
+
+  for (const d of msData) {
+    const t = new Date(d.ts);
+    const valMs = Number(d.value) || 0;
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth() &&
+        t.getDate() === now.getDate()) {
+      todayMs += valMs;
+    }
+    if (isSameISOWeek(t, now)) {
+      weekMs += valMs;
+    }
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth()) {
+      monthMs += valMs;
+    }
+  }
+
+  return { todayMs, weekMs, monthMs };
+}
+
+
+function isSameWeek(d1, d2) {
+  const start = new Date(d2);
+  start.setDate(d2.getDate() - d2.getDay());
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+  return d1 >= start && d1 < end;
+}
+
+// Renderizar resumen y gráficos
+function renderWorkSection(items, deviceId) {
+  const { todayMs, weekMs, monthMs } = calcWorkTotals(items, deviceId);
+  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
+  setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
+  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
+}
+
+
+// Gráfico de variables C2R, NHR, NXR, ALR, SMR
+// Reemplazo
+function renderWorkCharts(items, deviceId, range){
+  if (!items || !deviceId) return;
+  const fromT = range?.fromT ?? 0;
+  const toT   = range?.toT   ?? Date.now();
+  const { labels, datasets } = filterWorkSeries(items, deviceId, fromT, toT);
+
+  if (workChart) workChart.destroy();
+  workChart = new Chart($('workChart').getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:true} },
+      interaction:{mode:'nearest',intersect:false},
+      scales:{
+        x:{ title:{display:true,text:'Hora'} },
+        y:{ beginAtZero:true }
       }
-    });
-  }
-
-  async function getWorkDataFor(period, deviceId){
-    if(period==='dia') return lastItemsCache || [];
-    const { fromISO, toISO } = periodBounds(period);
-    return await workFetchRange(fromISO, toISO, deviceId);
-  }
-
-  $('btnWorkChart').onclick = async ()=>{
-    const wrap = $('workChartWrap');
-    const visible = getComputedStyle(wrap).display !== 'none';
-    wrap.style.display = visible ? 'none' : 'block';
-    $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
-    if (visible) return;
-
-    if (currentOverlayDevice){
-      const period = $('workRange')?.value || 'dia';
-      const data = await getWorkDataFor(period, currentOverlayDevice);
-      const { fromT, toT } = periodBounds(period);
-      renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
     }
-  };
-  $('btnWorkCSV').onclick = ()=>{
-    if (!currentOverlayDevice || !lastItemsCache) return;
-    downloadWorkCSV(lastItemsCache, currentOverlayDevice);
-  };
-  $('workRange').onchange = async ()=>{
-    const wrap = $('workChartWrap');
-    const visible = getComputedStyle(wrap).display !== 'none';
-    if (!visible || !currentOverlayDevice) return;
-    const period = $('workRange').value || 'dia';
+  });
+}
+
+// CSV de trabajo
+// Reemplazo
+async function downloadWorkCSV(deviceId, df=null, dt=null) {
+  let data = lastItemsCache || [];
+  if (df && dt){
+    const fromISO = new Date(df+'T00:00:00').toISOString();
+    const toISO   = new Date(dt+'T23:59:59.999').toISOString();
+    data = await workFetchRange(fromISO, toISO, deviceId);
+  }
+  const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
+  const relevant = data.filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    keys.includes(String(d.sensor_key).toUpperCase())
+  );
+  if (!relevant.length) { alert('Sin datos de trabajo'); return; }
+  const rows = [['timestamp_iso','fecha_local','hora_local','device_id','sensor','valor']];
+  for (const d of relevant){
+    const ts = new Date(d.ts);
+    rows.push([
+      ts.toISOString(),
+      ts.toLocaleDateString('es-AR'),
+      ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+      d.device_id, d.sensor_key, d.value
+    ]);
+  }
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = df && dt ? `trabajo_${deviceId}_${df}_a_${dt}.csv` : `trabajo_${deviceId}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+
+// Botones de interfaz
+// Reemplazo
+ // Reemplazo
+$('btnWorkChart').onclick = async ()=>{
+  const wrap = $('workChartWrap');
+  const visible = getComputedStyle(wrap).display !== 'none';
+  wrap.style.display = visible ? 'none' : 'block';
+  $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
+  if (visible) return; // se ocultó
+
+  if (currentOverlayDevice){
+    const period = $('workRange')?.value || 'dia';
     const data = await getWorkDataFor(period, currentOverlayDevice);
     const { fromT, toT } = periodBounds(period);
     renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
-  };
-  $('btnWorkHistToggle').onclick = ()=>{
-    const c = $('workHistControls');
-    const show = c.style.display === 'none';
-    c.style.display = show ? 'flex' : 'none';
-    $('btnWorkHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
-    if(show){
-      const t = ymd(new Date());
-      $('workDateFrom').value = t;
-      $('workDateTo').value   = t;
-    }
-  };
-  $('btnWorkHistShow').onclick = async ()=>{
-    const df = $('workDateFrom').value, dt = $('workDateTo').value;
-    if(!df || !dt || !currentOverlayDevice) return;
-    const fromISO = new Date(df+'T00:00:00').toISOString();
-    const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-    const items = await workFetchRange(fromISO, toISO, currentOverlayDevice);
-    const fromT = new Date(df+'T00:00:00').getTime();
-    const toT   = new Date(dt+'T23:59:59.999').getTime();
-    renderWorkCharts(items, currentOverlayDevice, {fromT, toT});
-  };
-  $('btnWorkHistCSV').onclick = async ()=>{
-    const df = $('workDateFrom').value, dt = $('workDateTo').value;
-    if(!df || !dt || !currentOverlayDevice) return;
-    await downloadWorkCSV(currentOverlayDevice, df, dt);
-  };
-  async function downloadWorkCSV(deviceId, df=null, dt=null) {
-    let data = lastItemsCache || [];
-    if (df && dt){
-      const fromISO = new Date(df+'T00:00:00').toISOString();
-      const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-      data = await workFetchRange(fromISO, toISO, deviceId);
-    }
-    const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
-    const relevant = data.filter(d =>
-      String(d.device_id) === String(deviceId) &&
-      keys.includes(String(d.sensor_key).toUpperCase())
-    );
-    if (!relevant.length) { alert('Sin datos de trabajo'); return; }
-    const rows = [['timestamp_iso','fecha_local','hora_local','device_id','sensor','valor']];
-    for (const d of relevant){
-      const ts = new Date(d.ts);
-      rows.push([
-        ts.toISOString(),
-        ts.toLocaleDateString('es-AR'),
-        ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-        d.device_id, d.sensor_key, d.value
-      ]);
-    }
-    const csv = rows.map(r=>r.join(',')).join('\n');
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = df && dt ? `trabajo_${deviceId}_${df}_a_${dt}.csv` : `trabajo_${deviceId}.csv`;
-    a.click(); URL.revokeObjectURL(url);
   }
+};
 
-  // ===== Modal de configuración (carta modelo) =====
-  let editTargetId = null;
-  const segK = $('segKilos');
-  const segT = $('segTrabajo');
-  function setSegPressed(segEl, mode){
-    segEl.querySelectorAll('button').forEach(b=>{
-      b.setAttribute('aria-pressed', String(b.dataset.mode===mode));
-    });
-  }
-  function currentSegMode(segEl){
-    const b=[...segEl.querySelectorAll('button')].find(x=>x.getAttribute('aria-pressed')==='true');
-    return b?.dataset?.mode;
-  }
-  function openEditModel(deviceId){
-    editTargetId = String(deviceId||'');
-    setText('editModelHive', `Colmena ${editTargetId||'—'}`);
 
-    const pref = getPrefFor(editTargetId);
-    setSegPressed(segK, pref.kilos);    // mes | semana | anio
-    setSegPressed(segT, pref.trabajo);  // dia | semana | anio
-    // Vista previa simple
-    updateModelPreview();
-
-    const wrap=$('editModelWrap');
-    wrap.style.display='flex';
-  }
-  function closeEditModel(){
-    const wrap=$('editModelWrap');
-    wrap.style.display='none';
-    editTargetId=null;
-  }
-  function updateModelPreview(){
-    const kmode = currentSegMode(segK)||'mes';
-    const tmode = currentSegMode(segT)||'semana';
-    const rows = [
-      { color:'var(--ok)', label:`Kilos ${kmode==='anio'?'año':kmode}`, value:'—' },
-      { color:'var(--focus)', label:`Trabajo ${tmode==='dia'?'diario':(tmode==='anio'?'anual':tmode)}`, value:'—' }
-    ];
-    const cont = document.querySelector('.model-rows');
-    if(cont){
-      cont.innerHTML = rows.map(r=>
-        `<div class="model-row"><span class="model-dot" style="background:${r.color}"></span><span>${escapeHtml(r.label)}</span><span class="model-chip">${r.value}</span></div>`
-      ).join('');
-    }
-  }
-  // toggles
-  segK.addEventListener('click',e=>{
-    const b=e.target.closest('button'); if(!b) return;
-    setSegPressed(segK, b.dataset.mode);
-    updateModelPreview();
-  });
-  segT.addEventListener('click',e=>{
-    const b=e.target.closest('button'); if(!b) return;
-    setSegPressed(segT, b.dataset.mode);
-    updateModelPreview();
-  });
-
-  $('btnCancelEdit').onclick = ()=> closeEditModel();
-  $('btnConfirmEdit').onclick = async ()=>{
-    if(!editTargetId) return;
-    const kmode=currentSegMode(segK)||'mes';
-    const tmode=currentSegMode(segT)||'semana';
-    setPrefFor(editTargetId, { kilos:kmode, trabajo:tmode });
-    closeEditModel();
-    // refrescar tarjetas con las nuevas preferencias
-    await renderDeviceCards(lastItemsCache||[]);
-  };
+$('btnWorkCSV').onclick = ()=>{
+  if (!currentOverlayDevice || !lastItemsCache) return;
+  downloadWorkCSV(lastItemsCache, currentOverlayDevice);
+};
 
   // ===== Clima (nuevo flujo por texto) =====
   const wxMap = {0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla escarchada',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos'};
   function wxEmoji(code){ if([0].includes(code)) return '☀️'; if([1,2].includes(code)) return '🌤️'; if([3].includes(code)) return '☁️'; if([45,48].includes(code)) return '🌫️'; if([51,53,55].includes(code)) return '🌦️'; if([61,63,65,80,81,82].includes(code)) return '🌧️'; if([71,73,75].includes(code)) return '❄️'; return '⛅'; }
+
   function setWxButtonsState(state){
+    // state: 'ready' | 'input' | 'fixed'
     const open=$('btnWxOpen'), reset=$('btnWxReset'), row=$('wxInputRow'), content=$('wxContent');
     if(state==='ready'){ open.style.display='inline-flex'; reset.style.display='none'; row.style.display='none'; content.classList.add('wx-blur'); setText('wxWhere','Ubicación no establecida'); setText('wxNow','— °C'); setText('wxNowMeta','—'); setText('wxTodayMM','Máx —° · Mín —° · 💧 —mm'); $('wxTiles').innerHTML=''; }
     if(state==='input'){ open.style.display='none'; reset.style.display='none'; row.style.display='flex'; }
     if(state==='fixed'){ open.style.display='none'; reset.style.display='inline-flex'; row.style.display='none'; $('wxContent').classList.remove('wx-blur'); }
   }
+
   $('btnWxOpen').onclick = ()=>{ setWxButtonsState('input'); $('wxQuery').focus(); };
   $('btnWxReset').onclick = ()=>{ clearWxPlace(); setWxButtonsState('ready'); };
+
   $('btnWxFind').onclick = ()=> doWxSearch();
   $('wxQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') doWxSearch(); });
+
+  // Agregado
+  // Reemplazo
+$('workRange').onchange = async ()=>{
+  const wrap = $('workChartWrap');
+  const visible = getComputedStyle(wrap).display !== 'none';
+  if (!visible || !currentOverlayDevice) return;
+
+  const period = $('workRange').value || 'dia';
+  const data = await getWorkDataFor(period, currentOverlayDevice);
+  const { fromT, toT } = periodBounds(period);
+  renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
+};
+
+  
+$('btnWorkHistToggle').onclick = ()=>{
+  const c = $('workHistControls');
+  const show = c.style.display === 'none';
+  c.style.display = show ? 'flex' : 'none';
+  $('btnWorkHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
+  if(show){
+    const t = ymd(new Date());
+    $('workDateFrom').value = t;
+    $('workDateTo').value   = t;
+  }
+};
+
+$('btnWorkHistShow').onclick = async ()=>{
+  const df = $('workDateFrom').value, dt = $('workDateTo').value;
+  if(!df || !dt || !currentOverlayDevice) return;
+  const fromISO = new Date(df+'T00:00:00').toISOString();
+  const toISO   = new Date(dt+'T23:59:59.999').toISOString();
+  const items = await workFetchRange(fromISO, toISO, currentOverlayDevice);
+  // Render con el rango exacto:
+  const {fromT, toT} = { fromT: new Date(df+'T00:00:00').getTime(), toT: new Date(dt+'T23:59:59.999').getTime() };
+  renderWorkCharts(items, currentOverlayDevice, {fromT, toT});
+};
+
+$('btnWorkHistCSV').onclick = async ()=>{
+  const df = $('workDateFrom').value, dt = $('workDateTo').value;
+  if(!df || !dt || !currentOverlayDevice) return;
+  await downloadWorkCSV(currentOverlayDevice, df, dt);
+};
+
+
+  
   async function doWxSearch(){
     const q = String(($('wxQuery').value||'').trim());
     if(!q) return;
+    // Si es lat,lon directo
     const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
     if(m){
       const lat = parseFloat(m[1]), lon=parseFloat(m[2]);
@@ -1511,6 +1539,7 @@
       setWxButtonsState('fixed');
       return;
     }
+    // Geocoding Open-Meteo
     try{
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=es&format=json`;
       const r = await fetch(url); const j = await r.json();
@@ -1525,6 +1554,7 @@
       alert('Error buscando ubicación');
     }
   }
+
   async function renderWeather(lat, lon, label){
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=4`;
     const r = await fetch(url); const j = await r.json();
@@ -1534,12 +1564,16 @@
     setText('wxNow', (current.temperature_2m!=null? Math.round(current.temperature_2m)+' °C':'—'));
     setText('wxWhere', label || `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
     setText('wxNowMeta', `${wxMap[current.weather_code]||'—'} · HR ${current.relative_humidity_2m??'—'}%`);
+
+    // Hoy
     if(daily.time?.length){
       const max0 = Math.round(daily.temperature_2m_max?.[0] ?? NaN);
       const min0 = Math.round(daily.temperature_2m_min?.[0] ?? NaN);
       const pr0  = Math.round((daily.precipitation_sum?.[0] ?? 0));
       setText('wxTodayMM', `Máx ${isNaN(max0)?'—':max0}° · Mín ${isNaN(min0)?'—':min0}° · 💧 ${pr0}mm`);
     }
+
+    // Próximos 3
     const tiles = (daily.time||[]).slice(1,4).map((d,i)=>{
       const idx = i+1;
       const code = daily.weather_code?.[idx], tmax = daily.temperature_2m_max?.[idx], tmin = daily.temperature_2m_min?.[idx], pr = daily.precipitation_sum?.[idx];
@@ -1554,7 +1588,7 @@
     }).join('');
     $('wxTiles').innerHTML = tiles;
   }
+  // ===== Fin Clima =====
 </script>
-
 </body>
 </html>
