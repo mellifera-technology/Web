@@ -65,7 +65,7 @@
     #deviceOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
     #devicePanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
     .overlay-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#0f1218}
-    .overlay-content{padding:16px;overflow:auto}
+    .{padding:16px;overflow:auto}
     .overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
     @media(max-width:1100px){.overlay-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
@@ -310,139 +310,155 @@
         </button>
         <h3 id="overlayTitle" style="margin:0">Colmena —</h3>
       </div>
-      <div class="overlay-content">
+  <div class="overlay-content">
 
-        <!-- Mini dashboard: Temp, Hum, Producción -->
-        <div class="overlay-grid">
-          <div class="card">
-            <h3>Temperatura Colmena</h3>
-            <div class="metric"><span id="ovTemVal" class="val">—</span><span class="unit">°C</span></div>
-            <div id="ovTemWhen" class="muted">—</div>
-          </div>
-          <div class="card">
-            <h3>Humedad Colmena</h3>
-            <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
-            <div id="ovHumWhen" class="muted">—</div>
-          </div>
-        </div>
-        <div class="card" style="margin-top:12px">
-          <div class="card">
-            <h3>Producción</h3>
-
-            <!-- Entrada alineada -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
-              <div class="date-chip">
-                <input type="date" id="ovProdDate">
-                <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-            </div>
-
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-              <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
-              <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
-            </div>
-
-            <!-- Historial oculto hasta tocar "Ver historial" -->
-            <div id="ovProdHistWrap" style="display:none">
-              <div class="nice-table">
-                <table style="width:100%">
-                  <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
-                  <tbody id="ovProdTbody"><tr><td class="muted" colspan="2">Sin datos</td></tr></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-  <!-- Trabajo -->
-<div class="card" id="workCard">
-  <h3>Trabajo</h3>
-  <div id="workToday" class="muted">Trabajo de hoy: —</div>
-  <div id="workWeek" class="muted">Trabajo de la semana: —</div>
-  <div id="workMonth" class="muted">Trabajo del mes: —</div>
-  <div id="workChartWrap" style="display:none;margin-top:10px">
-    <div class="chart-card">
-      <h3>Trabajo del día — Variables</h3>
-      <div class="chart-box"><canvas id="workChart"></canvas></div>
+  <!-- Mini dashboard: Temp + Hum ocupan todo el ancho entre ambos -->
+  <div class="overlay-grid">
+    <div class="card">
+      <h3>Temperatura Colmena</h3>
+      <div class="metric"><span id="ovTemVal" class="val">—</span><span class="unit">°C</span></div>
+      <div id="ovTemWhen" class="muted">—</div>
+    </div>
+    <div class="card">
+      <h3>Humedad Colmena</h3>
+      <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
+      <div id="ovHumWhen" class="muted">—</div>
     </div>
   </div>
-  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
-            <!-- REEMPLAZO: barra de acciones -->
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-            <option value="dia">Día</option>
-            <option value="semana">Semana</option>
-            <option value="mes">Mes</option>
-          </select>
-          <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-          <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
-        </div>
-        
-        <!-- AGREGADO: controles de Historial -->
-        <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
-          <div class="date-chip">
-            <input type="date" id="workDateFrom">
-            <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
-              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="date-chip">
-            <input type="date" id="workDateTo">
-            <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
-              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="hist-actions">
-            <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
-            <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
-          </div>
-        </div>
-  </div>
-</div>
 
-        <!-- Gráfica + historial por colmena -->
-        <div class="card" style="margin-top:12px">
-          <div class="center"><button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button></div>
-          <div id="ovChartsWrap" style="display:none;margin-top:10px">
-            <div class="charts-grid">
-              <div class="chart-card">
-                <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
-                <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
-              </div>
-              <div class="chart-card">
-                <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
-                <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
-              </div>
-            </div>
-            <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
-              <div class="date-chip">
-                <input type="date" id="ovDateFrom">
-                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="date-chip">
-                <input type="date" id="ovDateTo">
-                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="hist-actions">
-                <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
-                <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
-              </div>
-            </div>
-          </div>
+  <!-- Gráfica + historial por colmena -->
+  <div class="card" style="margin-top:12px">
+    <div class="center"><button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button></div>
+    <div id="ovChartsWrap" style="display:none;margin-top:10px">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
+          <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
         </div>
-
-      </div> <!-- overlay-content -->
+        <div class="chart-card">
+          <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
+          <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
+        </div>
+      </div>
+      <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
+        <div class="date-chip">
+          <input type="date" id="ovDateFrom">
+          <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+          </button>
+        </div>
+        <div class="date-chip">
+          <input type="date" id="ovDateTo">
+          <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+          </button>
+        </div>
+        <div class="hist-actions">
+          <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
+          <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
+          <button id="ovBtnDownloadCSV" class="btn small" type="button">Descargar CSV</button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Tarjetas: Trabajo / Gases / Sonido -->
+  <div class="cards-grid" style="margin-top:12px;grid-template-columns:repeat(3,1fr)">
+    <div class="card device-card" id="cardWork" role="button" tabindex="0" aria-label="Abrir mini-dashboard Trabajo">
+      <h3 style="margin:0">Trabajo</h3>
+      <div class="status-row"><span>Estado</span><span class="status-dot" style="background:var(--idle)"></span></div>
+      <div class="status-row"><span>Hoy</span><span id="workToday" style="font-weight:800;color:var(--focus)">—</span></div>
+      <div class="status-row"><span>Semana</span><span id="workWeek" style="font-weight:800;color:var(--focus)">—</span></div>
+      <div class="status-row"><span>Mes</span><span id="workMonth" style="font-weight:800;color:var(--focus)">—</span></div>
+    </div>
+
+    <div class="card" id="cardGases">
+      <h3 style="margin:0">Gases</h3>
+      <div class="status-row"><span>Última</span><span class="status-dot" style="background:var(--idle)"></span></div>
+      <div class="muted" id="gasesInfo">—</div>
+    </div>
+
+    <div class="card" id="cardSonido">
+      <h3 style="margin:0">Sonido</h3>
+      <div class="status-row"><span>Última</span><span class="status-dot" style="background:var(--idle)"></span></div>
+      <div class="muted" id="soundInfo">—</div>
+    </div>
+  </div>
+
+  <!-- Mini-dashboard oculto: Trabajo -->
+  <div class="card" id="workMini" style="display:none;margin-top:12px">
+    <div class="section-head">
+      <h3 style="margin:0">Trabajo — Detalle</h3>
+      <button id="btnWorkMiniClose" class="btn small" type="button">Cerrar</button>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+        <option value="dia">Día</option>
+        <option value="semana">Semana</option>
+        <option value="mes">Mes</option>
+      </select>
+      <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+      <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
+      <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+    </div>
+
+    <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
+      <div class="date-chip">
+        <input type="date" id="workDateFrom">
+        <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="date-chip">
+        <input type="date" id="workDateTo">
+        <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="hist-actions">
+        <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
+        <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
+      </div>
+    </div>
+
+    <div id="workChartWrap" style="display:none;margin-top:10px">
+      <div class="chart-card">
+        <h3>Trabajo del período — Variables</h3>
+        <div class="chart-box"><canvas id="workChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Producción al final, ancho completo -->
+  <div class="card" style="margin-top:12px">
+    <h3>Producción</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
+      <div class="date-chip">
+        <input type="date" id="ovProdDate">
+        <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
+      <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
+    </div>
+    <div id="ovProdHistWrap" style="display:none">
+      <div class="nice-table">
+        <table style="width:100%">
+          <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
+          <tbody id="ovProdTbody"><tr><td class="muted" colspan="2">Sin datos</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- overlay-content -->
+</div><!-- /#devicePanel -->
+</div><!-- /#deviceOverlay -->
 
   <!-- Overlay Global Producción -->
   <div id="prodOverlay" aria-hidden="true">
@@ -977,6 +993,81 @@ async function getWorkDataFor(period, deviceId){
     const a=toLocalDayStart(df), b=toLocalDayStart(dt); if(a>b){ const tmp=df; df=dt; dt=tmp; }
     return { df, dt, fromISO: new Date(df+'T00:00:00').toISOString(), toISO: new Date(dt+'T23:59:59.999').toISOString() };
   }
+
+
+// Toggle mini-dashboard Trabajo
+  (function(){
+    const card = document.getElementById('cardWork');
+    const panel = document.getElementById('workMini');
+    const closeBtn = document.getElementById('btnWorkMiniClose');
+
+    function openWorkMini(){
+      panel.style.display = 'block';
+      // inicializar valores y chart
+      if (typeof renderWorkSection === 'function' && window.lastItemsCache && window.currentOverlayDevice){
+        renderWorkSection(lastItemsCache, currentOverlayDevice);
+      }
+    }
+    function closeWorkMini(){ panel.style.display = 'none'; }
+
+    if(card){
+      card.addEventListener('click', openWorkMini);
+      card.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openWorkMini(); }});
+    }
+    if(closeBtn){ closeBtn.addEventListener('click', closeWorkMini); }
+
+    // CSV del overlay de Temp/Hum por colmena
+    if(!window.toCSVForDevice){
+      window.toCSVForDevice = function(items, deviceId, df=null, dt=null){
+        const fromT = df? toLocalDayStart(df): -Infinity;
+        const toT   = dt? toLocalDayEnd(dt):   Infinity;
+        const rows = [['timestamp_iso','fecha_local','hora_local','dispositivo','sensor','valor']];
+        for(const d of (items||[])){
+          if(String(d.device_id)!==String(deviceId)) continue;
+          const K = String(d.sensor_key||'').toUpperCase();
+          const isTem = !K.startsWith('MOTHER.') && (K.endsWith('.TEM') || K==='TEM' || K.includes('TEMP'));
+          const isHum = !K.startsWith('MOTHER.') && (K.endsWith('.HUM') || K==='HUM');
+          if(!(isTem || isHum)) continue;
+          const t = new Date(d.ts).getTime();
+          if(t<fromT || t>toT) continue;
+          const ts = new Date(d.ts);
+          const fecha = ts.toLocaleDateString('es-AR');
+          const hora  = ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+          rows.push([ts.toISOString(), fecha, hora, d.device_id||'', d.sensor_key||'', d.value==null?'':String(d.value)]);
+        }
+        return rows.map(r=>r.map(c=>/[,;\n"]/.test(c)? `"${String(c).replace(/"/g,'""')}"` : c).join(',')).join('\n');
+      };
+    }
+
+    const btnCsv = document.getElementById('ovBtnDownloadCSV');
+    if(btnCsv){
+      btnCsv.onclick = async ()=>{
+        if(!window.currentOverlayDevice) return;
+        const df = document.getElementById('ovDateFrom').value;
+        const dt = document.getElementById('ovDateTo').value;
+        let base = window.lastItemsCache || [];
+        if(df && dt){
+          const fromISO = new Date(df+'T00:00:00').toISOString();
+          const toISO   = new Date(dt+'T23:59:59.999').toISOString();
+          if(typeof fetchRange === 'function') base = await fetchRange(fromISO, toISO);
+        }
+        const csv = window.toCSVForDevice(base, window.currentOverlayDevice, df||null, dt||null);
+        if(!csv || !csv.split('\n')[1]){ alert('Sin datos para exportar'); return; }
+        const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = df && dt ? `colmena_${window.currentOverlayDevice}_${df}_a_${dt}.csv` : `colmena_${window.currentOverlayDevice}_hoy.csv`;
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      };
+    }
+  })();
+
+
+
+
+
+  
   async function showRange(){
     const r = normalizeDateRangeInputs(); if(!r) return;
     historyMode = true;
