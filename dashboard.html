@@ -695,34 +695,38 @@ async function getMonthlyProduction(){
   // Cartas de acceso rápido en overlay
 $('featTrabajo').onclick = async ()=>{
   const wc=$('workCard');
-
-  // toggle: si está abierto, cerrar
-  if(wc && getComputedStyle(wc).display!=='none'){
-    $('btnWorkClose').click(); // reutiliza el cierre existente
-    workOpen=false;
-    return;
-  }
-
-  // abrir
-  workOpen=true;
   wc.style.display='block';
 
-  // resumen día/semana/mes con datos reales
-  const now=new Date();
-  const periodSel=$('workRange')?.value||'dia';
-  const todayData   = await getWorkDataFor('dia',    currentOverlayDevice);
-  const periodData  = await getWorkDataFor(periodSel,currentOverlayDevice);
-  const {t:wToday, w:wWeek, m:wMonth}=calcWorkTotalsSmart(todayData, now, currentOverlayDevice);
+  // Previews y resumen con datos del DÍA (si no hay en cache, se trae del Worker)
+  const todayData = await getWorkDataFor('dia', currentOverlayDevice);
+  // render resumen con ese dataset puntual
+  const { todayMs, weekMs, monthMs } = (function(items, deviceId){
+    const msData = (items||[]).filter(d => String(d.device_id)===String(deviceId) && keyEqOrSuffix(d.sensor_key,'MS'));
+    const now = new Date();
+    let t=0,w=0,m=0;
+    for(const d of msData){
+      const dt=new Date(d.ts); const v=Number(d.value)||0;
+      if(sameLocalDay(dt, now)) t+=v;
+      if(isSameISOWeek(dt, now)) w+=v;
+      if(dt.getFullYear()===now.getFullYear() && dt.getMonth()===now.getMonth()) m+=v;
+    }
+    return { todayMs:t, weekMs:w, monthMs:m };
+  })(todayData, currentOverlayDevice);
 
-  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(wToday)}`);
-  setText('workWeek',  `Trabajo de la semana: ${formatHM_fromMs(wWeek)}`);
-  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(wMonth)}`);
+  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
+  setText('workWeek',  `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
+  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
 
-  const { fromT,toT } = periodBounds(periodSel);
-  renderWorkCharts(periodData, currentOverlayDevice, {fromT,toT});
-  wc.scrollIntoView({behavior:'smooth',block:'start'});
+  // Gráfico según período seleccionado
+  const period = $('workRange')?.value || 'dia';
+  const data = await getWorkDataFor(period, currentOverlayDevice);
+  const { fromT, toT } = periodBounds(period);
+  renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
+
+  wc.scrollIntoView({behavior:'smooth', block:'start'});
 };
 
+  
   // Tarjetas colmena + estado
   // Tarjetas colmena + estado extendido
 async function renderDeviceCards(items){
@@ -909,65 +913,12 @@ function periodBounds(period, ref=new Date()){
 
 // AGREGADO: obtiene datos según período
 async function getWorkDataFor(period, deviceId){
-  const { fromISO, toISO } = (period==='dia')
-    ? (function(){
-        const d=ymd(new Date());
-        return { fromISO:new Date(d+'T00:00:00').toISOString(),
-                 toISO  :new Date(d+'T23:59:59.999').toISOString() };
-      })()
-    : periodBounds(period);
-
-  // 1) intentar cache suficiente
-  const fromT=new Date(fromISO).getTime(), toT=new Date(toISO).getTime();
-  const cacheOk = (lastItemsCache||[]).some(d =>
-    String(d.device_id)===String(deviceId) &&
-    ['OPN','MS','C2R','NHR','NXR','ALR','SMR'].some(k=>keyEqOrSuffix(d.sensor_key,k)) &&
-    (new Date(d.ts).getTime()>=fromT && new Date(d.ts).getTime()<=toT)
-  );
-  if(cacheOk) return (lastItemsCache||[]).filter(d=>String(d.device_id)===String(deviceId));
-
-  // 2) traer del Worker
-  const rows = await workFetchRange(fromISO, toISO, deviceId);
-  return rows;
+  if(period==='dia') return lastItemsCache || [];
+  const { fromISO, toISO } = periodBounds(period);
+  return await workFetchRange(fromISO, toISO, deviceId);
 }
 
-
-  // total de trabajo en ms a partir de lecturas de MS (acumulado o incremental)
-function totalMsByDeltas(msItems){
-  if(!msItems?.length) return 0;
-  // ordenar por tiempo
-  const arr=[...msItems].sort((a,b)=>new Date(a.ts)-new Date(b.ts))
-                        .map(x=>Number(x.value)||0);
-  // heurística: si la mayor parte es no-decreciente, tratamos como acumulado
-  let nonDec=0;
-  for(let i=1;i<arr.length;i++) if(arr[i]>=arr[i-1]) nonDec++;
-  const asAccumulated = nonDec >= Math.max(1, Math.floor((arr.length-1)*0.7));
-
-  if(asAccumulated){
-    // acumulado: deltas positivos
-    let tot=0;
-    for(let i=1;i<arr.length;i++){
-      const d = arr[i]-arr[i-1];
-      if(d>0) tot+=d;
-    }
-    // si solo hay un punto, no suma (no hay delta)
-    return tot;
-  }else{
-    // incremental: sumar valores positivos
-    return arr.reduce((a,b)=> a + (b>0?b:0), 0);
-  }
-}
-
-// filtrar MS por dispositivo y rango [fromT,toT]
-function msInRange(items, deviceId, fromT, toT){
-  return (items||[]).filter(d=>{
-    if(String(d.device_id)!==String(deviceId)) return false;
-    if(!keyEqOrSuffix(d.sensor_key,'MS')) return false;
-    const t=new Date(d.ts).getTime();
-    return t>=fromT && t<=toT;
-  });
-}
-
+  
 
   // Gráficos madre
   $('btnChart').onclick=()=>{
@@ -1199,14 +1150,14 @@ async function workFetchRange(fromISO, toISO, deviceId){
     if(!res.ok) throw new Error(await res.text());
     return res.json();
   }
-$('btnWorkClose').onclick=()=>{
-  const wc=$('workCard'); if(wc) wc.style.display='none';
+$('btnWorkClose').onclick = ()=>{
+  const wc = $('workCard');
+  if(wc){ wc.style.display='none'; }
+  // limpiar gráfico
   if(workChart){ workChart.destroy(); workChart=null; }
   $('workChartWrap').style.display='none';
   $('btnWorkChart').textContent='Mostrar gráficos';
-  workOpen=false;
 };
-
 
 // Escape cierra el mini-dashboard si está abierto
 document.addEventListener('keydown', (e)=>{
@@ -1338,17 +1289,25 @@ function prodDownloadCSV(){
 }
 
 
-  ffunction updateFeaturePreviews(baseItems, deviceId){
+  function updateFeaturePreviews(baseItems, deviceId){
+  // Trabajo: usa totales de HOY; si no hay baseItems, no toca
   try{
-    const now=new Date();
-    const day = getPeriodBounds('dia', now);
-    const week= getPeriodBounds('semana', now);
-    const msDay  = totalMsByDeltas(msInRange(baseItems||[], deviceId, day.fromT, day.toT));
-    const msWeek = totalMsByDeltas(msInRange(baseItems||[], deviceId, week.fromT, week.toT));
-    const el=$('featTrabajoInfo'); if(el) el.textContent=`Hoy: ${formatHM_fromMs(msDay)} · Semana: ${formatHM_fromMs(msWeek)}`;
+    const msToday = extractWorkTimes(baseItems||[], deviceId)
+      .filter(d => sameLocalDay(d.ts, new Date()))
+      .reduce((a,b)=>a + (Number(b.value)||0), 0);
+    const todayTxt = formatHM_fromMs(msToday);
+    // Semana
+    const now = new Date();
+    const weekMs = extractWorkTimes(baseItems||[], deviceId)
+      .filter(d => isSameISOWeek(new Date(d.ts), now))
+      .reduce((a,b)=>a + (Number(b.value)||0), 0);
+    const weekTxt = formatHM_fromMs(weekMs);
+    const el = $('featTrabajoInfo'); if(el) el.textContent = `Hoy: ${todayTxt} · Semana: ${weekTxt}`;
   }catch{}
-  const hh=$('featHumoInfo');   if(hh) hh.textContent='Último: — · Estado: —';
-  const ss=$('featSonidoInfo'); if(ss) ss.textContent='Nivel: — · Último: —';
+
+  // Humo / Sonido: placeholders
+  const hh = $('featHumoInfo');    if(hh) hh.textContent = 'Último: — · Estado: —';
+  const ss = $('featSonidoInfo');  if(ss) ss.textContent = 'Nivel: — · Último: —';
 }
 
 
@@ -1497,15 +1456,29 @@ function isSameISOWeek(d1, ref){
   return d1 >= start && d1 < end;
 }
 
-function calcWorkTotalsSmart(allItems, now, deviceId){
-  const day = getPeriodBounds('dia', now);
-  const week= getPeriodBounds('semana', now);
-  const month= getPeriodBounds('mes', now);
+function calcWorkTotals(items, deviceId) {
+  const msData = extractWorkTimes(items, deviceId);
+  let todayMs = 0, weekMs = 0, monthMs = 0;
+  const now = new Date();
 
-  const dayMs   = totalMsByDeltas(msInRange(allItems, deviceId, day.fromT, day.toT));
-  const weekMs  = totalMsByDeltas(msInRange(allItems, deviceId, week.fromT, week.toT));
-  const monthMs = totalMsByDeltas(msInRange(allItems, deviceId, month.fromT, month.toT));
-  return { t:dayMs, w:weekMs, m:monthMs };
+  for (const d of msData) {
+    const t = new Date(d.ts);
+    const valMs = Number(d.value) || 0;
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth() &&
+        t.getDate() === now.getDate()) {
+      todayMs += valMs;
+    }
+    if (isSameISOWeek(t, now)) {
+      weekMs += valMs;
+    }
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth()) {
+      monthMs += valMs;
+    }
+  }
+
+  return { todayMs, weekMs, monthMs };
 }
 
 
