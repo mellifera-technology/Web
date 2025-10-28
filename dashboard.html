@@ -21,13 +21,13 @@
       --ok:#49d17d;--warn:#ffb74d;--bad:#ff6b6b;--idle:#9aa3ad;
       --chip-bg:#10141a;
     }
-
     /* Cartas de features más legibles */
-    .feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:12px 0}
-    @media(max-width:980px){.feature-cards{grid-template-columns:1fr}}
-    .feature-card{cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px}
-    .feature-title{font-weight:800;font-size:1.6rem;line-height:1.2;letter-spacing:.2px}
-    .feature-sub{color:var(--muted);font-size:1rem;font-weight:600}
+.feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:12px 0}
+@media(max-width:980px){.feature-cards{grid-template-columns:1fr}}
+.feature-card{cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px}
+.feature-title{font-weight:800;font-size:1.6rem;line-height:1.2;letter-spacing:.2px}
+.feature-sub{color:var(--muted);font-size:1rem;font-weight:600}
+
 
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6}
@@ -74,6 +74,7 @@
     #devicePanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
     .overlay-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#0f1218}
     .overlay-content{padding:16px;overflow:auto}
+    
 
     .editing .device-card{cursor:grab;animation:shake .9s ease-in-out infinite}
     @keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(1px,-1px)}50%{transform:translate(-1px,1px)}75%{transform:translate(1px,0)}100%{transform:translate(0,0)}}
@@ -92,28 +93,36 @@
     .hist-actions{display:flex;gap:8px}
 
     /* Date-chip */
-    .date-chip{display:inline-flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-    .date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer;min-width:140px;line-height:1.2}
-    .date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
-    .cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
-    .cal-btn svg{width:18px;height:18px;color:#111}
-    .cal-btn:focus{outline:2px solid var(--focus)}
+.date-chip{display:inline-flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer;min-width:140px;line-height:1.2}
+.date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
+.cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
+.cal-btn svg{width:18px;height:18px;color:#111}
+.cal-btn:focus{outline:2px solid var(--focus)}
 
-    /* Input-chip */
-    .input-chip{display:flex;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-    .input-chip input{width:100%;background:transparent;border:0;color:#fff;padding:8px 10px;line-height:1.2}
+/* Input-chip: para Kilos */
+.input-chip{display:flex;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.input-chip input{width:100%;background:transparent;border:0;color:#fff;padding:8px 10px;line-height:1.2}
 
-    /* Overlay layout nuevo (mini-dashboard) */
-    .overlay-top{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
-    .kpis-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
-    .kpi-card{width:min(420px,100%);text-align:left}
-    .mini-actions{display:flex;justify-content:center}
+/* Grids overlay: mantener Producción al costado */
+/* === Overlay layout nuevo (mini-dashboard) === */
+.overlay-top{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.kpis-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.kpi-card{width:min(420px,100%);text-align:left}
+.mini-actions{display:flex;justify-content:center}
 
-    .fullwidth{grid-column:1 / -1;width:100%}
-    .editing .device-card{animation:none}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 
-    /* Producción */
+.fullwidth{grid-column:1 / -1;width:100%}
+
+/* Quitar temblor al reordenar en overlay */
+.editing .device-card{animation:none}
+
+/* Botones consistentes */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+
+
+    /* Producción “nice” */
     .nice-table{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
     .nice-table thead th{background:var(--accent);color:#111;border-bottom:1px solid #caa332}
     .nice-table tbody tr:nth-child(odd){background:var(--zebra)}
@@ -121,9 +130,9 @@
     .nice-table td.num{text-align:right;font-variant-numeric:tabular-nums}
     .badge{display:inline-block;background:#222;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-weight:700}
 
-    /* Estado tarjeta */
+    /* Status dot */
     .status-row{display:flex;align-items:center;gap:8px;color:var(--muted);margin:.25rem 0 0}
-    .status-badge{display:inline-block;background:var(--accent);color:#111;font-weight:900;border:2px solid var(--accent);border-radius:8px;padding:2px 8px;min-width:92px;text-align:center}
+    .status-dot{width:10px;height:10px;border-radius:50%;background:var(--idle);box-shadow:0 0 0 2px rgba(0,0,0,.2) inset}
 
     /* Clima */
     .wx-card{background:linear-gradient(140deg,#0b0d12,#141926);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:12px;position:relative;overflow:hidden}
@@ -203,6 +212,7 @@
                 </div>
               </div>
 
+              <!-- Fila de entrada para buscar ubicación -->
               <div id="wxInputRow" style="display:none;margin:6px 0 10px;gap:8px;align-items:center;flex-wrap:wrap">
                 <div class="loc-chip">
                   <input id="wxQuery" type="text" placeholder="Ciudad, provincia, país o lat,lon" aria-label="Ubicación">
@@ -211,6 +221,7 @@
               </div>
 
               <div id="wxContent" class="wx-blur">
+                <!-- Hoy -->
                 <div class="wx-today">
                   <div>
                     <div class="wx-big" id="wxNow">— °C</div>
@@ -219,6 +230,7 @@
                   </div>
                   <div class="wx-small" id="wxTodayMM">Máx —° · Mín —° · 💧 —mm</div>
                 </div>
+                <!-- Próximos 3 -->
                 <div class="wx-tiles" id="wxTiles"></div>
               </div>
             </div>
@@ -314,208 +326,162 @@
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" style="margin-right:6px"><path d="M15 18l-6-6 6-6" stroke-width="2"/></svg>
           Atrás
         </button>
-
         <h3 id="overlayTitle" style="margin:0">Colmena —</h3>
-
-        <!-- NUEVO: botón Humo arriba, amarillo -->
-        <div style="margin-left:auto;display:flex;gap:8px">
-          <button id="btnHumoPanel" class="btn small yellow" type="button" title="Humo">Humo</button>
-          <button id="overlayBtnChart" class="btn small yellow" type="button">Mostrar gráfica</button>
-        </div>
       </div>
-
       <div class="overlay-content">
-        <!-- Mini dashboard: Temp, Hum -->
-        <div class="overlay-top">
-          <div class="kpis-row">
-            <div class="card kpi-card">
-              <h3>Temperatura Colmena</h3>
-              <div class="metric"><span id="ovTemVal" class="val">—</span><span class="unit">°C</span></div>
-              <div id="ovTemWhen" class="muted">—</div>
-            </div>
-            <div class="card kpi-card">
-              <h3>Humedad Colmena</h3>
-              <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
-              <div id="ovHumWhen" class="muted">—</div>
-            </div>
-          </div>
 
-          <!-- Gráfica por colmena -->
-          <div id="ovChartsWrap" style="display:none;margin-top:10px">
-            <div class="charts-grid">
-              <div class="chart-card">
-                <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
-                <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
-              </div>
-              <div class="chart-card">
-                <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
-                <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
-              </div>
-            </div>
-            <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
-              <div class="date-chip">
-                <input type="date" id="ovDateFrom">
-                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="date-chip">
-                <input type="date" id="ovDateTo">
-                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="hist-actions">
-                <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
-                <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
-              </div>
-            </div>
-          </div>
+        <!-- Mini dashboard: Temp, Hum, Producción -->
+        <!-- Mini dashboard NUEVO -->
+<div class="overlay-top">
+  <!-- KPIs centradas -->
+  <div class="kpis-row">
+    <div class="card kpi-card">
+      <h3>Temperatura Colmena</h3>
+      <div class="metric"><span id="ovTemVal" class="val">—</span><span class="unit">°C</span></div>
+      <div id="ovTemWhen" class="muted">—</div>
+    </div>
+    <div class="card kpi-card">
+      <h3>Humedad Colmena</h3>
+      <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
+      <div id="ovHumWhen" class="muted">—</div>
+    </div>
+  </div>
 
-          <!-- 3 cartas: Trabajo / Humo (atajo) / Sonido -->
-          <div class="feature-cards">
-            <button id="featTrabajo" class="card feature-card" type="button" aria-controls="workCard">
-              <h3 class="feature-title">Trabajo</h3>
-              <div id="featTrabajoInfo" class="feature-sub">Hoy: — · Semana: —</div>
-            </button>
-            <button id="featHumo" class="card feature-card" type="button">
-              <h3 class="feature-title">Humo</h3>
-              <div id="featHumoInfo" class="feature-sub">Último: — · Estado: —</div>
-            </button>
-            <button id="featSonido" class="card feature-card" type="button">
-              <h3 class="feature-title">Sonido</h3>
-              <div id="featSonidoInfo" class="feature-sub">Nivel: — · Último: —</div>
-            </button>
-          </div>
+  <!-- Botón Mostrar gráfica debajo de temp/hum -->
+  <div class="mini-actions">
+    <button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button>
+  </div>
 
-          <!-- Mini dashboard TRABAJO -->
-          <div class="card" id="workCard" style="display:none">
-            <h3>Trabajo</h3>
-            <div id="workToday" class="muted">Trabajo de hoy: —</div>
-            <div id="workWeek" class="muted">Trabajo de la semana: —</div>
-            <div id="workMonth" class="muted">Trabajo del mes: —</div>
+  <!-- Gráfica + historial por colmena (sin mover IDs) -->
+  <div id="ovChartsWrap" style="display:none;margin-top:10px">
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
+        <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
+        <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
+      </div>
+    </div>
+    <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
+      <div class="date-chip">
+        <input type="date" id="ovDateFrom">
+        <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="date-chip">
+        <input type="date" id="ovDateTo">
+        <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="hist-actions">
+        <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
+        <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
+      </div>
+    </div>
+  </div>
 
-            <div class="toolbar" style="margin-top:10px">
-              <!-- Eliminado botón Cerrar, se cierra tocando “Trabajo” de nuevo o ESC -->
-              <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-                <option value="dia">Día</option>
-                <option value="semana">Semana</option>
-                <option value="mes">Mes</option>
-              </select>
-              <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-              <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
-              <button id="btnWorkLast5" class="btn small" type="button" title="Últimos 5 eventos OPN/MS">Últimos 5</button>
-              <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
-            </div>
+  <!-- 3 cartas: Trabajo / Humo / Sonido -->
+  <div class="feature-cards">
+  <button id="featTrabajo" class="card feature-card" type="button" aria-controls="workCard">
+    <h3 class="feature-title">Trabajo</h3>
+    <div id="featTrabajoInfo" class="feature-sub">Hoy: — · Semana: —</div>
+  </button>
+  <button id="featHumo" class="card feature-card" type="button">
+    <h3 class="feature-title">Humo</h3>
+    <div id="featHumoInfo" class="feature-sub">Último: — · Estado: —</div>
+  </button>
+  <button id="featSonido" class="card feature-card" type="button">
+    <h3 class="feature-title">Sonido</h3>
+    <div id="featSonidoInfo" class="feature-sub">Nivel: — · Último: —</div>
+  </button>
+</div>
 
-            <!-- Historial TRABAJO -->
-            <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
-              <div class="date-chip">
-                <input type="date" id="workDateFrom">
-                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="date-chip">
-                <input type="date" id="workDateTo">
-                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="hist-actions">
-                <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
-                <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
-              </div>
-            </div>
 
-            <!-- Tabla Últimos 5 -->
-            <div id="workLast5Wrap" style="display:none;margin-top:10px">
-              <div class="nice-table">
-                <table style="width:100%">
-                  <thead><tr><th>Fecha</th><th>Sensor</th><th>Valor</th></tr></thead>
-                  <tbody id="workLast5Body"><tr><td class="muted" colspan="3">Sin datos</td></tr></tbody>
-                </table>
-              </div>
-            </div>
+  <!-- Mini dashboard TRABAJO — limpio y oculto por defecto -->
+  <div class="card" id="workCard" style="display:none">
+    <h3>Trabajo</h3>
+    <div id="workToday" class="muted">Trabajo de hoy: —</div>
+    <div id="workWeek" class="muted">Trabajo de la semana: —</div>
+    <div id="workMonth" class="muted">Trabajo del mes: —</div>
 
-            <div id="workChartWrap" style="display:none;margin-top:10px">
-              <div class="chart-card">
-                <h3>Trabajo del período — Variables</h3>
-                <div class="chart-box"><canvas id="workChart"></canvas></div>
-              </div>
-            </div>
-          </div>
+    <div class="toolbar" style="margin-top:10px">
+  <button id="btnWorkClose" class="btn small" type="button">Cerrar</button>
+  <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+    <option value="dia">Día</option>
+    <option value="semana">Semana</option>
+    <option value="mes">Mes</option>
+  </select>
+  <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+  <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
+  <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+</div>
 
-          <!-- Panel HUMO -->
-          <div class="card fullwidth" id="smokeCard" style="display:none;margin-top:12px">
-            <h3>Humo</h3>
-            <div class="toolbar" style="margin-bottom:6px">
-              <button id="btnSmokeChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-              <button id="btnSmokeHistToggle" class="btn small" type="button">Historial</button>
-              <button id="btnSmokeCSV" class="btn small" type="button">Descargar CSV</button>
-            </div>
-            <div id="smokeHistControls" class="hist-controls" style="display:none">
-              <div class="date-chip">
-                <input type="date" id="smokeDateFrom">
-                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('smokeDateFrom')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="date-chip">
-                <input type="date" id="smokeDateTo">
-                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('smokeDateTo')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <div class="hist-actions">
-                <button id="btnSmokeShowRange" class="btn small" type="button">Mostrar</button>
-              </div>
-            </div>
 
-            <div id="smokeChartWrap" style="display:none;margin-top:10px">
-              <div class="chart-card">
-                <h3>Humo — Serie</h3>
-                <div class="chart-box"><canvas id="smokeChart"></canvas></div>
-              </div>
-            </div>
+    <!-- Controles Historial TRABAJO -->
+    <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
+      <div class="date-chip">
+        <input type="date" id="workDateFrom">
+        <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="date-chip">
+        <input type="date" id="workDateTo">
+        <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <div class="hist-actions">
+        <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
+        <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
+      </div>
+    </div>
 
-            <!-- Historial últimos 5 de Humo -->
-            <div id="smokeLast5Wrap" style="display:none;margin-top:10px">
-              <div class="nice-table">
-                <table style="width:100%">
-                  <thead><tr><th>Fecha</th><th>Sensor</th><th>Valor</th></tr></thead>
-                  <tbody id="smokeLast5Body"><tr><td class="muted" colspan="3">Sin datos</td></tr></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+    <div id="workChartWrap" style="display:none;margin-top:10px">
+      <div class="chart-card">
+        <h3>Trabajo del período — Variables</h3>
+        <div class="chart-box"><canvas id="workChart"></canvas></div>
+      </div>
+    </div>
+  </div>
 
-          <!-- Producción -->
-          <div class="card fullwidth" id="prodCard" style="margin-top:12px">
-            <h3>Producción</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
-              <div class="date-chip">
-                <input type="date" id="ovProdDate">
-                <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-                </button>
-              </div>
-              <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-            </div>
-            <div class="toolbar" style="margin-bottom:6px">
-              <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
-              <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
-            </div>
-            <div id="ovProdHistWrap" style="display:none">
-              <div class="nice-table">
-                <table style="width:100%">
-                  <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
-                  <tbody id="ovProdTbody"><tr><td class="muted" colspan="2">Sin datos</td></tr></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div> <!-- overlay-top -->
+  <!-- Producción abajo a ancho completo -->
+  <div class="card fullwidth" id="prodCard" style="margin-top:12px">
+    <h3>Producción</h3>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
+      <div class="date-chip">
+        <input type="date" id="ovProdDate">
+        <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+        </button>
+      </div>
+      <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+    </div>
+
+    <div class="toolbar" style="margin-bottom:6px">
+      <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
+      <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
+    </div>
+
+    <div id="ovProdHistWrap" style="display:none">
+      <div class="nice-table">
+        <table style="width:100%">
+          <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
+          <tbody id="ovProdTbody"><tr><td class="muted" colspan="2">Sin datos</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Gráfica + historial por colmena -->
+        
+
       </div> <!-- overlay-content -->
     </div>
   </div>
@@ -597,10 +563,9 @@
   let chartTemp=null, chartHum=null, chartsVisible=false, lastItemsCache=null;
   let historyMode=false;
   let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
-  let workChart=null, smokeChart=null;
 
-  // ======= Clima en localStorage =======
-  const WX_KEY = 'miellifera.wxPlace';
+  // ======= NUEVO: Estado clima por almacenamiento local =======
+  const WX_KEY = 'miellifera.wxPlace'; // {lat,lon,label}
   function saveWxPlace(p){ try{ localStorage.setItem(WX_KEY, JSON.stringify(p||null)); }catch{} }
   function loadWxPlace(){ try{ const x = localStorage.getItem(WX_KEY); return x? JSON.parse(x): null; }catch{ return null; } }
   function clearWxPlace(){ try{ localStorage.removeItem(WX_KEY); }catch{} }
@@ -617,12 +582,13 @@
       initDateDefaults();
       initProdDefaults();
 
+      // Clima: si hay ubicación guardada, cargar y fijar estado
       const saved = loadWxPlace();
       if(saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)){
         await renderWeather(saved.lat, saved.lon, saved.label||(`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`));
         setWxButtonsState('fixed');
       } else {
-        setWxButtonsState('ready');
+        setWxButtonsState('ready'); // mostrar "Ingresar ubicación"
       }
     }catch(e){ const m=$('msg'); if(m) m.textContent="Error cargando datos: "+(e.message||e); }
   });
@@ -697,424 +663,120 @@
     }).join('');
   }
 
-  // Helpers trabajo
-  function keyEqOrSuffix(k, wanted){
-    const K=String(k||'').toUpperCase().trim();
-    const W=String(wanted||'').toUpperCase().trim();
-    return K===W || K.endsWith('.'+W);
-  }
-  function totalMsByDeltas(msItems){
-    if(!msItems?.length) return 0;
-    const arr=[...msItems].sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(x=>Number(x.value)||0);
-    let nonDec=0; for(let i=1;i<arr.length;i++) if(arr[i]>=arr[i-1]) nonDec++;
-    const asAccum = nonDec >= Math.max(1, Math.floor((arr.length-1)*0.7));
-    if(asAccum){
-      let tot=0; for(let i=1;i<arr.length;i++){ const d=arr[i]-arr[i-1]; if(d>0) tot+=d; }
-      return tot;
+
+function formatMinutes(mins){
+  const h = Math.floor(mins/60);
+  const m = Math.round(mins%60);
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+// Simulación o carga real desde Worker de producción
+async function getMonthlyProduction(){
+  try{
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const fromISO = firstDay.toISOString();
+    const toISO = new Date().toISOString();
+    const { items } = await prodList({ fromISO, toISO });
+    // Agrupar kilos y sumar trabajo si existe
+    const map = {};
+    for(const it of items||[]){
+      const id = it.device_id;
+      if(!map[id]) map[id]={kilos:0,trabajoMin:0};
+      map[id].kilos += Number(it.kilos||0);
+      // si más adelante guardamos "trabajoMin", ya lo suma
+      map[id].trabajoMin += Number(it.trabajoMin||0);
     }
-    return arr.reduce((a,b)=>a+(b>0?b:0),0);
+    return map;
+  }catch{
+    return {};
   }
-  function msInRange(items, deviceId, fromT, toT){
-    return (items||[]).filter(d=>{
-      if(String(d.device_id)!==String(deviceId)) return false;
-      if(!keyEqOrSuffix(d.sensor_key,'MS')) return false;
-      const t=new Date(d.ts).getTime();
-      return t>=fromT && t<=toT;
-    });
+}
+
+  // Cartas de acceso rápido en overlay
+$('featTrabajo').onclick = async ()=>{
+  const wc=$('workCard');
+  const isOpen = getComputedStyle(wc).display!=='none';
+  if(isOpen){
+    // cerrar
+    $('btnWorkClose')?.click();
+    return;
+  }
+  // abrir
+  wc.style.display='block';
+
+  // Resumen con rango “inteligente”
+  const { todayMs, weekMs, monthMs } = calcWorkTotals(lastItemsCache||[], currentOverlayDevice);
+  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
+  setText('workWeek',  `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
+  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
+
+  // Gráfico según período seleccionado
+  const period = $('workRange')?.value || 'dia';
+  const data   = await getWorkDataFor(period, currentOverlayDevice);
+  const { fromT, toT } = periodBounds(period);
+  renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
+
+  wc.scrollIntoView({behavior:'smooth', block:'start'});
+};
+
+
+  
+  // Tarjetas colmena + estado
+  // Tarjetas colmena + estado extendido
+async function renderDeviceCards(items){
+  const wrap=$('autoCards'); if(!wrap) return;
+
+  const lastById=new Map();
+  for(const d of items||[]){
+    const raw=String(d.device_id||'').trim();
+    if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
+    const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
+    if(t>prev) lastById.set(raw,t);
   }
 
-  function periodBounds(period, ref=new Date()){
-    const r = new Date(ref);
-    let from = new Date(r), to = new Date(r);
-    if(period==='dia'){
-      from.setHours(0,0,0,0); to.setHours(23,59,59,999);
-    }else if(period==='semana'){
-      const d=(r.getDay()+6)%7;
-      from.setHours(0,0,0,0); from.setDate(from.getDate()-d);
-      to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
-    }else{
-      from = new Date(r.getFullYear(), r.getMonth(), 1, 0,0,0,0);
-      to   = new Date(r.getFullYear(), r.getMonth()+1, 0, 23,59,59,999);
-    }
-    return { fromT:+from, toT:+to, fromISO: from.toISOString(), toISO: to.toISOString() };
-  }
-  async function getWorkDataFor(period, deviceId){
-    if(period==='dia') return lastItemsCache || [];
-    const { fromISO, toISO } = periodBounds(period);
-    return await workFetchRange(fromISO, toISO, deviceId);
+  const devices=[...lastById.entries()]
+    .sort((a,b)=>b[1]-a[1])
+    .map(([id,ts])=>({id,ts}));
+
+  if(!devices.length){
+    wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>';
+    return;
   }
 
-  // Gráficos madre
-  $('btnChart').onclick=()=>{
-    chartsVisible=!chartsVisible;
-    $('chartsWrap').style.display=chartsVisible?'block':'none';
-    $('btnChart').textContent=chartsVisible?'Ocultar gráfica':'Mostrar gráfica';
-    if(chartsVisible){
-      if(historyMode){ /* noop */ }
-      else if(lastItemsCache) renderChartsDaily(lastItemsCache);
-    }
-    $('histControls').style.display = chartsVisible ? 'flex' : 'none';
-  };
+  const now=Date.now();
 
-  function buildLineChart(canvas, labels, values, lineColor){
-    const ctx=canvas.getContext('2d');
-    return new Chart(ctx,{
-      type:'line',
-      data:{ labels, datasets:[{
-        data: values,
-        borderColor: lineColor,
-        backgroundColor: 'transparent',
-        borderWidth: 2.5,
-        tension:.25,
-        pointRadius: 0,
-        pointHoverRadius: 4
-      }]},
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        interaction:{mode:'nearest',intersect:false},
-        plugins:{legend:{display:false},tooltip:{callbacks:{
-          title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `
-        }}},
-        scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
-      }
-    });
-  }
+  // Pedimos info de producción para kilos/mes
+  const prodData = await getMonthlyProduction();
 
-  function sameLocalDay(tsA, tsB){
-    const a=new Date(tsA), b=new Date(tsB);
-    return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
-  }
-  function seriesOfDay(items, key){
-    const now=new Date(); const arr=[];
-    for(const d of items||[]){
-      if(String(d.sensor_key||'').toUpperCase()!==key) continue;
-      if(!sameLocalDay(d.ts, now)) continue;
-      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
-      if(v==null) continue;
-      const t=new Date(d.ts); const hh=String(t.getHours()).padStart(2,'0'); const mm=String(t.getMinutes()).padStart(2,'0');
-      arr.push({label:`${hh}:${mm}`, x:t.getTime(), y:v});
-    }
-    arr.sort((a,b)=>a.x-b.x);
-    return arr;
-  }
-  function renderChartsDaily(items){
-    const tem=seriesOfDay(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
-    const hum=seriesOfDay(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
-    if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
-    setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
-  }
+  wrap.innerHTML=devices.map(({id,ts})=>{
+    const diff=(now-ts)/60000;
+    const conectado = diff<=15;
+    const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
+    const estadoColor = 'var(--idle)'; // gris por ahora
 
-  // Gráficos por colmena + historial por colmena
-  $('overlayBtnChart').onclick=()=>{
-    if(!currentOverlayDevice) return;
-    ovChartsVisible = !ovChartsVisible;
-    $('overlayBtnChart').textContent = ovChartsVisible ? 'Ocultar gráfica' : 'Mostrar gráfica';
-    $('ovChartsWrap').style.display = ovChartsVisible ? 'block' : 'none';
-    if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
-  };
-  function keyIsTemp(k){ const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.TEM')||K==='TEM'||K.includes('TEMP'); }
-  function keyIsHum(k){  const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.HUM')||K==='HUM'||K.includes('HUM'); }
-  function seriesOfDayForDevice(items, deviceId, pickKind){
-    const now=new Date(); const arr=[];
-    for(const d of items||[]){
-      if(String(d.device_id||'')!==String(deviceId)) continue;
-      const ok = pickKind==='TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
-      if(!ok) continue;
-      if(!sameLocalDay(d.ts, now)) continue;
-      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
-      if(v==null) continue;
-      const t=new Date(d.ts); const hh=String(t.getHours()).padStart(2,'0'); const mm=String(t.getMinutes()).padStart(2,'0');
-      arr.push({label:`${hh}:${mm}`, x:t.getTime(), y:v});
-    }
-    arr.sort((a,b)=>a.x-b.x);
-    return arr;
-  }
-  function renderOverlayChartsDaily(items, deviceId){
-    const tem=seriesOfDayForDevice(items, deviceId, 'TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
-    const hum=seriesOfDayForDevice(items, deviceId, 'HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
-    if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), labelsT, valsT, '#ff4d4f');
-    ovChartHum =buildLineChart($('ovChartHum'), labelsH, valsH, '#4da3ff');
-    setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
-  }
-  $('ovBtnShowRange').onclick=()=>{
-    const df=$('ovDateFrom').value, dt=$('ovDateTo').value; if(!df || !dt || !currentOverlayDevice) return;
-    const fromT=toLocalDayStart(df), toT=toLocalDayEnd(dt);
-    const items=(lastItemsCache||[]).filter(d=>String(d.device_id||'')===String(currentOverlayDevice)
-      && new Date(d.ts).getTime()>=fromT && new Date(d.ts).getTime()<=toT);
-    const tem=items.filter(d=>keyIsTemp(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
-      const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
-    const hum=items.filter(d=>keyIsHum(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
-      const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
-    if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), tem.map(x=>x.label), tem.map(x=>x.y), '#ff4d4f');
-    ovChartHum =buildLineChart($('ovChartHum'), hum.map(x=>x.label), hum.map(x=>x.y), '#4da3ff');
-    setText('ovTitleTemp', `Temperatura ${df} → ${dt}`);
-    setText('ovTitleHum',  `Humedad ${df} → ${dt}`);
-  };
-  $('ovBtnExitHistory').onclick=()=>{
-    if(ovChartsVisible) renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
-    $('ovDateFrom').value = ymd(new Date()); $('ovDateTo').value = ymd(new Date());
-    setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
-  };
+    const kilosMes = (prodData[id]?.kilos || 0).toFixed(1);
+    const trabajoSem = formatMinutes(prodData[id]?.trabajoMin || 0);
 
-  // Historial madre UI
-  function initDateDefaults(){
-    const val = ymd(new Date());
-    $('dateFrom').value = val;
-    $('dateTo').value   = val;
-  }
-  $('btnShowRange').onclick=()=>showRange();
-  $('btnDownloadCSV').onclick=()=>downloadCSV();
-  $('btnClearHistory').onclick=()=>{
-    $('dateFrom').value=''; $('dateTo').value='';
-    historyMode=false;
-    if(chartsVisible && lastItemsCache) renderChartsDaily(lastItemsCache);
-    setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
-  };
+    return `
+      <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
+        <h3 style="margin:0">Colmena ${id}</h3>
+        <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:${colorConn}"></span></div>
+        <div class="status-row"><span>Estado</span><span class="status-dot" style="background:${estadoColor}"></span></div>
+        <div class="status-row"><span>Kilos mes</span><span style="font-weight:800;color:var(--accent)">${kilosMes}</span></div>
+        <div class="status-row"><span>Trabajo semanal</span><span style="font-weight:800;color:var(--focus)">${trabajoSem}</span></div>
+      </div>`;
+  }).join('');
 
-  async function fetchRange(fromISO, toISO){
-    try{
-      const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
-      const { items } = await callWorker(q);
-      return items||[];
-    }catch(e){ return lastItemsCache||[]; }
-  }
-  function normalizeDateRangeInputs(){
-    let df=$('dateFrom').value, dt=$('dateTo').value;
-    if(!df || !dt) return null;
-    const a=toLocalDayStart(df), b=toLocalDayStart(dt); if(a>b){ const tmp=df; df=dt; dt=tmp; }
-    return { df, dt, fromISO: new Date(df+'T00:00:00').toISOString(), toISO: new Date(dt+'T23:59:59.999').toISOString() };
-  }
-  async function showRange(){
-    const r = normalizeDateRangeInputs(); if(!r) return;
-    historyMode = true;
-    const itemsSrv = await fetchRange(r.fromISO, r.toISO);
-    const fromT = toLocalDayStart(r.df), toT = toLocalDayEnd(r.dt);
-    const items = (itemsSrv||[]).filter(d=>{ const t=new Date(d.ts).getTime(); return t>=fromT && t<=toT; });
-    const tem=seriesByRange(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
-    const hum=seriesByRange(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
-    if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
-    setText('titleTemp', `Temperatura ${r.df} → ${r.dt}`);
-    setText('titleHum',  `Humedad ${r.df} → ${r.dt}`);
-  }
-  function seriesByRange(items, key){
-    const arr=[];
-    for(const d of items||[]){
-      if(String(d.sensor_key||'').toUpperCase()!==key) continue;
-      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
-      if(v==null) continue;
-      const t=new Date(d.ts);
-      const lab = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-      arr.push({label:lab, x:t.getTime(), y:v});
-    }
-    arr.sort((a,b)=>a.x-b.x);
-    return arr;
-  }
-  function toCSV(items, df=null, dt=null){
-    const fromT = df? toLocalDayStart(df): -Infinity, toT = dt? toLocalDayEnd(dt): Infinity;
-    const base = (items||[]).filter(d=>{const t=new Date(d.ts).getTime(); return t>=fromT && t<=toT;});
-    const rows = [['timestamp_iso','fecha_local','hora_local','dispositivo','sensor','valor']];
-    for(const d of base){
-      if(!/^MOTHER\.(TEM|HUM)$/i.test(String(d.sensor_key||''))) continue;
-      const ts=new Date(d.ts);
-      const fecha=ts.toLocaleDateString('es-AR'); const hora=ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      rows.push([ts.toISOString(), fecha, hora, d.device_id||'', d.sensor_key||'', d.value==null?'':String(d.value)]);
-    }
-    return rows.map(r=>r.map(cell=>/[,;\n"]/.test(cell)? `"${String(cell).replace(/"/g,'""')}"` : cell).join(',')).join('\n');
-  }
-  async function downloadCSV(){
-    const df=$('dateFrom').value, dt=$('dateTo').value;
-    const csv = toCSV(lastItemsCache, df||null, dt||null);
-    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = (df&&dt)? `miellifera_${df}_a_${dt}.csv` : 'miellifera_hoy.csv';
-    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  }
+  if(editing) enableDnD();
 
-  // ===== Trabajo fetch =====
-  async function workFetchRange(fromISO, toISO, deviceId){
-    try{
-      const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
-      const { items } = await callWorker(q);
-      const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR']; // TODO: ajustar si cambian nombres
-      return (items||[]).filter(d =>
-        String(d.device_id)===String(deviceId) &&
-        keys.some(k => keyEqOrSuffix(d.sensor_key, k))
-      );
-    }catch(e){ return []; }
+  const sel = $('prodDevice');
+  if(sel){
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
+    if(cur) sel.value = cur;
   }
-
-  // ===== Producción =====
-  async function prodInsert(device_id, fecha, kilos){
-    if(!(Number(kilos)>0)) throw new Error('kilos debe ser > 0');
-    return callWorker('/production', { method:'POST', body:{ device_id, fecha, kilos }});
-  }
-  async function prodList(params){
-    const url = new URL(BASE + '/production');
-    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
-    if(params?.fromISO)    url.searchParams.set('from', params.fromISO);
-    if(params?.toISO)      url.searchParams.set('to', params.toISO);
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
-    const t = await u.getIdToken();
-    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` }});
-    if(!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-
-  // Overlay open/close
-  $('btnOverlayBack').onclick=closeOverlay;
-  function openOverlay(id){
-    currentOverlayDevice = String(id);
-    setText('overlayTitle','Colmena '+id);
-    const ov=$('deviceOverlay'); ov.style.display='block'; ov.setAttribute('aria-hidden','false');
-    $('devicePanel').scrollTo({top:0,behavior:'instant'});
-    updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
-    ovChartsVisible=false; $('ovChartsWrap').style.display='none';
-    if(ovChartTemp){ ovChartTemp.destroy(); ovChartTemp=null; }
-    if(ovChartHum){ ovChartHum.destroy(); ovChartHum=null; }
-    $('ovDateFrom').value = ymd(new Date());
-    $('ovDateTo').value   = ymd(new Date());
-    // Trabajo oculto al abrir
-    $('workCard').style.display='none';
-    $('workHistControls').style.display='none';
-    $('workChartWrap').style.display='none';
-    $('btnWorkChart').textContent='Mostrar gráficos';
-    $('workLast5Wrap').style.display='none';
-    // Humo oculto
-    $('smokeCard').style.display='none';
-    $('smokeChartWrap').style.display='none';
-    $('smokeHistControls').style.display='none';
-    $('smokeLast5Wrap').style.display='none';
-    // Producción reset
-    $('ovProdDate').value = ymd(new Date());
-    $('ovProdKilos').value = '';
-    $('ovProdTbody').innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>';
-    $('ovProdHistWrap').style.display='none';
-    $('ovBtnToggleHist').textContent='Ver historial';
-  }
-  function closeOverlay(){
-    $('deviceOverlay').style.display='none';
-    $('deviceOverlay').setAttribute('aria-hidden','true');
-    currentOverlayDevice=null;
-  }
-  document.addEventListener('keydown', (e)=>{
-    if(e.key==='Escape'){
-      // Cerrar “Trabajo” si está abierto
-      const wc = $('workCard');
-      if(wc && getComputedStyle(wc).display!=='none'){ wc.style.display='none'; return; }
-      // Cerrar “Humo” si está abierto
-      const sc = $('smokeCard');
-      if(sc && getComputedStyle(sc).display!=='none'){ sc.style.display='none'; return; }
-    }
-  });
-
-  // KPIs colmena
-  function latestByDevice(items, deviceId, kind){
-    let best=null, bt=0;
-    for(const d of items||[]){
-      if(String(d.device_id||'')!==String(deviceId)) continue;
-      const ok = kind==='TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
-      if(!ok) continue;
-      const t=new Date(d.ts).getTime();
-      if(t>bt){ best=d; bt=t; }
-    }
-    return best;
-  }
-  function updateOverlayKPIs(items, deviceId){
-    const t = latestByDevice(items, deviceId, 'TEM');
-    const h = latestByDevice(items, deviceId, 'HUM');
-    setText('ovTemVal', t?.value!=null ? fmt(t.value) : '—');
-    setText('ovTemWhen', t ? dtAR(t.ts) : '—');
-    setText('ovHumVal', h?.value!=null ? fmt(h.value) : '—');
-    setText('ovHumWhen', h ? dtAR(h.ts) : '—');
-  }
-
-  // ======= Tarjetas colmena con estado por OPN/MS =======
-  function getDeviceOpenClose(items, deviceId){
-    // ABIERTO si el último evento entre OPN/MS es OPN. CERRADO si es MS.
-    const relevant = (items||[]).filter(d =>
-      String(d.device_id)===String(deviceId) &&
-      (keyEqOrSuffix(d.sensor_key,'OPN') || keyEqOrSuffix(d.sensor_key,'MS'))
-    ).sort((a,b)=> new Date(b.ts)-new Date(a.ts));
-    if(!relevant.length) return null;
-    const last = relevant[0];
-    if(keyEqOrSuffix(last.sensor_key,'OPN')) return 'ABIERTO';
-    if(keyEqOrSuffix(last.sensor_key,'MS'))  return 'CERRADO';
-    return null;
-  }
-
-  async function getMonthlyProduction(){
-    try{
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-      const fromISO = firstDay.toISOString();
-      const toISO = new Date().toISOString();
-      const { items } = await prodList({ fromISO, toISO });
-      const map = {};
-      for(const it of items||[]){
-        const id = it.device_id;
-        if(!map[id]) map[id]={kilos:0,trabajoMin:0};
-        map[id].kilos += Number(it.kilos||0);
-        map[id].trabajoMin += Number(it.trabajoMin||0);
-      }
-      return map;
-    }catch{
-      return {};
-    }
-  }
-
-  async function renderDeviceCards(items){
-    const wrap=$('autoCards'); if(!wrap) return;
-    const lastById=new Map();
-    for(const d of items||[]){
-      const raw=String(d.device_id||'').trim();
-      if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
-      const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
-      if(t>prev) lastById.set(raw,t);
-    }
-    const devices=[...lastById.entries()].sort((a,b)=>b[1]-a[1]).map(([id,ts])=>({id,ts}));
-    if(!devices.length){
-      wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>'; return;
-    }
-    const now=Date.now();
-    const prodData = await getMonthlyProduction();
-
-    wrap.innerHTML=devices.map(({id,ts})=>{
-      const diff=(now-ts)/60000;
-      const conectado = diff<=15;
-      const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
-      // Estado por OPN/MS
-      const state = getDeviceOpenClose(items, id);
-      const stateTxt = state||'—';
-      // Nombre en BLANCO explícito
-      const nameStyle = 'color:#fff';
-      const kilosMes = (prodData[id]?.kilos || 0).toFixed(1);
-      const trabajoSem = formatMinutes(prodData[id]?.trabajoMin || 0);
-      return `
-        <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
-          <h3 style="margin:0;${nameStyle}">Colmena ${id}</h3>
-          <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:${colorConn}"></span></div>
-          <div class="status-row"><span>Estado</span><span class="status-badge">${stateTxt}</span></div>
-          <div class="status-row"><span>Kilos mes</span><span style="font-weight:800;color:var(--accent)">${kilosMes}</span></div>
-          <div class="status-row"><span>Trabajo semanal</span><span style="font-weight:800;color:var(--focus)">${trabajoSem}</span></div>
-        </div>`;
-    }).join('');
-
-    if(editing) enableDnD();
-
-    const sel = $('prodDevice');
-    if(sel){
-      const cur = sel.value;
-      sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
-      if(cur) sel.value = cur;
-    }
-  }
+}
 
   // DnD
   $('btnEdit').onclick=()=>{
@@ -1158,391 +820,520 @@
   }
   function onDragEnd(){ this.classList.remove('dragging'); }
 
-  // Abrir overlay al click
+  // Overlay por colmena
   document.addEventListener('click',(e)=>{
     const card=e.target.closest('.device-card');
     if(card && !editing){ openOverlay(card.dataset.device); }
   });
+  $('btnOverlayBack').onclick=closeOverlay;
+  
+function openOverlay(id){
+  currentOverlayDevice = String(id);
+  setText('overlayTitle','Colmena '+id);
+  const ov=$('deviceOverlay'); ov.style.display='block'; ov.setAttribute('aria-hidden','false');
+  $('devicePanel').scrollTo({top:0,behavior:'instant'});
 
-  // ===== Trabajo: resumen, gráficos, historial, últimos 5 =====
-  function formatMinutes(mins){
-    const h = Math.floor(mins/60);
-    const m = Math.round(mins%60);
-    return h>0 ? `${h}h ${m}m` : `${m}m`;
-  }
-  function formatHM_fromMs(ms){
-    const totalMin = Math.round((Number(ms)||0) / 60000);
-    const h = Math.floor(totalMin/60);
-    const m = totalMin % 60;
-    return h>0 ? `${h}h ${m}m` : `${m}m`;
-  }
-  function calcWorkTotals(items, deviceId){
-    const now = new Date();
-    const day   = periodBounds('dia', now);
-    const week  = periodBounds('semana', now);
-    const month = periodBounds('mes', now);
-    const t = totalMsByDeltas(msInRange(items, deviceId, day.fromT,   day.toT));
-    const w = totalMsByDeltas(msInRange(items, deviceId, week.fromT,  week.toT));
-    const m = totalMsByDeltas(msInRange(items, deviceId, month.fromT, month.toT));
-    return { todayMs:t, weekMs:w, monthMs:m };
-  }
-  function renderWorkSection(items, deviceId) {
-    const { todayMs, weekMs, monthMs } = calcWorkTotals(items, deviceId);
-    setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
-    setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
-    setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
-  }
-  function filterWorkSeries(items, deviceId, fromT, toT){
-    const KEYS = ['C2R','NHR','NXR','ALR','SMR']; // TODO componentes
-    const byKey = Object.fromEntries(KEYS.map(k=>[k,[]]));
-    const labelSet = new Set();
-    for(const d of (items||[])){
-      if(String(d.device_id)!==String(deviceId)) continue;
-      const t = new Date(d.ts).getTime();
-      if(t<fromT || t>toT) continue;
-      for(const k of KEYS){
-        if(keyEqOrSuffix(d.sensor_key,k)){
-          const y = Number(d.value)||0;
-          const tMin = Math.floor(t/60000)*60000;
-          byKey[k].push({ t: tMin, y });
-          labelSet.add(tMin);
-          break;
-        }
-      }
-    }
-    const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
-    const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
-    const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
-    const datasets = Object.keys(byKey).map(k=>({
-      label:k,
-      data: labelsTs.map(ts=>{
-        const vv = byKey[k].find(p=>p.t===ts);
-        return vv ? vv.y : null;
-      }),
-      borderColor: palette[k]||'#ccc',
-      backgroundColor: 'transparent',
-      borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
-    }));
-    return { labels, datasets };
-  }
-  function renderWorkCharts(items, deviceId, range){
-    if (!items || !deviceId) return;
-    const fromT = range?.fromT ?? 0;
-    const toT   = range?.toT   ?? Date.now();
-    const { labels, datasets } = filterWorkSeries(items, deviceId, fromT, toT);
-    if (workChart) workChart.destroy();
-    workChart = new Chart($('workChart').getContext('2d'), {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:true} },
-        interaction:{mode:'nearest',intersect:false},
-        scales:{ x:{ title:{display:true,text:'Hora'} }, y:{ beginAtZero:true } }
-      }
-    });
-  }
-  async function downloadWorkCSV(deviceId, df=null, dt=null) {
-    let data = lastItemsCache || [];
-    if (df && dt){
-      const fromISO = new Date(df+'T00:00:00').toISOString();
-      const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-      data = await workFetchRange(fromISO, toISO, deviceId);
-    }
-    const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
-    const relevant = data.filter(d =>
-      String(d.device_id) === String(deviceId) &&
-      keys.some(k=>keyEqOrSuffix(d.sensor_key,k))
-    );
-    if (!relevant.length) { alert('Sin datos de trabajo'); return; }
-    const rows = [['timestamp_iso','fecha_local','hora_local','device_id','sensor','valor']];
-    for (const d of relevant){
-      const ts = new Date(d.ts);
-      rows.push([ ts.toISOString(), ts.toLocaleDateString('es-AR'),
-        ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-        d.device_id, d.sensor_key, d.value ]);
-    }
-    const csv = rows.map(r=>r.join(',')).join('\n');
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = df && dt ? `trabajo_${deviceId}_${df}_a_${dt}.csv` : `trabajo_${deviceId}.csv`;
-    a.click(); URL.revokeObjectURL(url);
+  // KPIs
+  updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+
+  // Charts colmena: oculto por defecto
+  ovChartsVisible=false; $('ovChartsWrap').style.display='none';
+  if(ovChartTemp){ ovChartTemp.destroy(); ovChartTemp=null; }
+  if(ovChartHum){ ovChartHum.destroy(); ovChartHum=null; }
+  $('ovDateFrom').value = ymd(new Date());
+  $('ovDateTo').value   = ymd(new Date());
+
+  // Trabajo oculto al abrir
+  const wc=$('workCard'); if(wc) wc.style.display='none';
+  const whc=$('workHistControls'); if(whc) whc.style.display='none';
+  const wwrap=$('workChartWrap'); if(wwrap) wwrap.style.display='none';
+  const btnW=$('btnWorkChart'); if(btnW) btnW.textContent='Mostrar gráficos';
+
+  // Producción reset
+  $('ovProdDate').value = ymd(new Date());
+  $('ovProdKilos').value = '';
+  $('ovProdTbody').innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>';
+  $('ovProdHistWrap').style.display='none';
+  $('ovBtnToggleHist').textContent='Ver historial';
+}
+
+
+  
+  function closeOverlay(){
+    const ov=$('deviceOverlay'); ov.style.display='none'; ov.setAttribute('aria-hidden','true');
+    currentOverlayDevice=null;
   }
 
-  // UI Trabajo
-  $('featTrabajo').onclick = async ()=>{
-    const wc=$('workCard');
-    const isOpen = getComputedStyle(wc).display!=='none';
-    wc.style.display = isOpen ? 'none' : 'block';
-    if(isOpen) return;
-    // Resumen
-    const { todayMs, weekMs, monthMs } = calcWorkTotals(lastItemsCache||[], currentOverlayDevice);
-    setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
-    setText('workWeek',  `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
-    setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
-    // Gráfico período seleccionado
-    const period = $('workRange')?.value || 'dia';
-    const data   = await getWorkDataFor(period, currentOverlayDevice);
-    const { fromT, toT } = periodBounds(period);
-    renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
-    wc.scrollIntoView({behavior:'smooth', block:'start'});
-  };
-  $('workRange').onchange = async ()=>{
-    const wrap = $('workChartWrap');
-    const visible = getComputedStyle(wrap).display !== 'none';
-    if (!visible || !currentOverlayDevice) return;
-    const period = $('workRange').value || 'dia';
-    const data = await getWorkDataFor(period, currentOverlayDevice);
-    const { fromT, toT } = periodBounds(period);
-    renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
-  };
-  $('btnWorkChart').onclick = async ()=>{
-    const wrap = $('workChartWrap');
-    const visible = getComputedStyle(wrap).display !== 'none';
-    wrap.style.display = visible ? 'none' : 'block';
-    $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
-    if (!visible && currentOverlayDevice){
-      const period = $('workRange')?.value || 'dia';
-      const data = await getWorkDataFor(period, currentOverlayDevice);
-      const { fromT, toT } = periodBounds(period);
-      renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
-    }
-  };
-  $('btnWorkHistToggle').onclick = ()=>{
-    const c = $('workHistControls');
-    const show = c.style.display === 'none';
-    c.style.display = show ? 'flex' : 'none';
-    $('btnWorkHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
-    if(show){
-      const t = ymd(new Date());
-      $('workDateFrom').value = t;
-      $('workDateTo').value   = t;
-      $('workLast5Wrap').style.display='none';
-    }
-  };
-  $('btnWorkHistShow').onclick = async ()=>{
-    const df = $('workDateFrom').value, dt = $('workDateTo').value;
-    if(!df || !dt || !currentOverlayDevice) return;
-    const fromISO = new Date(df+'T00:00:00').toISOString();
-    const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-    const items = await workFetchRange(fromISO, toISO, currentOverlayDevice);
-    const {fromT, toT} = { fromT: new Date(df+'T00:00:00').getTime(), toT: new Date(dt+'T23:59:59.999').getTime() };
-    renderWorkCharts(items, currentOverlayDevice, {fromT, toT});
-  };
-  $('btnWorkHistCSV').onclick = async ()=>{
-    const df = $('workDateFrom').value, dt = $('workDateTo').value;
-    if(!df || !dt || !currentOverlayDevice) return;
-    await downloadWorkCSV(currentOverlayDevice, df, dt);
-  };
-  $('btnWorkLast5').onclick = ()=>{
-    if(!currentOverlayDevice) return;
-    const rel = (lastItemsCache||[])
-      .filter(d => String(d.device_id)===String(currentOverlayDevice) &&
-        (keyEqOrSuffix(d.sensor_key,'OPN') || keyEqOrSuffix(d.sensor_key,'MS')))
-      .sort((a,b)=> new Date(b.ts)-new Date(a.ts))
-      .slice(0,5);
-    const tb = $('workLast5Body');
-    if(!rel.length){ tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>'; }
-    else{
-      tb.innerHTML = rel.map(d=>`<tr>
-        <td>${escapeHtml(dtAR(d.ts))}</td>
-        <td>${escapeHtml(String(d.sensor_key))}</td>
-        <td>${escapeHtml(String(d.value??''))}</td>
-      </tr>`).join('');
-    }
-    $('workLast5Wrap').style.display='block';
-    $('workHistControls').style.display='none';
-  };
-  $('btnWorkCSV').onclick = ()=>{ if(currentOverlayDevice) downloadWorkCSV(currentOverlayDevice); };
-
-  // ===== HUMO: botón superior, panel, gráficos, historial, CSV =====
-  function isSmokeKey(k){
-    const K=String(k||'').toUpperCase();
-    return /SMK|SMOKE|HUMO/.test(K); // TODO: ajustar a tu clave real de sensor de humo
-  }
-  function smokeSeriesDay(items, deviceId){
-    const now=new Date();
-    const arr=[];
+  // KPIs colmena
+  function keyIsTemp(k){ const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.TEM')||K==='TEM'||K.includes('TEMP'); }
+  function keyIsHum(k){  const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.HUM')||K==='HUM'||K.includes('HUM'); }
+  function latestByDevice(items, deviceId, kind){
+    let best=null, bt=0;
     for(const d of items||[]){
-      if(String(d.device_id)!==String(deviceId)) continue;
-      if(!isSmokeKey(d.sensor_key)) continue;
+      if(String(d.device_id||'')!==String(deviceId)) continue;
+      const ok = kind==='TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
+      if(!ok) continue;
+      const t=new Date(d.ts).getTime();
+      if(t>bt){ best=d; bt=t; }
+    }
+    return best;
+  }
+  function updateOverlayKPIs(items, deviceId){
+    const t = latestByDevice(items, deviceId, 'TEM');
+    const h = latestByDevice(items, deviceId, 'HUM');
+    setText('ovTemVal', t?.value!=null ? fmt(t.value) : '—');
+    setText('ovTemWhen', t ? dtAR(t.ts) : '—');
+    setText('ovHumVal', h?.value!=null ? fmt(h.value) : '—');
+    setText('ovHumWhen', h ? dtAR(h.ts) : '—');
+  }
+
+  // === HELPERS FALTANTES / ROBUSTOS ===
+function keyEqOrSuffix(k, wanted){
+  const K=String(k||'').toUpperCase().trim();
+  const W=String(wanted||'').toUpperCase().trim();
+  return K===W || K.endsWith('.'+W);
+}
+
+// Suma inteligente de MS: detecta si el stream es acumulado y usa deltas
+function totalMsByDeltas(msItems){
+  if(!msItems?.length) return 0;
+  const arr=[...msItems].sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(x=>Number(x.value)||0);
+  let nonDec=0; for(let i=1;i<arr.length;i++) if(arr[i]>=arr[i-1]) nonDec++;
+  const asAccum = nonDec >= Math.max(1, Math.floor((arr.length-1)*0.7));
+  if(asAccum){
+    let tot=0; for(let i=1;i<arr.length;i++){ const d=arr[i]-arr[i-1]; if(d>0) tot+=d; }
+    return tot;
+  }
+  return arr.reduce((a,b)=>a+(b>0?b:0),0);
+}
+
+function msInRange(items, deviceId, fromT, toT){
+  return (items||[]).filter(d=>{
+    if(String(d.device_id)!==String(deviceId)) return false;
+    if(!keyEqOrSuffix(d.sensor_key,'MS')) return false;
+    const t=new Date(d.ts).getTime();
+    return t>=fromT && t<=toT;
+  });
+}
+
+
+  // AGREGADO: bounds en ms + ISO según período
+function periodBounds(period, ref=new Date()){
+  const r = new Date(ref);
+  let from = new Date(r), to = new Date(r);
+  if(period==='dia'){
+    from.setHours(0,0,0,0); to.setHours(23,59,59,999);
+  }else if(period==='semana'){
+    const d=(r.getDay()+6)%7; // lunes
+    from.setHours(0,0,0,0); from.setDate(from.getDate()-d);
+    to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
+  }else{ // mes
+    from = new Date(r.getFullYear(), r.getMonth(), 1, 0,0,0,0);
+    to   = new Date(r.getFullYear(), r.getMonth()+1, 0, 23,59,59,999);
+  }
+  return { fromT:+from, toT:+to,
+           fromISO: from.toISOString(), toISO: to.toISOString() };
+}
+
+// AGREGADO: obtiene datos según período
+async function getWorkDataFor(period, deviceId){
+  if(period==='dia') return lastItemsCache || [];
+  const { fromISO, toISO } = periodBounds(period);
+  return await workFetchRange(fromISO, toISO, deviceId);
+}
+
+  
+
+  // Gráficos madre
+  $('btnChart').onclick=()=>{
+    chartsVisible=!chartsVisible;
+    $('chartsWrap').style.display=chartsVisible?'block':'none';
+    $('btnChart').textContent=chartsVisible?'Ocultar gráfica':'Mostrar gráfica';
+    if(chartsVisible){
+      if(historyMode){ /* noop */ }
+      else if(lastItemsCache) renderChartsDaily(lastItemsCache);
+    }
+    $('histControls').style.display = chartsVisible ? 'flex' : 'none';
+  };
+
+  function buildLineChart(canvas, labels, values, lineColor, pointColor){
+  const ctx=canvas.getContext('2d');
+  return new Chart(ctx,{
+    type:'line',
+    data:{ labels, datasets:[{
+      data: values,
+      borderColor: lineColor,
+      backgroundColor: 'transparent',
+      borderWidth: 2.5,
+      tension:.25,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointBackgroundColor: lineColor,
+      pointBorderColor: lineColor
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `
+      }}},
+      scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
+    }
+  });
+}
+
+  function sameLocalDay(tsA, tsB){
+    const a=new Date(tsA), b=new Date(tsB);
+    return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  }
+  function seriesOfDay(items, key){
+    const now=new Date(); const arr=[];
+    for(const d of items||[]){
+      if(String(d.sensor_key||'').toUpperCase()!==key) continue;
       if(!sameLocalDay(d.ts, now)) continue;
-      const v = Number(d.value); if(Number.isNaN(v)) continue;
+      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
+      if(v==null) continue;
       const t=new Date(d.ts); const hh=String(t.getHours()).padStart(2,'0'); const mm=String(t.getMinutes()).padStart(2,'0');
       arr.push({label:`${hh}:${mm}`, x:t.getTime(), y:v});
     }
     arr.sort((a,b)=>a.x-b.x);
     return arr;
   }
-  async function smokeFetchRange(fromISO, toISO, deviceId){
+  function renderChartsDaily(items){
+    const tem=seriesOfDay(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
+    const hum=seriesOfDay(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
+    if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
+    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+
+    setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
+  }
+
+  // Gráficos por colmena + historial por colmena
+  $('overlayBtnChart').onclick=()=>{
+    if(!currentOverlayDevice) return;
+    ovChartsVisible = !ovChartsVisible;
+    $('overlayBtnChart').textContent = ovChartsVisible ? 'Ocultar gráfica' : 'Mostrar gráfica';
+    $('ovChartsWrap').style.display = ovChartsVisible ? 'block' : 'none';
+    if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
+  };
+  function seriesOfDayForDevice(items, deviceId, pickKind){
+    const now=new Date(); const arr=[];
+    for(const d of items||[]){
+      if(String(d.device_id||'')!==String(deviceId)) continue;
+      const ok = pickKind==='TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
+      if(!ok) continue;
+      if(!sameLocalDay(d.ts, now)) continue;
+      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
+      if(v==null) continue;
+      const t=new Date(d.ts); const hh=String(t.getHours()).padStart(2,'0'); const mm=String(t.getMinutes()).padStart(2,'0');
+      arr.push({label:`${hh}:${mm}`, x:t.getTime(), y:v});
+    }
+    arr.sort((a,b)=>a.x-b.x);
+    return arr;
+  }
+  function renderOverlayChartsDaily(items, deviceId){
+    const tem=seriesOfDayForDevice(items, deviceId, 'TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
+    const hum=seriesOfDayForDevice(items, deviceId, 'HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
+    if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
+    ovChartTemp=buildLineChart($('ovChartTemp'), labelsT, valsT, '#ff4d4f');
+    ovChartHum =buildLineChart($('ovChartHum'), labelsH, valsH, '#4da3ff');
+
+    setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
+  }
+  $('ovBtnShowRange').onclick=()=>{
+    const df=$('ovDateFrom').value, dt=$('ovDateTo').value; if(!df || !dt || !currentOverlayDevice) return;
+    const fromT=toLocalDayStart(df), toT=toLocalDayEnd(dt);
+    const items=(lastItemsCache||[]).filter(d=>String(d.device_id||'')===String(currentOverlayDevice)
+      && new Date(d.ts).getTime()>=fromT && new Date(d.ts).getTime()<=toT);
+    const tem=items.filter(d=>keyIsTemp(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
+      const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
+    const hum=items.filter(d=>keyIsHum(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
+      const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
+    if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
+    ovChartTemp=buildLineChart($('ovChartTemp'), tem.map(x=>x.label), tem.map(x=>x.y), '#ff4d4f');
+    ovChartHum =buildLineChart($('ovChartHum'), hum.map(x=>x.label), hum.map(x=>x.y), '#4da3ff');
+
+    setText('ovTitleTemp', `Temperatura ${df} → ${dt}`);
+    setText('ovTitleHum',  `Humedad ${df} → ${dt}`);
+  };
+  $('ovBtnExitHistory').onclick=()=>{
+    if(ovChartsVisible) renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
+    $('ovDateFrom').value = ymd(new Date()); $('ovDateTo').value = ymd(new Date());
+    setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
+  };
+
+  // Historial madre UI
+  function initDateDefaults(){
+    const val = ymd(new Date());
+    $('dateFrom').value = val;
+    $('dateTo').value   = val;
+  }
+  $('btnShowRange').onclick=()=>showRange();
+  $('btnDownloadCSV').onclick=()=>downloadCSV();
+  $('btnClearHistory').onclick=()=>{
+    $('dateFrom').value=''; $('dateTo').value='';
+    historyMode=false;
+    if(chartsVisible && lastItemsCache) renderChartsDaily(lastItemsCache);
+    setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
+  };
+
+  async function fetchRange(fromISO, toISO){
     try{
       const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
       const { items } = await callWorker(q);
-      return (items||[]).filter(d => String(d.device_id)===String(deviceId) && isSmokeKey(d.sensor_key));
-    }catch(e){ return []; }
+      return items||[];
+    }catch(e){ return lastItemsCache||[]; }
   }
-  function buildSmokeChart(labels, values){
-    if(smokeChart) smokeChart.destroy();
-    smokeChart = new Chart($('smokeChart').getContext('2d'), {
-      type:'line',
-      data:{ labels, datasets:[{ data: values, borderColor:'#ffb74d', backgroundColor:'transparent', borderWidth:2.5, tension:.25, pointRadius:0 }]},
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'Hora'}}, y:{beginAtZero:true}} }
-    });
+  function normalizeDateRangeInputs(){
+    let df=$('dateFrom').value, dt=$('dateTo').value;
+    if(!df || !dt) return null;
+    const a=toLocalDayStart(df), b=toLocalDayStart(dt); if(a>b){ const tmp=df; df=dt; dt=tmp; }
+    return { df, dt, fromISO: new Date(df+'T00:00:00').toISOString(), toISO: new Date(dt+'T23:59:59.999').toISOString() };
   }
-  function showSmokeLast5(){
-    const rel = (lastItemsCache||[])
-      .filter(d => String(d.device_id)===String(currentOverlayDevice) && isSmokeKey(d.sensor_key))
-      .sort((a,b)=> new Date(b.ts)-new Date(a.ts)).slice(0,5);
-    const tb = $('smokeLast5Body');
-    if(!rel.length){ tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>'; }
-    else{
-      tb.innerHTML = rel.map(d=>`<tr>
-        <td>${escapeHtml(dtAR(d.ts))}</td>
-        <td>${escapeHtml(String(d.sensor_key))}</td>
-        <td>${escapeHtml(String(d.value??''))}</td>
-      </tr>`).join('');
+  async function showRange(){
+    const r = normalizeDateRangeInputs(); if(!r) return;
+    historyMode = true;
+    const itemsSrv = await fetchRange(r.fromISO, r.toISO);
+    const fromT = toLocalDayStart(r.df), toT = toLocalDayEnd(r.dt);
+    const items = (itemsSrv||[]).filter(d=>{ const t=new Date(d.ts).getTime(); return t>=fromT && t<=toT; });
+
+    const tem=seriesByRange(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
+    const hum=seriesByRange(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
+    if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
+    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+
+    setText('titleTemp', `Temperatura ${r.df} → ${r.dt}`);
+    setText('titleHum',  `Humedad ${r.df} → ${r.dt}`);
+  }
+  function seriesByRange(items, key){
+    const arr=[];
+    for(const d of items||[]){
+      if(String(d.sensor_key||'').toUpperCase()!==key) continue;
+      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
+      if(v==null) continue;
+      const t=new Date(d.ts);
+      const lab = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+      arr.push({label:lab, x:t.getTime(), y:v});
     }
-    $('smokeLast5Wrap').style.display='block';
+    arr.sort((a,b)=>a.x-b.x);
+    return arr;
   }
-  async function downloadSmokeCSV(deviceId, df=null, dt=null){
-    let data = lastItemsCache || [];
-    if(df && dt){
-      const fromISO = new Date(df+'T00:00:00').toISOString();
-      const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-      data = await smokeFetchRange(fromISO, toISO, deviceId);
-    }else{
-      data = data.filter(d=> String(d.device_id)===String(deviceId) && isSmokeKey(d.sensor_key));
-    }
-    if(!data.length){ alert('Sin datos de humo'); return; }
-    const rows = [['timestamp_iso','fecha_local','hora_local','device_id','sensor','valor']];
-    for(const d of data){
+  function toCSV(items, df=null, dt=null){
+    const fromT = df? toLocalDayStart(df): -Infinity, toT = dt? toLocalDayEnd(dt): Infinity;
+    const base = (items||[]).filter(d=>{const t=new Date(d.ts).getTime(); return t>=fromT && t<=toT;});
+    const rows = [['timestamp_iso','fecha_local','hora_local','dispositivo','sensor','valor']];
+    for(const d of base){
+      if(!/^MOTHER\.(TEM|HUM)$/i.test(String(d.sensor_key||''))) continue;
       const ts=new Date(d.ts);
-      rows.push([ ts.toISOString(), ts.toLocaleDateString('es-AR'),
-        ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-        d.device_id, d.sensor_key, d.value ]);
+      const fecha=ts.toLocaleDateString('es-AR'); const hora=ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      rows.push([ts.toISOString(), fecha, hora, d.device_id||'', d.sensor_key||'', d.value==null?'':String(d.value)]);
     }
-    const csv = rows.map(r=>r.join(',')).join('\n');
-    const blob = new Blob([csv],{type:'text/csv'}); const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob); a.download = df&&dt ? `humo_${deviceId}_${df}_a_${dt}.csv` : `humo_${deviceId}.csv`; a.click();
+    return rows.map(r=>r.map(cell=>/[,;\n"]/.test(cell)? `"${String(cell).replace(/"/g,'""')}"` : cell).join(',')).join('\n');
+  }
+  async function downloadCSV(){
+    const df=$('dateFrom').value, dt=$('dateTo').value;
+    const csv = toCSV(lastItemsCache, df||null, dt||null);
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (df&&dt)? `miellifera_${df}_a_${dt}.csv` : 'miellifera_hoy.csv';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
 
-  // Botón Humo arriba
-  $('btnHumoPanel').onclick = ()=>{
-    if(!currentOverlayDevice) return;
-    const sc=$('smokeCard');
-    const show = getComputedStyle(sc).display==='none';
-    sc.style.display = show ? 'block' : 'none';
-    if(show){
-      // Gráfico de hoy
-      const s = smokeSeriesDay(lastItemsCache, currentOverlayDevice);
-      buildSmokeChart(s.map(d=>d.label), s.map(d=>d.y));
-      $('smokeChartWrap').style.display='block';
-      // Últimos 5
-      showSmokeLast5();
-    }
-  };
-  $('featHumo').onclick = ()=>{ $('btnHumoPanel').click(); };
-  $('btnSmokeChart').onclick = ()=>{
-    const wrap = $('smokeChartWrap'); const v = getComputedStyle(wrap).display!=='none';
-    wrap.style.display = v ? 'none' : 'block';
-    $('btnSmokeChart').textContent = v ? 'Mostrar gráficos' : 'Ocultar gráficos';
-    if(!v && currentOverlayDevice){
-      const s = smokeSeriesDay(lastItemsCache, currentOverlayDevice);
-      buildSmokeChart(s.map(d=>d.label), s.map(d=>d.y));
-    }
-  };
-  $('btnSmokeHistToggle').onclick = ()=>{
-    const c = $('smokeHistControls'); const show = c.style.display==='none';
-    c.style.display = show ? 'flex' : 'none';
-    $('btnSmokeHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
-    if(show){
-      const t = ymd(new Date());
-      $('smokeDateFrom').value = t;
-      $('smokeDateTo').value   = t;
-      $('smokeLast5Wrap').style.display='none';
-    }
-  };
-  $('btnSmokeShowRange').onclick = async ()=>{
-    const df=$('smokeDateFrom').value, dt=$('smokeDateTo').value; if(!df||!dt||!currentOverlayDevice) return;
-    const items = await smokeFetchRange(new Date(df+'T00:00:00').toISOString(), new Date(dt+'T23:59:59.999').toISOString(), currentOverlayDevice);
-    const arr = items.sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
-      const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-      return {label:lab, y:Number(d.value)||0};
-    });
-    buildSmokeChart(arr.map(x=>x.label), arr.map(x=>x.y));
-    $('smokeChartWrap').style.display='block';
-  };
-  $('btnSmokeCSV').onclick = ()=>{ if(currentOverlayDevice) downloadSmokeCSV(currentOverlayDevice, $('smokeDateFrom').value||null, $('smokeDateTo').value||null); };
+  // Agregado
+async function workFetchRange(fromISO, toISO, deviceId){
+  try{
+    const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
+    const { items } = await callWorker(q);
+    const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
+    return (items||[]).filter(d =>
+      String(d.device_id)===String(deviceId) &&
+      keys.some(k => keyEqOrSuffix(d.sensor_key, k))
+    );
+  }catch(e){ return []; }
+}
 
-  // ===== Producción overlay global =====
+
+  
+
+  // ===== Producción Worker =====
+  async function prodInsert(device_id, fecha, kilos){
+    if(!(Number(kilos)>0)) throw new Error('kilos debe ser > 0');
+    return callWorker('/production', { method:'POST', body:{ device_id, fecha, kilos }});
+  }
+  async function prodList(params){
+    const url = new URL(BASE + '/production');
+    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if(params?.fromISO)    url.searchParams.set('from', params.fromISO);
+    if(params?.toISO)      url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` }});
+    if(!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+$('btnWorkClose').onclick = ()=>{
+  const wc = $('workCard');
+  if(wc){ wc.style.display='none'; }
+  // limpiar gráfico
+  if(workChart){ workChart.destroy(); workChart=null; }
+  $('workChartWrap').style.display='none';
+  $('btnWorkChart').textContent='Mostrar gráficos';
+};
+
+// Escape cierra el mini-dashboard si está abierto
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){
+    const wc = $('workCard');
+    if(wc && getComputedStyle(wc).display!=='none'){ $('btnWorkClose').click(); }
+  }
+});
+
+  // Producción mini-dashboard
+  $('ovBtnSaveProd').onclick = async ()=>{
+    if(!currentOverlayDevice) return;
+    const fecha = $('ovProdDate').value;
+    const kilos = Number($('ovProdKilos').value);
+    if(!fecha || !(kilos>0)) { alert('Completá fecha y kilos > 0'); return; }
+    try{
+      await prodInsert(currentOverlayDevice, fecha, kilos);
+      $('ovProdKilos').value='';
+      if($('ovProdHistWrap').style.display!=='none'){ await loadOvProdHistory(); }
+    }catch(e){ alert('Error guardando: ' + (e.message||e)); }
+  };
+  $('ovBtnToggleHist').onclick = async ()=>{
+    const wrap = $('ovProdHistWrap');
+    const show = wrap.style.display==='none';
+    wrap.style.display = show ? 'block' : 'none';
+    $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
+    if(show) await loadOvProdHistory();
+  };
+  async function loadOvProdHistory(){
+    if(!currentOverlayDevice) return;
+    const { items } = await prodList({ device_id: currentOverlayDevice });
+    const tb = $('ovProdTbody');
+    if(!items?.length){ tb.innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>'; return; }
+    tb.innerHTML = items.map(r=>`<tr><td>${escapeHtml(r.fecha)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`).join('');
+  }
+
+  // Producción global
   $('btnProdMain').onclick = ()=>{ openProdOverlay(); };
   $('btnProdBack').onclick = ()=>{ closeProdOverlay(); };
   $('btnProdShow').onclick = async ()=>{
-    const df=$('prodFrom').value, dt=$('prodTo').value;
-    const dev=$('prodDevice').value||'';
-    const fromISO=df?new Date(df+'T00:00:00').toISOString():undefined;
-    const toISO=dt?new Date(dt+'T23:59:59.999').toISOString():undefined;
-    try{
-      const { items }=await prodList({device_id:dev||undefined,fromISO,toISO});
-      const tb=$('prodGlobalTbody');
-      if(!items?.length){
-        tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-        setText('prodGlobalTotal','0.00');
-        $('btnProdCSV').style.display='none';
-        return;
-      }
-      tb.innerHTML=items.map(r=>
-        `<tr><td>${escapeHtml(r.fecha)}</td><td>${escapeHtml(r.device_id)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`
-      ).join('');
-      const total=items.reduce((a,b)=>a+Number(b.kilos||0),0);
-      setText('prodGlobalTotal',total.toFixed(2));
-      $('btnProdCSV').style.display='inline-flex';
-    }catch(e){ alert('Error consultando: '+(e.message||e)); }
-  };
-  function prodDownloadCSV(){
-    const rows=[['fecha','colmena','kilos']];
-    const tb=document.querySelectorAll('#prodGlobalTbody tr');
-    tb.forEach(tr=>{
-      const c=tr.querySelectorAll('td');
-      if(c.length===3) rows.push([c[0].innerText,c[1].innerText,c[2].innerText]);
-    });
-    if(rows.length<=1){ alert('Sin datos para exportar'); return; }
-    const csv=rows.map(r=>r.join(',')).join('\n');
-    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='produccion.csv';
-    a.click();
-  }
+  const df=$('prodFrom').value, dt=$('prodTo').value;
+  const dev=$('prodDevice').value||'';
+  const fromISO=df?new Date(df+'T00:00:00').toISOString():undefined;
+  const toISO=dt?new Date(dt+'T23:59:59.999').toISOString():undefined;
+  try{
+    const { items }=await prodList({device_id:dev||undefined,fromISO,toISO});
+    const tb=$('prodGlobalTbody');
+    if(!items?.length){
+      tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+      setText('prodGlobalTotal','0.00');
+      $('btnProdCSV').style.display='none';
+      return;
+    }
+    tb.innerHTML=items.map(r=>
+      `<tr><td>${escapeHtml(r.fecha)}</td><td>${escapeHtml(r.device_id)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`
+    ).join('');
+    const total=items.reduce((a,b)=>a+Number(b.kilos||0),0);
+    setText('prodGlobalTotal',total.toFixed(2));
+    $('btnProdCSV').style.display='inline-flex'; // mostrar CSV
+  }catch(e){ alert('Error consultando: '+(e.message||e)); }
+};
+
+function prodDownloadCSV(){
+  const rows=[['fecha','colmena','kilos']];
+  const tb=document.querySelectorAll('#prodGlobalTbody tr');
+  tb.forEach(tr=>{
+    const c=tr.querySelectorAll('td');
+    if(c.length===3) rows.push([c[0].innerText,c[1].innerText,c[2].innerText]);
+  });
+  if(rows.length<=1){ alert('Sin datos para exportar'); return; }
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='produccion.csv';
+  a.click();
+}
+
+  
   function openProdOverlay(){
-    $('prodOverlay').style.display='block';
-    $('prodOverlay').setAttribute('aria-hidden','false');
-    // Botón BORRAR
-    if(!$('btnProdReset')){
-      const sel=$('prodDevice');
-      const btn=document.createElement('button');
-      btn.id='btnProdReset'; btn.type='button'; btn.className='btn small'; btn.textContent='Borrar';
-      btn.onclick=prodResetFilters; sel.parentElement.style.display='flex'; sel.parentElement.style.gap='8px'; sel.parentElement.appendChild(btn);
-    }
-    // Botón CSV
-    const showBtn=$('btnProdShow');
-    if(showBtn && !$('btnProdCSV')){
-      const csv=document.createElement('button');
-      csv.id='btnProdCSV'; csv.type='button'; csv.className='btn small'; csv.textContent='Descargar CSV'; csv.style.display='none'; csv.onclick=prodDownloadCSV;
-      showBtn.parentElement.appendChild(csv);
-    }
+  $('prodOverlay').style.display='block';
+  $('prodOverlay').setAttribute('aria-hidden','false');
+
+  // Achicar cuadros de fecha
+  ['prodFrom','prodTo'].forEach(id=>{
+    const el=$(id);
+    if(el){ el.style.width='150px'; el.style.minWidth='120px'; el.style.maxWidth='160px'; }
+  });
+
+  // Botón BORRAR (si no existe)
+  if(!$('btnProdReset')){
+    const sel=$('prodDevice');
+    const btn=document.createElement('button');
+    btn.id='btnProdReset';
+    btn.type='button';
+    btn.className='btn small';
+    btn.textContent='Borrar';
+    btn.onclick=prodResetFilters;
+    sel.parentElement.style.display='flex';
+    sel.parentElement.style.gap='8px';
+    sel.parentElement.appendChild(btn);
   }
+
+  // Botón CSV (si no existe)
+  const showBtn=$('btnProdShow');
+  if(showBtn && !$('btnProdCSV')){
+    const csv=document.createElement('button');
+    csv.id='btnProdCSV';
+    csv.type='button';
+    csv.className='btn small';
+    csv.textContent='Descargar CSV';
+    csv.style.display='none';
+    csv.onclick=prodDownloadCSV;
+    showBtn.parentElement.appendChild(csv);
+  }
+}
+
+
+
+  function prodResetFilters(){
+  const hoy=ymd(new Date());
+  $('prodFrom').value=hoy;
+  $('prodTo').value=hoy;
+  $('prodDevice').value='';
+  const tb=$('prodGlobalTbody');
+  tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+  setText('prodGlobalTotal','0.00');
+  if($('btnProdCSV')) $('btnProdCSV').style.display='none';
+}
+
+
+  function updateFeaturePreviews(baseItems, deviceId){
+  try{
+    const now=new Date();
+    const day  = periodBounds('dia', now);
+    const week = periodBounds('semana', now);
+    const msDay  = totalMsByDeltas(msInRange(baseItems||[], deviceId, day.fromT,  day.toT));
+    const msWeek = totalMsByDeltas(msInRange(baseItems||[], deviceId, week.fromT, week.toT));
+    const el=$('featTrabajoInfo'); if(el) el.textContent = `Hoy: ${formatHM_fromMs(msDay)} · Semana: ${formatHM_fromMs(msWeek)}`;
+  }catch{}
+  const hh=$('featHumoInfo');   if(hh) hh.textContent='Último: — · Estado: —';
+  const ss=$('featSonidoInfo'); if(ss) ss.textContent='Nivel: — · Último: —';
+}
+
+
+
+
+  
+
   function closeProdOverlay(){
     $('prodOverlay').style.display='none';
     $('prodOverlay').setAttribute('aria-hidden','true');
-  }
-  function prodResetFilters(){
-    const hoy=ymd(new Date());
-    $('prodFrom').value=hoy; $('prodTo').value=hoy; $('prodDevice').value='';
-    const tb=$('prodGlobalTbody'); tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-    setText('prodGlobalTotal','0.00');
-    if($('btnProdCSV')) $('btnProdCSV').style.display='none';
   }
 
   // Toggle tabla lecturas
@@ -1562,10 +1353,11 @@
       renderDeviceCards(items);
       if(chartsVisible && !historyMode) renderChartsDaily(items);
       if(currentOverlayDevice){
-        updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
-        if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
-        renderWorkSection(lastItemsCache, currentOverlayDevice);
-      }
+  updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+  if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
+  renderWorkSection(lastItemsCache, currentOverlayDevice); // ← NUEVO
+}
+
     }finally{
       polling=false;
     }
@@ -1577,23 +1369,291 @@
     const ovd = $('ovProdDate'); if(ovd) ovd.value = t;
     const pf=$('prodFrom'), pt=$('prodTo'); if(pf) pf.value=t; if(pt) pt.value=t;
   }
+  // ======== NUEVO BLOQUE: TRABAJO ========
 
-  // ===== Clima =====
+// Variables globales
+let workChart = null;
+
+// Detectar sensor OPN = trabajo detectado
+function extractWorkEvents(items, deviceId) {
+  return (items || []).filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    String(d.sensor_key).toUpperCase().includes('OPN')
+  );
+}
+
+// Extraer valores MS (milisegundos de trabajo)
+function extractWorkTimes(items, deviceId){
+  const devId = String(deviceId);
+  return (items||[]).filter(d =>
+    String(d.device_id)===devId && keyEqOrSuffix(d.sensor_key,'MS')
+  );
+}
+
+
+// Helper NUEVO
+function formatHM_fromMs(ms){
+  const totalMin = Math.round((Number(ms)||0) / 60000);
+  const h = Math.floor(totalMin/60);
+  const m = totalMin % 60;
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+
+// Agregado
+function getPeriodBounds(period, refDate){
+  const ref = new Date(refDate);
+  let from = new Date(ref), to = new Date(ref);
+  if(period === 'dia'){
+    from.setHours(0,0,0,0);
+    to.setHours(23,59,59,999);
+  }else if(period === 'semana'){
+    const day = (ref.getDay()+6)%7; // ISO lunes
+    from.setHours(0,0,0,0); from.setDate(from.getDate()-day);
+    to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
+  }else{ // mes
+    from = new Date(ref.getFullYear(), ref.getMonth(), 1, 0,0,0,0);
+    to   = new Date(ref.getFullYear(), ref.getMonth()+1, 0, 23,59,59,999);
+  }
+  return { fromT: +from, toT: +to };
+}
+
+function filterWorkSeries(items, deviceId, fromT, toT){
+  const KEYS = ['C2R','NHR','NXR','ALR','SMR'];
+  const byKey = Object.fromEntries(KEYS.map(k=>[k,[]]));
+  const labelSet = new Set();
+
+  for(const d of (items||[])){
+    if(String(d.device_id)!==String(deviceId)) continue;
+    const t = new Date(d.ts).getTime();
+    if(t<fromT || t>toT) continue;
+    for(const k of KEYS){
+      if(keyEqOrSuffix(d.sensor_key,k)){
+        const y = Number(d.value)||0;
+        const tMin = Math.floor(t/60000)*60000;
+        byKey[k].push({ t: tMin, y });
+        labelSet.add(tMin);
+        break;
+      }
+    }
+  }
+
+  const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
+  const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
+  const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
+
+  const datasets = Object.keys(byKey).map(k=>({
+    label:k,
+    data: labelsTs.map(ts=>{
+      const vv = byKey[k].find(p=>p.t===ts);
+      return vv ? vv.y : null;
+    }),
+    borderColor: palette[k]||'#ccc',
+    backgroundColor: 'transparent',
+    borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
+  }));
+
+  return { labels, datasets };
+}
+
+
+
+  
+// Calcular total diario, semanal, mensual (en minutos)
+// Reemplazo
+function isSameISOWeek(d1, ref){
+  // Semana ISO: lunes 00:00 a lunes 00:00
+  const a = new Date(ref);
+  const day = (a.getDay() + 6) % 7; // 0=lunes
+  a.setHours(0,0,0,0);
+  a.setDate(a.getDate() - day);
+  const start = a;                 // lunes
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);  // próximo lunes
+  return d1 >= start && d1 < end;
+}
+
+function calcWorkTotals(items, deviceId){
+  const now = new Date();
+  const day   = periodBounds('dia', now);
+  const week  = periodBounds('semana', now);
+  const month = periodBounds('mes', now);
+  const t = totalMsByDeltas(msInRange(items, deviceId, day.fromT,   day.toT));
+  const w = totalMsByDeltas(msInRange(items, deviceId, week.fromT,  week.toT));
+  const m = totalMsByDeltas(msInRange(items, deviceId, month.fromT, month.toT));
+  return { todayMs:t, weekMs:w, monthMs:m };
+}
+
+
+
+function isSameWeek(d1, d2) {
+  const start = new Date(d2);
+  start.setDate(d2.getDate() - d2.getDay());
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+  return d1 >= start && d1 < end;
+}
+
+// Renderizar resumen y gráficos
+function renderWorkSection(items, deviceId) {
+  const { todayMs, weekMs, monthMs } = calcWorkTotals(items, deviceId);
+  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
+  setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
+  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
+}
+
+
+// Gráfico de variables C2R, NHR, NXR, ALR, SMR
+// Reemplazo
+function renderWorkCharts(items, deviceId, range){
+  if (!items || !deviceId) return;
+  const fromT = range?.fromT ?? 0;
+  const toT   = range?.toT   ?? Date.now();
+  const { labels, datasets } = filterWorkSeries(items, deviceId, fromT, toT);
+
+  if (workChart) workChart.destroy();
+  workChart = new Chart($('workChart').getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:true} },
+      interaction:{mode:'nearest',intersect:false},
+      scales:{
+        x:{ title:{display:true,text:'Hora'} },
+        y:{ beginAtZero:true }
+      }
+    }
+  });
+}
+
+// CSV de trabajo
+// Reemplazo
+async function downloadWorkCSV(deviceId, df=null, dt=null) {
+  let data = lastItemsCache || [];
+  if (df && dt){
+    const fromISO = new Date(df+'T00:00:00').toISOString();
+    const toISO   = new Date(dt+'T23:59:59.999').toISOString();
+    data = await workFetchRange(fromISO, toISO, deviceId);
+  }
+  const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
+  const relevant = data.filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    keys.includes(String(d.sensor_key).toUpperCase())
+  );
+  if (!relevant.length) { alert('Sin datos de trabajo'); return; }
+  const rows = [['timestamp_iso','fecha_local','hora_local','device_id','sensor','valor']];
+  for (const d of relevant){
+    const ts = new Date(d.ts);
+    rows.push([
+      ts.toISOString(),
+      ts.toLocaleDateString('es-AR'),
+      ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+      d.device_id, d.sensor_key, d.value
+    ]);
+  }
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = df && dt ? `trabajo_${deviceId}_${df}_a_${dt}.csv` : `trabajo_${deviceId}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+
+// Botones de interfaz
+// Reemplazo
+ // Reemplazo
+$('btnWorkChart').onclick = async ()=>{
+  const wrap = $('workChartWrap');
+  const visible = getComputedStyle(wrap).display !== 'none';
+  wrap.style.display = visible ? 'none' : 'block';
+  $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
+  if (visible) return; // se ocultó
+
+  if (currentOverlayDevice){
+    const period = $('workRange')?.value || 'dia';
+    const data = await getWorkDataFor(period, currentOverlayDevice);
+    const { fromT, toT } = periodBounds(period);
+    renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
+  }
+};
+
+
+$('btnWorkCSV').onclick = ()=>{
+  if (!currentOverlayDevice) return;
+  downloadWorkCSV(currentOverlayDevice);
+};
+
+
+  // ===== Clima (nuevo flujo por texto) =====
   const wxMap = {0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla escarchada',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos'};
   function wxEmoji(code){ if([0].includes(code)) return '☀️'; if([1,2].includes(code)) return '🌤️'; if([3].includes(code)) return '☁️'; if([45,48].includes(code)) return '🌫️'; if([51,53,55].includes(code)) return '🌦️'; if([61,63,65,80,81,82].includes(code)) return '🌧️'; if([71,73,75].includes(code)) return '❄️'; return '⛅'; }
+
   function setWxButtonsState(state){
+    // state: 'ready' | 'input' | 'fixed'
     const open=$('btnWxOpen'), reset=$('btnWxReset'), row=$('wxInputRow'), content=$('wxContent');
     if(state==='ready'){ open.style.display='inline-flex'; reset.style.display='none'; row.style.display='none'; content.classList.add('wx-blur'); setText('wxWhere','Ubicación no establecida'); setText('wxNow','— °C'); setText('wxNowMeta','—'); setText('wxTodayMM','Máx —° · Mín —° · 💧 —mm'); $('wxTiles').innerHTML=''; }
     if(state==='input'){ open.style.display='none'; reset.style.display='none'; row.style.display='flex'; }
     if(state==='fixed'){ open.style.display='none'; reset.style.display='inline-flex'; row.style.display='none'; $('wxContent').classList.remove('wx-blur'); }
   }
+
   $('btnWxOpen').onclick = ()=>{ setWxButtonsState('input'); $('wxQuery').focus(); };
   $('btnWxReset').onclick = ()=>{ clearWxPlace(); setWxButtonsState('ready'); };
+
   $('btnWxFind').onclick = ()=> doWxSearch();
   $('wxQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') doWxSearch(); });
+
+  // Agregado
+  // Reemplazo
+$('workRange').onchange = async ()=>{
+  const wrap = $('workChartWrap');
+  const visible = getComputedStyle(wrap).display !== 'none';
+  if (!visible || !currentOverlayDevice) return;
+
+  const period = $('workRange').value || 'dia';
+  const data = await getWorkDataFor(period, currentOverlayDevice);
+  const { fromT, toT } = periodBounds(period);
+  renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
+};
+
+  
+$('btnWorkHistToggle').onclick = ()=>{
+  const c = $('workHistControls');
+  const show = c.style.display === 'none';
+  c.style.display = show ? 'flex' : 'none';
+  $('btnWorkHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
+  if(show){
+    const t = ymd(new Date());
+    $('workDateFrom').value = t;
+    $('workDateTo').value   = t;
+  }
+};
+
+$('btnWorkHistShow').onclick = async ()=>{
+  const df = $('workDateFrom').value, dt = $('workDateTo').value;
+  if(!df || !dt || !currentOverlayDevice) return;
+  const fromISO = new Date(df+'T00:00:00').toISOString();
+  const toISO   = new Date(dt+'T23:59:59.999').toISOString();
+  const items = await workFetchRange(fromISO, toISO, currentOverlayDevice);
+  // Render con el rango exacto:
+  const {fromT, toT} = { fromT: new Date(df+'T00:00:00').getTime(), toT: new Date(dt+'T23:59:59.999').getTime() };
+  renderWorkCharts(items, currentOverlayDevice, {fromT, toT});
+};
+
+$('btnWorkHistCSV').onclick = async ()=>{
+  const df = $('workDateFrom').value, dt = $('workDateTo').value;
+  if(!df || !dt || !currentOverlayDevice) return;
+  await downloadWorkCSV(currentOverlayDevice, df, dt);
+};
+
+
+  
   async function doWxSearch(){
     const q = String(($('wxQuery').value||'').trim());
     if(!q) return;
+    // Si es lat,lon directo
     const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
     if(m){
       const lat = parseFloat(m[1]), lon=parseFloat(m[2]);
@@ -1603,32 +1663,41 @@
       setWxButtonsState('fixed');
       return;
     }
+    // Geocoding Open-Meteo
     try{
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=es&format=json`;
       const r = await fetch(url); const j = await r.json();
-      if(!j?.results?.length){ alert('No se encontró la ubicación.'); return; }
+      if(!j?.results?.length){ alert('No se encontró la ubicación. Probá con ciudad, provincia, país o “lat,lon”.'); return; }
       const g = j.results[0];
       const parts = [g.name, g.admin1, g.country].filter(Boolean);
       const label = parts.join(', ');
       await renderWeather(g.latitude, g.longitude, label);
       saveWxPlace({lat:g.latitude, lon:g.longitude, label});
       setWxButtonsState('fixed');
-    }catch(e){ alert('Error buscando ubicación'); }
+    }catch(e){
+      alert('Error buscando ubicación');
+    }
   }
+
   async function renderWeather(lat, lon, label){
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=4`;
     const r = await fetch(url); const j = await r.json();
-    const current = j.current || {}; const daily = j.daily || {};
+    const current = j.current || {};
+    const daily = j.daily || {};
     document.getElementById('wxContent').classList.remove('wx-blur');
     setText('wxNow', (current.temperature_2m!=null? Math.round(current.temperature_2m)+' °C':'—'));
     setText('wxWhere', label || `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
     setText('wxNowMeta', `${wxMap[current.weather_code]||'—'} · HR ${current.relative_humidity_2m??'—'}%`);
+
+    // Hoy
     if(daily.time?.length){
       const max0 = Math.round(daily.temperature_2m_max?.[0] ?? NaN);
       const min0 = Math.round(daily.temperature_2m_min?.[0] ?? NaN);
       const pr0  = Math.round((daily.precipitation_sum?.[0] ?? 0));
       setText('wxTodayMM', `Máx ${isNaN(max0)?'—':max0}° · Mín ${isNaN(min0)?'—':min0}° · 💧 ${pr0}mm`);
     }
+
+    // Próximos 3
     const tiles = (daily.time||[]).slice(1,4).map((d,i)=>{
       const idx = i+1;
       const code = daily.weather_code?.[idx], tmax = daily.temperature_2m_max?.[idx], tmin = daily.temperature_2m_min?.[idx], pr = daily.precipitation_sum?.[idx];
@@ -1643,17 +1712,7 @@
     }).join('');
     $('wxTiles').innerHTML = tiles;
   }
-
-  // ===== Inicialización periódica =====
-  let polling=false;
-  setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
-
-  // Inicial
-  function initProdDefaults(){
-    const t = ymd(new Date());
-    const ovd = $('ovProdDate'); if(ovd) ovd.value = t;
-    const pf=$('prodFrom'), pt=$('prodTo'); if(pf) pf.value=t; if(pt) pt.value=t;
-  }
+  // ===== Fin Clima =====
 </script>
 </body>
 </html>
