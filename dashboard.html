@@ -21,6 +21,13 @@
       --ok:#49d17d;--warn:#ffb74d;--bad:#ff6b6b;--idle:#9aa3ad;
       --chip-bg:#10141a;
     }
+    /* Cartas de features más legibles */
+.feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:12px 0}
+@media(max-width:980px){.feature-cards{grid-template-columns:1fr}}
+.feature-card{cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px}
+.feature-title{font-weight:800;font-size:1.25rem;line-height:1.2}
+.feature-sub{color:var(--muted);font-size:.95rem}
+
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6}
     .site{padding:24px;max-width:1200px;margin:0 auto}
@@ -103,11 +110,6 @@
 .kpi-card{width:min(420px,100%);text-align:left}
 .mini-actions{display:flex;justify-content:center}
 
-.feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:12px 0}
-@media(max-width:980px){.feature-cards{grid-template-columns:1fr}}
-.feature-card{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.feature-card h3{margin:0}
-.feature-card .muted{font-size:.95rem}
 
 .fullwidth{grid-column:1 / -1;width:100%}
 
@@ -383,19 +385,20 @@
 
   <!-- 3 cartas: Trabajo / Humo / Sonido -->
   <div class="feature-cards">
-    <button id="featTrabajo" class="card feature-card" type="button" aria-controls="workCard">
-      <h3>Trabajo</h3>
-      <span class="muted">Ver mini dashboard</span>
-    </button>
-    <button id="featHumo" class="card feature-card" type="button">
-      <h3>Humo</h3>
-      <span class="muted">Próximamente</span>
-    </button>
-    <button id="featSonido" class="card feature-card" type="button">
-      <h3>Sonido</h3>
-      <span class="muted">Próximamente</span>
-    </button>
-  </div>
+  <button id="featTrabajo" class="card feature-card" type="button" aria-controls="workCard">
+    <h3 class="feature-title">Trabajo</h3>
+    <div id="featTrabajoInfo" class="feature-sub">Hoy: — · Semana: —</div>
+  </button>
+  <button id="featHumo" class="card feature-card" type="button">
+    <h3 class="feature-title">Humo</h3>
+    <div id="featHumoInfo" class="feature-sub">Último: — · Estado: —</div>
+  </button>
+  <button id="featSonido" class="card feature-card" type="button">
+    <h3 class="feature-title">Sonido</h3>
+    <div id="featSonidoInfo" class="feature-sub">Nivel: — · Último: —</div>
+  </button>
+</div>
+
 
   <!-- Mini dashboard TRABAJO — limpio y oculto por defecto -->
   <div class="card" id="workCard" style="display:none">
@@ -405,15 +408,17 @@
     <div id="workMonth" class="muted">Trabajo del mes: —</div>
 
     <div class="toolbar" style="margin-top:10px">
-      <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-        <option value="dia">Día</option>
-        <option value="semana">Semana</option>
-        <option value="mes">Mes</option>
-      </select>
-      <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-      <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
-      <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
-    </div>
+  <button id="btnWorkClose" class="btn small" type="button">Cerrar</button>
+  <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+    <option value="dia">Día</option>
+    <option value="semana">Semana</option>
+    <option value="mes">Mes</option>
+  </select>
+  <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+  <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
+  <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+</div>
+
 
     <!-- Controles Historial TRABAJO -->
     <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
@@ -691,16 +696,35 @@ async function getMonthlyProduction(){
 $('featTrabajo').onclick = async ()=>{
   const wc=$('workCard');
   wc.style.display='block';
-  renderWorkSection(lastItemsCache, currentOverlayDevice);
-  // Render inicial según período seleccionado
+
+  // Previews y resumen con datos del DÍA (si no hay en cache, se trae del Worker)
+  const todayData = await getWorkDataFor('dia', currentOverlayDevice);
+  // render resumen con ese dataset puntual
+  const { todayMs, weekMs, monthMs } = (function(items, deviceId){
+    const msData = (items||[]).filter(d => String(d.device_id)===String(deviceId) && keyEqOrSuffix(d.sensor_key,'MS'));
+    const now = new Date();
+    let t=0,w=0,m=0;
+    for(const d of msData){
+      const dt=new Date(d.ts); const v=Number(d.value)||0;
+      if(sameLocalDay(dt, now)) t+=v;
+      if(isSameISOWeek(dt, now)) w+=v;
+      if(dt.getFullYear()===now.getFullYear() && dt.getMonth()===now.getMonth()) m+=v;
+    }
+    return { todayMs:t, weekMs:w, monthMs:m };
+  })(todayData, currentOverlayDevice);
+
+  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
+  setText('workWeek',  `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
+  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
+
+  // Gráfico según período seleccionado
   const period = $('workRange')?.value || 'dia';
   const data = await getWorkDataFor(period, currentOverlayDevice);
   const { fromT, toT } = periodBounds(period);
   renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
+
   wc.scrollIntoView({behavior:'smooth', block:'start'});
 };
-$('featHumo').onclick   = ()=> alert('Mini dashboard de Humo: en desarrollo.');
-$('featSonido').onclick = ()=> alert('Mini dashboard de Sonido: en desarrollo.');
 
   
   // Tarjetas colmena + estado
@@ -1099,13 +1123,14 @@ async function workFetchRange(fromISO, toISO, deviceId){
   try{
     const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
     const { items } = await callWorker(q);
-    const keys = ['C2R','NHR','NXR','ALR','SMR','MS','OPN'];
+    const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
     return (items||[]).filter(d =>
       String(d.device_id)===String(deviceId) &&
-      keys.includes(String(d.sensor_key||'').toUpperCase().trim())
+      keys.some(k => keyEqOrSuffix(d.sensor_key, k))
     );
-  }catch(e){ return lastItemsCache||[]; }
+  }catch(e){ return []; }
 }
+
 
   
 
@@ -1125,6 +1150,22 @@ async function workFetchRange(fromISO, toISO, deviceId){
     if(!res.ok) throw new Error(await res.text());
     return res.json();
   }
+$('btnWorkClose').onclick = ()=>{
+  const wc = $('workCard');
+  if(wc){ wc.style.display='none'; }
+  // limpiar gráfico
+  if(workChart){ workChart.destroy(); workChart=null; }
+  $('workChartWrap').style.display='none';
+  $('btnWorkChart').textContent='Mostrar gráficos';
+};
+
+// Escape cierra el mini-dashboard si está abierto
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){
+    const wc = $('workCard');
+    if(wc && getComputedStyle(wc).display!=='none'){ $('btnWorkClose').click(); }
+  }
+});
 
   // Producción mini-dashboard
   $('ovBtnSaveProd').onclick = async ()=>{
@@ -1248,6 +1289,28 @@ function prodDownloadCSV(){
 }
 
 
+  function updateFeaturePreviews(baseItems, deviceId){
+  // Trabajo: usa totales de HOY; si no hay baseItems, no toca
+  try{
+    const msToday = extractWorkTimes(baseItems||[], deviceId)
+      .filter(d => sameLocalDay(d.ts, new Date()))
+      .reduce((a,b)=>a + (Number(b.value)||0), 0);
+    const todayTxt = formatHM_fromMs(msToday);
+    // Semana
+    const now = new Date();
+    const weekMs = extractWorkTimes(baseItems||[], deviceId)
+      .filter(d => isSameISOWeek(new Date(d.ts), now))
+      .reduce((a,b)=>a + (Number(b.value)||0), 0);
+    const weekTxt = formatHM_fromMs(weekMs);
+    const el = $('featTrabajoInfo'); if(el) el.textContent = `Hoy: ${todayTxt} · Semana: ${weekTxt}`;
+  }catch{}
+
+  // Humo / Sonido: placeholders
+  const hh = $('featHumoInfo');    if(hh) hh.textContent = 'Último: — · Estado: —';
+  const ss = $('featSonidoInfo');  if(ss) ss.textContent = 'Nivel: — · Último: —';
+}
+
+
 
   
 
@@ -1303,23 +1366,13 @@ function extractWorkEvents(items, deviceId) {
 }
 
 // Extraer valores MS (milisegundos de trabajo)
-function extractWorkTimes(items, deviceId) {
-  return (items || []).filter(d =>
-    String(d.device_id) === String(deviceId) &&
-    String(d.sensor_key).toUpperCase() === 'MS'
+function extractWorkTimes(items, deviceId){
+  const devId = String(deviceId);
+  return (items||[]).filter(d =>
+    String(d.device_id)===devId && keyEqOrSuffix(d.sensor_key,'MS')
   );
 }
 
-// Reemplazo
-function extractWorkTimes(items, deviceId) {
-  const devId = String(deviceId);
-  return (items || []).filter(d => {
-    if (String(d.device_id) !== devId) return false;
-    const k = String(d.sensor_key || '').toUpperCase().trim();
-    // Acepta "MS", "WORK.MS", "DEVICE.MS", etc.
-    return k === 'MS' || k.endsWith('.MS');
-  });
-}
 
 // Helper NUEVO
 function formatHM_fromMs(ms){
@@ -1355,33 +1408,29 @@ function filterWorkSeries(items, deviceId, fromT, toT){
 
   for(const d of (items||[])){
     if(String(d.device_id)!==String(deviceId)) continue;
-    const k = String(d.sensor_key||'').toUpperCase().trim();
-    if(!KEYS.includes(k)) continue;
     const t = new Date(d.ts).getTime();
     if(t<fromT || t>toT) continue;
-    const y = Number(d.value)||0;
-    // redondeo a minuto para alinear
-    const tMin = Math.floor(t/60000)*60000;
-    byKey[k].push({ t: tMin, y });
-    labelSet.add(tMin);
+    for(const k of KEYS){
+      if(keyEqOrSuffix(d.sensor_key,k)){
+        const y = Number(d.value)||0;
+        const tMin = Math.floor(t/60000)*60000;
+        byKey[k].push({ t: tMin, y });
+        labelSet.add(tMin);
+        break;
+      }
+    }
   }
 
   const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
   const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
-
-  // map rápido por clave->timestamp->valor
-  const maps = {};
-  for(const k of Object.keys(byKey)){
-    const m = new Map();
-    byKey[k].sort((a,b)=>a.t-b.t);
-    for(const p of byKey[k]) m.set(p.t, p.y);
-    maps[k] = m;
-  }
-
   const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
+
   const datasets = Object.keys(byKey).map(k=>({
     label:k,
-    data: labelsTs.map(ts=> maps[k].has(ts) ? maps[k].get(ts) : null),
+    data: labelsTs.map(ts=>{
+      const vv = byKey[k].find(p=>p.t===ts);
+      return vv ? vv.y : null;
+    }),
     borderColor: palette[k]||'#ccc',
     backgroundColor: 'transparent',
     borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
@@ -1389,6 +1438,7 @@ function filterWorkSeries(items, deviceId, fromT, toT){
 
   return { labels, datasets };
 }
+
 
 
   
