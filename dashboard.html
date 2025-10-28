@@ -25,8 +25,11 @@
 .feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:12px 0}
 @media(max-width:980px){.feature-cards{grid-template-columns:1fr}}
 .feature-card{cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px}
-.feature-title{font-weight:800;font-size:1.6rem;line-height:1.2;letter-spacing:.2px}
+.feature-title{font-weight:800;font-size:1.6rem;line-height:1.2;letter-spacing:.2px;color:#fff}
 .feature-sub{color:var(--muted);font-size:1rem;font-weight:600}
+.state-chip{display:inline-block;background:var(--accent);color:#111;border:2px solid var(--accent);
+  border-radius:8px;padding:2px 10px;font-weight:900;letter-spacing:.3px}
+
 
 
     html,body{height:100%}
@@ -389,14 +392,20 @@
   <button id="featTrabajo" class="card feature-card" type="button" aria-controls="workCard">
     <h3 class="feature-title">Trabajo</h3>
     <div id="featTrabajoInfo" class="feature-sub">Hoy: — · Semana: —</div>
+    <div class="state-chip" id="featTrabajoState">—</div>
+
   </button>
   <button id="featHumo" class="card feature-card" type="button">
     <h3 class="feature-title">Humo</h3>
     <div id="featHumoInfo" class="feature-sub">Último: — · Estado: —</div>
+    <div class="state-chip" id="featHumoState">—</div>
+
   </button>
   <button id="featSonido" class="card feature-card" type="button">
     <h3 class="feature-title">Sonido</h3>
     <div id="featSonidoInfo" class="feature-sub">Nivel: — · Último: —</div>
+    <div class="state-chip" id="featSonidoState">—</div>
+
   </button>
 </div>
 
@@ -404,12 +413,14 @@
   <!-- Mini dashboard TRABAJO — limpio y oculto por defecto -->
   <div class="card" id="workCard" style="display:none">
     <h3>Trabajo</h3>
+    <button id="btnHumoPanel" class="btn small yellow" type="button" style="margin-left:8px">Humo</button>
+
     <div id="workToday" class="muted">Trabajo de hoy: —</div>
     <div id="workWeek" class="muted">Trabajo de la semana: —</div>
     <div id="workMonth" class="muted">Trabajo del mes: —</div>
 
     <div class="toolbar" style="margin-top:10px">
-  <button id="btnWorkClose" class="btn small" type="button">Cerrar</button>
+
   <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
     <option value="dia">Día</option>
     <option value="semana">Semana</option>
@@ -420,6 +431,29 @@
   <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
 </div>
 
+<div class="card" id="humoPanel" style="display:none">
+  <h3>Humo — Componentes</h3>
+  <div class="toolbar" style="margin-bottom:8px;gap:8px;flex-wrap:wrap">
+    <div class="date-chip">
+      <input type="date" id="humoDateFrom">
+      <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('humoDateFrom')">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+      </button>
+    </div>
+    <div class="date-chip">
+      <input type="date" id="humoDateTo">
+      <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('humoDateTo')">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+      </button>
+    </div>
+    <button id="btnHumoShow" class="btn small yellow" type="button">Mostrar</button>
+    <button id="btnHumoCSV" class="btn small" type="button">Descargar CSV</button>
+  </div>
+  <div class="chart-card">
+    <h3>Serie de componentes</h3>
+    <div class="chart-box"><canvas id="humoChart"></canvas></div>
+  </div>
+</div>
 
     <!-- Controles Historial TRABAJO -->
     <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
@@ -620,6 +654,57 @@
     return res.json();
   }
 
+
+  // ===== Helpers robustos =====
+function keyEqOrSuffix(k, wanted){
+  const K=String(k||'').toUpperCase().trim();
+  const W=String(wanted||'').toUpperCase().trim();
+  return K===W || K.endsWith('.'+W);
+}
+
+function lastBy(pred, items){
+  let best=null, bt=-1;
+  for(const d of items||[]){
+    if(!pred(d)) continue;
+    const t=new Date(d.ts).getTime(); if(t>bt){ bt=t; best=d; }
+  }
+  return best;
+}
+
+// MS acumulado o por tramos: suma inteligente
+function totalMsByDeltas(msItems){
+  if(!msItems?.length) return 0;
+  const arr=[...msItems].sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(x=>Number(x.value)||0);
+  let nonDec=0; for(let i=1;i<arr.length;i++) if(arr[i]>=arr[i-1]) nonDec++;
+  const asAccum = nonDec >= Math.max(1, Math.floor((arr.length-1)*0.7));
+  if(asAccum){
+    let tot=0; for(let i=1;i<arr.length;i++){ const d=arr[i]-arr[i-1]; if(d>0) tot+=d; }
+    return tot;
+  }
+  return arr.reduce((a,b)=>a+(b>0?b:0),0);
+}
+
+function msInRange(items, deviceId, fromT, toT){
+  return (items||[]).filter(d=>{
+    if(String(d.device_id)!==String(deviceId)) return false;
+    // “sensor que corresponde y el dispositivo se llama MS”
+    // Interpretación segura: sensor_key = 'MS' o sufijo '.MS'
+    return keyEqOrSuffix(d.sensor_key,'MS') &&
+           new Date(d.ts).getTime()>=fromT &&
+           new Date(d.ts).getTime()<=toT;
+  });
+}
+
+function computeOpenCloseState(items, deviceId){
+  // Último evento entre OPN y MS: OPN → ABIERTO, MS → CERRADO
+  const ev = lastBy(d =>
+    String(d.device_id)===String(deviceId) &&
+    (keyEqOrSuffix(d.sensor_key,'OPN') || keyEqOrSuffix(d.sensor_key,'MS')), items);
+  if(!ev) return {label:'—', open:null};
+  const isOpen = keyEqOrSuffix(ev.sensor_key,'OPN');
+  return {label: isOpen ? 'ABIERTO' : 'CERRADO', open:isOpen};
+}
+
   // Utils
   const fmt = v => (v==null||Number.isNaN(+v)) ? null : Number(v).toFixed(2);
   const dtAR = ts => new Date(ts).toLocaleString('es-AR');
@@ -720,6 +805,36 @@ $('featTrabajo').onclick = async ()=>{
   wc.scrollIntoView({behavior:'smooth', block:'start'});
 };
 
+async function fetchLastNWork(deviceId, n=5){
+  // Trae últimos N entre OPN/MS/C2R/NHR/NXR/ALR/SMR y filtra por device
+  const { items } = await callWorker('/datapoints?limit=500'); // ventana razonable
+  const keys=['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
+  return (items||[])
+    .filter(d => String(d.device_id)===String(deviceId) && keys.some(k=>keyEqOrSuffix(d.sensor_key,k)))
+    .sort((a,b)=>new Date(b.ts)-new Date(a.ts))
+    .slice(0,n)
+    .sort((a,b)=>new Date(a.ts)-new Date(b.ts)); // cronológico asc para graficar
+}
+
+$('btnWorkHistToggle').onclick = async ()=>{
+  const c = $('workHistControls');
+  const show = c.style.display === 'none';
+  c.style.display = show ? 'flex' : 'none';
+  $('btnWorkHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
+
+  if(show){
+    // por defecto, mostrar últimos 5 si no se elige rango
+    if(currentOverlayDevice){
+      const last5 = await fetchLastNWork(currentOverlayDevice, 5);
+      const fromT = last5.length ? new Date(last5[0].ts).getTime() : Date.now()-3600000;
+      const toT   = last5.length ? new Date(last5[last5.length-1].ts).getTime() : Date.now();
+      renderWorkCharts(last5, currentOverlayDevice, {fromT, toT});
+    }
+    const t = ymd(new Date());
+    $('workDateFrom').value = t;
+    $('workDateTo').value   = t;
+  }
+};
 
   
   // Tarjetas colmena + estado
@@ -835,6 +950,8 @@ function openOverlay(id){
 
   // KPIs
   updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+  updateFeaturePreviews(lastItemsCache, currentOverlayDevice);
+
 
   // Charts colmena: oculto por defecto
   ovChartsVisible=false; $('ovChartsWrap').style.display='none';
@@ -1354,6 +1471,8 @@ function prodDownloadCSV(){
       if(chartsVisible && !historyMode) renderChartsDaily(items);
       if(currentOverlayDevice){
   updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+        updateFeaturePreviews(lastItemsCache, currentOverlayDevice);
+
   if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
   renderWorkSection(lastItemsCache, currentOverlayDevice); // ← NUEVO
 }
