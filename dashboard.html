@@ -524,9 +524,19 @@
     <!-- Columna izquierda: formulario compacto -->
     <div class="prod-form">
       <div class="field">
-        <label for="ovProdDate" class="muted" style="font-weight:700">Fecha</label>
-        <input type="date" id="ovProdDate" class="input-sm">
-      </div>
+  <label for="ovProdDate" class="muted" style="font-weight:700">Fecha</label>
+  <div class="date-chip">
+    <input type="date" id="ovProdDate" class="input-sm" />
+    <button class="cal-btn" type="button" aria-label="Elegir fecha" onclick="tryOpenPicker('ovProdDate')">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" width="18" height="18">
+        <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+        <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+
       <div class="field">
         <label for="ovProdKilos" class="muted" style="font-weight:700">Kilos</label>
         <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" class="input-sm">
@@ -1342,7 +1352,25 @@ document.addEventListener('keydown', (e)=>{
   }
 
   // Producción global
-  $('btnProdMain').onclick = ()=>{ openProdOverlay(); };
+  // Botón Producción (panel principal): robusto
+(function(){
+  const b = $('btnProdMain');
+  if(!b){ console.error('btnProdMain no encontrado'); return; }
+  b.addEventListener('click', (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    // si hay overlay de colmena abierto, cerrarlo
+    const devOv = $('deviceOverlay');
+    if(devOv && devOv.style.display !== 'none'){
+      devOv.style.display = 'none';
+      devOv.setAttribute('aria-hidden','true');
+      // de paso limpiamos selección activa de mini-cartas
+      if(typeof clearFeatureActive === 'function') clearFeatureActive();
+    }
+    openProdOverlay();
+  }, { capture:true });
+})();
+
   $('btnProdBack').onclick = ()=>{ closeProdOverlay(); };
   $('btnProdShow').onclick = async ()=>{
   const df=$('prodFrom').value, dt=$('prodTo').value;
@@ -1387,7 +1415,10 @@ function prodDownloadCSV(){
   function openProdOverlay(){
   $('prodOverlay').style.display='block';
   $('prodOverlay').setAttribute('aria-hidden','false');
-
+// Asegurar top-layer
+  const ov = $('prodOverlay');
+  ov.style.zIndex = '1200';  // más que 1000 del otro overlay
+  ov.style.pointerEvents = 'auto';
   // Achicar cuadros de fecha
   ['prodFrom','prodTo'].forEach(id=>{
     const el=$(id);
