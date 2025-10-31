@@ -27,6 +27,11 @@
 .feature-card{cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px}
 .feature-title{font-weight:800;font-size:1.6rem;line-height:1.2;letter-spacing:.2px}
 .feature-sub{color:var(--muted);font-size:1rem;font-weight:600}
+/* Mejor contraste en mini-dashboards */
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:12px}
+.feature-card .feature-title{color:var(--text)}
+.feature-card .feature-sub{color:#cfd6df;font-weight:700}
+.feature-card:focus,.feature-card:hover{outline:0;box-shadow:0 0 0 2px var(--blue-pt) inset}
 
 
     html,body{height:100%}
@@ -44,6 +49,12 @@
     .split{display:grid;grid-template-columns:420px 1fr;gap:18px}
     @media(max-width:980px){.split{grid-template-columns:1fr}}
 
+/* Header compacto para la mini-carta de Trabajo */
+#workCard{position:relative}
+#workCard .card-head{display:flex;align-items:center;justify-content:space-between;margin:-4px 0 8px}
+#btnWorkClose{position:absolute;top:12px;right:12px}
+
+    
     .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
     .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media(max-width:860px){.side-cards{grid-template-columns:1fr}}
@@ -92,6 +103,25 @@
     .hist-controls{display:none;gap:10px;align-items:end;margin-top:10px;flex-wrap:wrap}
     .hist-actions{display:flex;gap:8px}
 
+/* Layout nuevo para Producción dentro de la colmena */
+.prod-grid{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:12px;
+}
+@media(max-width:860px){ .prod-grid{grid-template-columns:1fr} }
+
+.prod-form .field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.input-sm{background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 8px;font-size:.95rem}
+.input-sm[type="number"]{max-width:220px}
+.input-sm[type="date"]{max-width:220px}
+
+.prod-hist{display:none}
+.prod-hist.show{display:block}
+
+.prod-actions{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+
+    
     /* Date-chip */
 .date-chip{display:inline-flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer;min-width:140px;line-height:1.2}
@@ -403,72 +433,79 @@
 
   <!-- Mini dashboard TRABAJO — limpio y oculto por defecto -->
   <div class="card" id="workCard" style="display:none">
-    <h3>Trabajo</h3>
-    <div id="workToday" class="muted">Trabajo de hoy: —</div>
-    <div id="workWeek" class="muted">Trabajo de la semana: —</div>
-    <div id="workMonth" class="muted">Trabajo del mes: —</div>
+  <div class="card-head">
+    <h3 style="margin:0">Trabajo</h3>
+    <button id="btnWorkClose" class="btn small" type="button" aria-label="Cerrar">Cerrar</button>
+  </div>
 
-    <div class="toolbar" style="margin-top:10px">
-  <button id="btnWorkClose" class="btn small" type="button">Cerrar</button>
-  <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-    <option value="dia">Día</option>
-    <option value="semana">Semana</option>
-    <option value="mes">Mes</option>
-  </select>
-  <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-  <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
-  <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
-</div>
+  <div id="workToday" class="muted">Trabajo de hoy: —</div>
+  <div id="workWeek"  class="muted">Trabajo de la semana: —</div>
+  <div id="workMonth" class="muted">Trabajo del mes: —</div>
 
+  <div class="toolbar" style="margin-top:10px">
+    <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+      <option value="dia">Día</option>
+      <option value="semana">Semana</option>
+      <option value="mes">Mes</option>
+    </select>
+    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+    <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
+    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+  </div>
 
-    <!-- Controles Historial TRABAJO -->
-    <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
-      <div class="date-chip">
-        <input type="date" id="workDateFrom">
-        <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-        </button>
-      </div>
-      <div class="date-chip">
-        <input type="date" id="workDateTo">
-        <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-        </button>
-      </div>
-      <div class="hist-actions">
-        <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
-        <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
-      </div>
+  <!-- Controles Historial TRABAJO -->
+  <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
+    <div class="date-chip">
+      <input type="date" id="workDateFrom">
+      <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+      </button>
     </div>
-
-    <div id="workChartWrap" style="display:none;margin-top:10px">
-      <div class="chart-card">
-        <h3>Trabajo del período — Variables</h3>
-        <div class="chart-box"><canvas id="workChart"></canvas></div>
-      </div>
+    <div class="date-chip">
+      <input type="date" id="workDateTo">
+      <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+      </button>
+    </div>
+    <div class="hist-actions">
+      <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
+      <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
     </div>
   </div>
 
+  <div id="workChartWrap" style="display:none;margin-top:10px">
+    <div class="chart-card">
+      <h3>Trabajo del período — Variables</h3>
+      <div class="chart-box"><canvas id="workChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+
   <!-- Producción abajo a ancho completo -->
   <div class="card fullwidth" id="prodCard" style="margin-top:12px">
-    <h3>Producción</h3>
+  <h3>Producción</h3>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
-      <div class="date-chip">
-        <input type="date" id="ovProdDate">
-        <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-        </button>
+  <div class="prod-grid">
+    <!-- Columna izquierda: formulario compacto -->
+    <div class="prod-form">
+      <div class="field">
+        <label for="ovProdDate" class="muted" style="font-weight:700">Fecha</label>
+        <input type="date" id="ovProdDate" class="input-sm">
       </div>
-      <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+      <div class="field">
+        <label for="ovProdKilos" class="muted" style="font-weight:700">Kilos</label>
+        <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" class="input-sm">
+      </div>
+
+      <div class="prod-actions">
+        <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
+        <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
+      </div>
     </div>
 
-    <div class="toolbar" style="margin-bottom:6px">
-      <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
-      <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
-    </div>
-
-    <div id="ovProdHistWrap" style="display:none">
+    <!-- Columna derecha: historial -->
+    <div class="prod-hist" id="ovProdHistWrap">
       <div class="nice-table">
         <table style="width:100%">
           <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
@@ -478,6 +515,7 @@
     </div>
   </div>
 </div>
+
 
         <!-- Gráfica + historial por colmena -->
         
@@ -854,8 +892,13 @@ function openOverlay(id){
   $('ovProdKilos').value = '';
   $('ovProdTbody').innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>';
   $('ovProdHistWrap').style.display='none';
-  $('ovBtnToggleHist').textContent='Ver historial';
-}
+  $('ovBtnToggleHist').onclick = async ()=>{
+  const pane = $('ovProdHistWrap');
+  const show = !pane.classList.contains('show');
+  pane.classList.toggle('show', show);
+  $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
+  if(show) await loadOvProdHistory();
+};
 
 
   
