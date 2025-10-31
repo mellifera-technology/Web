@@ -893,19 +893,22 @@ function openOverlay(id){
   $('ovProdTbody').innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>';
   $('ovProdHistWrap').style.display='none';
   $('ovBtnToggleHist').onclick = async ()=>{
-  const pane = $('ovProdHistWrap');
-  const show = !pane.classList.contains('show');
-  pane.classList.toggle('show', show);
-  $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
-  if(show) await loadOvProdHistory();
-};
+    const pane = $('ovProdHistWrap');
+    const show = !pane.classList.contains('show');
+    pane.classList.toggle('show', show);
+    $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
+    if(show) await loadOvProdHistory();
+  };
+} // ← ← ← CIERRE de openOverlay() AQUÍ (esta llave faltaba)
 
+/* Ahora sí, fuera de openOverlay() */
+function closeOverlay(){
+  const ov=$('deviceOverlay'); 
+  ov.style.display='none'; 
+  ov.setAttribute('aria-hidden','true');
+  currentOverlayDevice=null;
+}
 
-  
-  function closeOverlay(){
-    const ov=$('deviceOverlay'); ov.style.display='none'; ov.setAttribute('aria-hidden','true');
-    currentOverlayDevice=null;
-  }
 
   // KPIs colmena
   function keyIsTemp(k){ const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.TEM')||K==='TEM'||K.includes('TEMP'); }
