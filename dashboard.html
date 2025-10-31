@@ -40,6 +40,13 @@
   box-shadow: 0 0 0 2.5px var(--accent) inset, 0 1px 10px rgba(255,213,79,.15);
   transform: translateY(-1px);
 }
+/* Estado ACTIVO claro y consistente con el hover amarillo */
+.feature-card.active{
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2.5px var(--accent) inset, 0 1px 10px rgba(255,213,79,.15) !important;
+  transform: translateY(-1px);
+}
+
 
 
     html,body{height:100%}
@@ -171,6 +178,21 @@
     .nice-table td,.nice-table th{padding:10px}
     .nice-table td.num{text-align:right;font-variant-numeric:tabular-nums}
     .badge{display:inline-block;background:#222;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-weight:700}
+
+  /* --- Producción: que la tabla NO estire la carta --- */
+/* El pane derecho se muestra con clase .show, pero su contenido scrollea */
+.prod-hist .nice-table{
+  /* override del .nice-table original */
+  overflow: auto !important;     /* scrollea adentro */
+  display: block;                /* asegura scroll vertical en el contenedor */
+  max-height: clamp(240px, 40vh, 420px); /* ajustable */
+  border-radius: 12px;           /* mantiene estética */
+}
+
+/* Opcional: en móvil, un poquito menos alto */
+@media (max-width: 860px){
+  .prod-hist .nice-table{ max-height: 320px; }
+}
 
     /* Status dot */
     .status-row{display:flex;align-items:center;gap:8px;color:var(--muted);margin:.25rem 0 0}
@@ -680,6 +702,24 @@
   function toLocalDayEnd(dateInput){ return new Date(dateInput+"T23:59:59.999").getTime(); }
   function tryOpenPicker(id){ const el=$(id); if(el?.showPicker) el.showPicker(); else el?.focus(); }
 
+
+  // ---- Feature selection helpers ----
+const featureButtons = {
+  trabajo: $('featTrabajo'),
+  humo: $('featHumo'),
+  sonido: $('featSonido'),
+};
+
+function setFeatureActive(which){
+  Object.keys(featureButtons).forEach(k=>{
+    featureButtons[k]?.classList.toggle('active', k === which);
+  });
+}
+
+function clearFeatureActive(){
+  Object.values(featureButtons).forEach(b=> b?.classList.remove('active'));
+}
+
   // KPIs madre
   function updateLastReading(items){
     const el=$('lastReading');
@@ -744,24 +784,28 @@ async function getMonthlyProduction(){
 }
 
   // Cartas de acceso rápido en overlay
+// --- Trabajo: abrir/cerrar y marcar activa ---
 $('featTrabajo').onclick = async ()=>{
-  const wc=$('workCard');
-  const isOpen = getComputedStyle(wc).display!=='none';
+  const wc = $('workCard');
+  const isOpen = getComputedStyle(wc).display !== 'none';
+
   if(isOpen){
     // cerrar
-    $('btnWorkClose')?.click();
+    $('btnWorkClose')?.click();  // usa el cierre centralizado
     return;
   }
-  // abrir
-  wc.style.display='block';
 
-  // Resumen con rango “inteligente”
+  // abrir tarjeta Trabajo
+  wc.style.display = 'block';
+  setFeatureActive('trabajo');
+
+  // Resumen
   const { todayMs, weekMs, monthMs } = calcWorkTotals(lastItemsCache||[], currentOverlayDevice);
   setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
   setText('workWeek',  `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
   setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
 
-  // Gráfico según período seleccionado
+  // Gráfico según período
   const period = $('workRange')?.value || 'dia';
   const data   = await getWorkDataFor(period, currentOverlayDevice);
   const { fromT, toT } = periodBounds(period);
@@ -769,6 +813,7 @@ $('featTrabajo').onclick = async ()=>{
 
   wc.scrollIntoView({behavior:'smooth', block:'start'});
 };
+
 
 
   
@@ -1252,11 +1297,13 @@ async function workFetchRange(fromISO, toISO, deviceId){
 $('btnWorkClose').onclick = ()=>{
   const wc = $('workCard');
   if(wc){ wc.style.display='none'; }
-  // limpiar gráfico
   if(workChart){ workChart.destroy(); workChart=null; }
   $('workChartWrap').style.display='none';
   $('btnWorkChart').textContent='Mostrar gráficos';
+  // NUEVO: destildar la carta activa
+  clearFeatureActive();
 };
+
 
 // Escape cierra el mini-dashboard si está abierto
 document.addEventListener('keydown', (e)=>{
@@ -1265,6 +1312,7 @@ document.addEventListener('keydown', (e)=>{
     if(wc && getComputedStyle(wc).display!=='none'){ $('btnWorkClose').click(); }
   }
 });
+
 
   // Producción mini-dashboard
   $('ovBtnSaveProd').onclick = async ()=>{
