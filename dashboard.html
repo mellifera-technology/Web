@@ -272,6 +272,57 @@
               </div>
             </div>
           </div>
+          <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
+<div id="cardModel" class="card" style="margin-bottom:12px;display:none">
+  <h3 style="margin-top:0">Modelo de tarjeta</h3>
+
+  <div class="status-row">
+    <span style="font-weight:600">Colmena XXXX</span>
+  </div>
+  <div class="status-row">
+    <span>Conectado</span>
+    <span class="status-dot"></span>
+  </div>
+  <div class="status-row">
+    <span>Estado</span>
+    <span class="status-dot"></span>
+  </div>
+
+  <!-- Líneas configurables -->
+  <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+    <label class="muted" for="cardCfgKilos">Línea de kilos</label>
+    <select id="cardCfgKilos" class="btn small"
+            style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+      <option value="mes">Kilos del mes</option>
+      <option value="anio">Kilos del año</option>
+    </select>
+
+    <label class="muted" for="cardCfgTrabajo">Línea de trabajo</label>
+    <select id="cardCfgTrabajo" class="btn small"
+            style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+      <option value="semana">Trabajo semanal</option>
+      <option value="mes">Trabajo mensual</option>
+      <option value="anio">Trabajo anual</option>
+    </select>
+  </div>
+
+  <!-- Previa de textos (solo visual) -->
+  <div style="margin-top:8px">
+    <div class="status-row">
+      <span id="cardModelKilosLabel">Kilos mes</span>
+      <span class="badge">123.4</span>
+    </div>
+    <div class="status-row">
+      <span id="cardModelTrabajoLabel">Trabajo semanal</span>
+      <span class="badge">4h 30m</span>
+    </div>
+  </div>
+
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="cardCfgConfirm" class="btn small yellow" type="button">Confirmar</button>
+    <button id="cardCfgReset" class="btn small" type="button">Resetear</button>
+  </div>
+</div>
 
           <div class="cards-head">
             <button id="btnEdit" class="btn small" type="button" aria-pressed="false">Editar orden</button>
@@ -519,6 +570,45 @@
   let historyMode=false;
   let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
 
+  // Configuración de las tarjetas de colmena (afecta a TODAS)
+const CARD_CFG_KEY = 'miellifera.cardCfg';
+let cardCfg = loadCardCfg();
+
+function loadCardCfg(){
+  try{
+    const raw = localStorage.getItem(CARD_CFG_KEY);
+    if(!raw) return { kilos:'mes', trabajo:'semana' };
+    const c = JSON.parse(raw);
+    return {
+      kilos: ['mes','anio'].includes(c.kilos) ? c.kilos : 'mes',
+      trabajo: ['semana','mes','anio'].includes(c.trabajo) ? c.trabajo : 'semana'
+    };
+  }catch{
+    return { kilos:'mes', trabajo:'semana' };
+  }
+}
+
+function saveCardCfg(){
+  try{ localStorage.setItem(CARD_CFG_KEY, JSON.stringify(cardCfg)); }catch{}
+}
+
+// Etiquetas que se muestran en las tarjetas
+function getKilosLabel(){
+  return cardCfg.kilos === 'anio' ? 'Kilos año' : 'Kilos mes';
+}
+function getTrabajoLabel(){
+  if(cardCfg.trabajo === 'mes') return 'Trabajo mensual';
+  if(cardCfg.trabajo === 'anio') return 'Trabajo anual';
+  return 'Trabajo semanal';
+}
+
+// Sincroniza las etiquetas del "modelo" con la config actual
+function syncCardModelLabels(){
+  setText('cardModelKilosLabel', getKilosLabel());
+  setText('cardModelTrabajoLabel', getTrabajoLabel());
+}
+
+
   // ======= NUEVO: Estado clima por almacenamiento local =======
   const WX_KEY = 'miellifera.wxPlace'; // {lat,lon,label}
   function saveWxPlace(p){ try{ localStorage.setItem(WX_KEY, JSON.stringify(p||null)); }catch{} }
@@ -626,20 +716,35 @@ function formatMinutes(mins){
 }
 
 // Simulación o carga real desde Worker de producción
-async function getMonthlyProduction(){
+// Rangos para producción (mes / semana / año)
+function getProdRange(period){
+  const now = new Date();
+  let from;
+  if(period === 'anio'){
+    from = new Date(now.getFullYear(), 0, 1, 0,0,0,0);
+  }else if(period === 'semana'){
+    const d = (now.getDay()+6)%7; // lunes
+    from = new Date(now);
+    from.setDate(now.getDate()-d);
+    from.setHours(0,0,0,0);
+  }else{ // 'mes' por defecto
+    from = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0,0);
+  }
+  const to = new Date();
+  return { fromISO: from.toISOString(), toISO: to.toISOString() };
+}
+
+// Suma kilos y trabajoMin por colmena para el período indicado
+async function getProductionSummary(period){
+  const { fromISO, toISO } = getProdRange(period);
   try{
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const fromISO = firstDay.toISOString();
-    const toISO = new Date().toISOString();
     const { items } = await prodList({ fromISO, toISO });
-    // Agrupar kilos y sumar trabajo si existe
     const map = {};
     for(const it of items||[]){
-      const id = it.device_id;
-      if(!map[id]) map[id]={kilos:0,trabajoMin:0};
-      map[id].kilos += Number(it.kilos||0);
-      // si más adelante guardamos "trabajoMin", ya lo suma
+      const id = String(it.device_id||'').trim();
+      if(!id) continue;
+      if(!map[id]) map[id] = { kilos:0, trabajoMin:0 };
+      map[id].kilos      += Number(it.kilos||0);
       map[id].trabajoMin += Number(it.trabajoMin||0);
     }
     return map;
@@ -648,70 +753,166 @@ async function getMonthlyProduction(){
   }
 }
 
+
   
-  // Tarjetas colmena + estado
+  
+  // Tarjetas colmena + estado extendido
   // Tarjetas colmena + estado extendido
 async function renderDeviceCards(items){
-  const wrap=$('autoCards'); if(!wrap) return;
+  const wrap = $('autoCards'); if(!wrap) return;
 
-  const lastById=new Map();
+  const lastById = new Map();
   for(const d of items||[]){
-    const raw=String(d.device_id||'').trim();
+    const raw = String(d.device_id||'').trim();
     if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
-    const t=new Date(d.ts).getTime(); const prev=lastById.get(raw)||0;
-    if(t>prev) lastById.set(raw,t);
+    const t = new Date(d.ts).getTime();
+    const prev = lastById.get(raw) || 0;
+    if(t > prev) lastById.set(raw, t);
   }
 
-  const devices=[...lastById.entries()]
+  const devices = [...lastById.entries()]
     .sort((a,b)=>b[1]-a[1])
     .map(([id,ts])=>({id,ts}));
 
   if(!devices.length){
-    wrap.innerHTML='<div class="muted">Sin colmenas detectadas.</div>';
+    wrap.innerHTML = '<div class="muted">Sin colmenas detectadas.</div>';
     return;
   }
 
-  const now=Date.now();
+  const now = Date.now();
 
-  // Pedimos info de producción para kilos/mes
-  const prodData = await getMonthlyProduction();
+  // Pedir datos según configuración
+  const prodKilos   = await getProductionSummary(cardCfg.kilos);    // mes / año
+  const prodTrabajo = await getProductionSummary(cardCfg.trabajo);  // semana / mes / año
 
-  wrap.innerHTML=devices.map(({id,ts})=>{
-    const diff=(now-ts)/60000;
-    const conectado = diff<=15;
+  const labelKilos   = getKilosLabel();
+  const labelTrabajo = getTrabajoLabel();
+
+  wrap.innerHTML = devices.map(({id,ts})=>{
+    const diffMin   = (now-ts)/60000;
+    const conectado = diffMin <= 15;
     const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
-    const estadoColor = 'var(--idle)'; // gris por ahora
+    const estadoColor = 'var(--idle)'; // por ahora fijo
 
-    const kilosMes = (prodData[id]?.kilos || 0).toFixed(1);
-    const trabajoSem = formatMinutes(prodData[id]?.trabajoMin || 0);
+    const kilosVal    = (prodKilos[id]?.kilos || 0).toFixed(1);
+    const trabajoMin  = prodTrabajo[id]?.trabajoMin || 0;
+    const trabajoText = formatMinutes(trabajoMin);
 
     return `
       <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
         <h3 style="margin:0">Colmena ${id}</h3>
-        <div class="status-row"><span>Conectado</span><span class="status-dot" style="background:${colorConn}"></span></div>
-        <div class="status-row"><span>Estado</span><span class="status-dot" style="background:${estadoColor}"></span></div>
-        <div class="status-row"><span>Kilos mes</span><span style="font-weight:800;color:var(--accent)">${kilosMes}</span></div>
-        <div class="status-row"><span>Trabajo semanal</span><span style="font-weight:800;color:var(--focus)">${trabajoSem}</span></div>
+        <div class="status-row">
+          <span>Conectado</span>
+          <span class="status-dot" style="background:${colorConn}"></span>
+        </div>
+        <div class="status-row">
+          <span>Estado</span>
+          <span class="status-dot" style="background:${estadoColor}"></span>
+        </div>
+        <div class="status-row">
+          <span>${labelKilos}</span>
+          <span style="font-weight:800;color:var(--accent)">${kilosVal}</span>
+        </div>
+        <div class="status-row">
+          <span>${labelTrabajo}</span>
+          <span style="font-weight:800;color:var(--focus)">${trabajoText}</span>
+        </div>
       </div>`;
   }).join('');
 
   if(editing) enableDnD();
 
+  // Mantener el select del overlay de producción
   const sel = $('prodDevice');
   if(sel){
     const cur = sel.value;
-    sel.innerHTML = '<option value="">Todas</option>' + devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
+    sel.innerHTML = '<option value="">Todas</option>' +
+      devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
     if(cur) sel.value = cur;
   }
 }
 
-  // DnD
-  $('btnEdit').onclick=()=>{
-    editing=!editing;
-    $('btnEdit').textContent=editing?'Terminar edición':'Editar orden';
-    $('autoCards').classList.toggle('editing',editing);
-    if(editing) enableDnD(); else disableDnD();
+
+  
+  // DnD + modo configuración de tarjetas
+$('btnEdit').onclick = ()=>{
+  editing = !editing;
+  $('btnEdit').textContent = editing ? 'Terminar edición' : 'Editar orden';
+  $('autoCards').classList.toggle('editing', editing);
+
+  const model = $('cardModel');
+  if(model){
+    model.style.display = editing ? 'block' : 'none';
+    if(editing){
+      // Sincronizar selects con la config actual
+      const kSel = $('cardCfgKilos');
+      const wSel = $('cardCfgTrabajo');
+      if(kSel) kSel.value = cardCfg.kilos;
+      if(wSel) wSel.value = cardCfg.trabajo;
+      syncCardModelLabels();
+    }
+  }
+
+  if(editing) enableDnD(); else disableDnD();
+};
+
+// Cambios en los selects del modelo → solo actualizan la previa visual
+const cfgKilosSel   = $('cardCfgKilos');
+const cfgTrabajoSel = $('cardCfgTrabajo');
+
+if(cfgKilosSel){
+  cfgKilosSel.onchange = ()=>{
+    const v = cfgKilosSel.value || 'mes';
+    const tmp = { kilos:v, trabajo:cardCfg.trabajo };
+    // Actualizar solo texto de previa
+    setText('cardModelKilosLabel', v === 'anio' ? 'Kilos año' : 'Kilos mes');
   };
+}
+if(cfgTrabajoSel){
+  cfgTrabajoSel.onchange = ()=>{
+    const v = cfgTrabajoSel.value || 'semana';
+    const tmp = { kilos:cardCfg.kilos, trabajo:v };
+    let txt;
+    if(v==='mes') txt = 'Trabajo mensual';
+    else if(v==='anio') txt = 'Trabajo anual';
+    else txt = 'Trabajo semanal';
+    setText('cardModelTrabajoLabel', txt);
+  };
+}
+
+// Confirmar → guarda config y vuelve a renderizar todas las tarjetas
+$('cardCfgConfirm').onclick = ()=>{
+  const kSel = $('cardCfgKilos');
+  const wSel = $('cardCfgTrabajo');
+
+  const k = kSel?.value || 'mes';
+  const w = wSel?.value || 'semana';
+
+  cardCfg = {
+    kilos: ['mes','anio'].includes(k) ? k : 'mes',
+    trabajo: ['semana','mes','anio'].includes(w) ? w : 'semana'
+  };
+  saveCardCfg();
+  syncCardModelLabels();
+  // Re-render colmenas con la nueva configuración
+  renderDeviceCards(lastItemsCache || []);
+};
+
+// Resetear → vuelve a Kilos mes / Trabajo semanal
+$('cardCfgReset').onclick = ()=>{
+  cardCfg = { kilos:'mes', trabajo:'semana' };
+  saveCardCfg();
+
+  const kSel = $('cardCfgKilos');
+  const wSel = $('cardCfgTrabajo');
+  if(kSel) kSel.value = cardCfg.kilos;
+  if(wSel) wSel.value = cardCfg.trabajo;
+
+  syncCardModelLabels();
+  renderDeviceCards(lastItemsCache || []);
+};
+
+
   function enableDnD(){
     document.querySelectorAll('.device-card').forEach(c=>{
       c.draggable=true;
