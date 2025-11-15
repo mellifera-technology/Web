@@ -21,34 +21,6 @@
       --ok:#49d17d;--warn:#ffb74d;--bad:#ff6b6b;--idle:#9aa3ad;
       --chip-bg:#10141a;
     }
-    /* Cartas de features más legibles */
-.feature-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:12px 0}
-@media(max-width:980px){.feature-cards{grid-template-columns:1fr}}
-.feature-card{
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
-  transition:box-shadow .18s ease, border-color .18s ease, transform .08s ease-in;
-}
-.feature-title{font-weight:800;font-size:1.6rem;line-height:1.2;letter-spacing:.2px}
-.feature-sub{color:var(--muted);font-size:1rem;font-weight:600}
-/* Mejor contraste en mini-dashboards */
-.feature-card{background:var(--card);border:1px solid var(--border);border-radius:12px}
-.feature-card .feature-title{color:var(--text)}
-.feature-card .feature-sub{color:#cfd6df;font-weight:700}
-.feature-card:focus-visible,
-.feature-card:hover{
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2.5px var(--accent) inset, 0 1px 10px rgba(255,213,79,.15);
-  transform: translateY(-1px);
-}
-/* Estado ACTIVO claro y consistente con el hover amarillo */
-.feature-card.active{
-  border-color: var(--accent) !important;
-  box-shadow: 0 0 0 2.5px var(--accent) inset, 0 1px 10px rgba(255,213,79,.15) !important;
-  transform: translateY(-1px);
-}
-
-
-
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6}
     .site{padding:24px;max-width:1200px;margin:0 auto}
@@ -64,12 +36,6 @@
     .split{display:grid;grid-template-columns:420px 1fr;gap:18px}
     @media(max-width:980px){.split{grid-template-columns:1fr}}
 
-/* Header compacto para la mini-carta de Trabajo */
-#workCard{position:relative}
-#workCard .card-head{display:flex;align-items:center;justify-content:space-between;margin:-4px 0 8px}
-#btnWorkClose{position:absolute;top:12px;right:12px}
-
-    
     .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
     .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media(max-width:860px){.side-cards{grid-template-columns:1fr}}
@@ -100,7 +66,9 @@
     #devicePanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
     .overlay-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#0f1218}
     .overlay-content{padding:16px;overflow:auto}
-    
+    .overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
+    @media(max-width:1100px){.overlay-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
 
     .editing .device-card{cursor:grab;animation:shake .9s ease-in-out infinite}
     @keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(1px,-1px)}50%{transform:translate(-1px,1px)}75%{transform:translate(1px,0)}100%{transform:translate(0,0)}}
@@ -118,29 +86,6 @@
     .hist-controls{display:none;gap:10px;align-items:end;margin-top:10px;flex-wrap:wrap}
     .hist-actions{display:flex;gap:8px}
 
-/* Layout nuevo para Producción dentro de la colmena */
-.prod-grid{
-  display:grid;
-  grid-template-columns:320px 1fr; /* izquierda formulario, derecha historial */
-  gap:12px;
-}
-@media(max-width:860px){ .prod-grid{ grid-template-columns:1fr } } /* en móvil se apila */
-
-.prod-hist{display:none}
-.prod-hist.show{display:block}
-
-
-.prod-form .field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-.input-sm{background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 8px;font-size:.95rem}
-.input-sm[type="number"]{max-width:220px}
-.input-sm[type="date"]{max-width:220px}
-
-.prod-hist{display:none}
-.prod-hist.show{display:block}
-
-.prod-actions{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
-
-    
     /* Date-chip */
 .date-chip{display:inline-flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer;min-width:140px;line-height:1.2}
@@ -154,43 +99,9 @@
 .input-chip input{width:100%;background:transparent;border:0;color:#fff;padding:8px 10px;line-height:1.2}
 
 /* Grids overlay: mantener Producción al costado */
-/* === Overlay layout nuevo (mini-dashboard) === */
-.overlay-top{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
-.kpis-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
-.kpi-card{width:min(420px,100%);text-align:left}
-.mini-actions{display:flex;justify-content:center}
-
-/* ——— UNIFICAR FECHAS ——— */
-/* Neutraliza tamaño heredado de estilos viejos */
-.input-sm[type="date"]{ max-width: none !important; }
-
-/* Tamaño y protección anti-solapamiento del icono */
-.date-chip{
-  display:inline-flex; align-items:center; gap:0;
-  background:var(--chip-bg); border:1px solid var(--border);
-  border-radius:10px; overflow:hidden;
-}
-.date-chip input[type="date"]{
-  appearance:none; -webkit-appearance:none;
-  border:0; background:transparent; color:#fff; font-weight:600;
-  padding:8px 12px; line-height:1.2;
-  width:160px; min-width:160px; max-width:180px;  /* → mismo look en todos lados */
-}
-.date-chip input[type="date"]::-webkit-calendar-picker-indicator{ display:none; }
-.cal-btn{
-  background:var(--accent); border:2px solid var(--accent); color:#111;
-  border-radius:0 10px 10px 0; padding:8px 10px; display:inline-flex; align-items:center; cursor:pointer;
-}
-.cal-btn svg{ width:18px; height:18px; color:#111; }
-
-.fullwidth{grid-column:1 / -1;width:100%}
-
-/* Quitar temblor al reordenar en overlay */
-.editing .device-card{animation:none}
-
-/* Botones consistentes */
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-
+.overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
+@media(max-width:900px){.overlay-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
 
 
     /* Producción “nice” */
@@ -200,21 +111,6 @@
     .nice-table td,.nice-table th{padding:10px}
     .nice-table td.num{text-align:right;font-variant-numeric:tabular-nums}
     .badge{display:inline-block;background:#222;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-weight:700}
-
-  /* --- Producción: que la tabla NO estire la carta --- */
-/* El pane derecho se muestra con clase .show, pero su contenido scrollea */
-.prod-hist .nice-table{
-  /* override del .nice-table original */
-  overflow: auto !important;     /* scrollea adentro */
-  display: block;                /* asegura scroll vertical en el contenedor */
-  max-height: clamp(240px, 40vh, 420px); /* ajustable */
-  border-radius: 12px;           /* mantiene estética */
-}
-
-/* Opcional: en móvil, un poquito menos alto */
-@media (max-width: 860px){
-  .prod-hist .nice-table{ max-height: 320px; }
-}
 
     /* Status dot */
     .status-row{display:flex;align-items:center;gap:8px;color:var(--muted);margin:.25rem 0 0}
@@ -238,12 +134,6 @@
     /* Overlay Producción global */
     #prodOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
     #prodPanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
-    /* Overlays: cuando están ocultos no capturan clicks */
-#deviceOverlay[aria-hidden="true"],
-#prodOverlay[aria-hidden="true"]{ pointer-events:none; }
-#deviceOverlay[aria-hidden="false"],
-#prodOverlay[aria-hidden="false"]{ pointer-events:auto; }
-
   </style>
 </head>
 <body>
@@ -423,246 +313,182 @@
       <div class="overlay-content">
 
         <!-- Mini dashboard: Temp, Hum, Producción -->
-        <!-- Mini dashboard NUEVO -->
-<div class="overlay-top">
-  <!-- KPIs centradas -->
-  <div class="kpis-row">
-    <div class="card kpi-card">
-      <h3>Temperatura Colmena</h3>
-      <div class="metric"><span id="ovTemVal" class="val">—</span><span class="unit">°C</span></div>
-      <div id="ovTemWhen" class="muted">—</div>
-    </div>
-    <div class="card kpi-card">
-      <h3>Humedad Colmena</h3>
-      <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
-      <div id="ovHumWhen" class="muted">—</div>
-    </div>
-  </div>
+        <div class="overlay-grid">
+          <div class="card">
+            <h3>Temperatura Colmena</h3>
+            <div class="metric"><span id="ovTemVal" class="val">—</span><span class="unit">°C</span></div>
+            <div id="ovTemWhen" class="muted">—</div>
+          </div>
+          <div class="card">
+            <h3>Humedad Colmena</h3>
+            <div class="metric"><span id="ovHumVal" class="val">—</span><span class="unit">%</span></div>
+            <div id="ovHumWhen" class="muted">—</div>
+          </div>
+          <div class="card">
+            <h3>Producción</h3>
 
-  <!-- Botón Mostrar gráfica debajo de temp/hum -->
-  <div class="mini-actions">
-    <button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button>
-  </div>
+            <!-- Entrada alineada -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
+              <div class="date-chip">
+                <input type="date" id="ovProdDate">
+                <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                </button>
+              </div>
+              <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+            </div>
 
-  <!-- Gráfica + historial por colmena (sin mover IDs) -->
-  <div id="ovChartsWrap" style="display:none;margin-top:10px">
-    <div class="charts-grid">
-      <div class="chart-card">
-        <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
-        <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
-        <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
-      </div>
-    </div>
-    <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
-      <div class="date-chip">
-        <input type="date" id="ovDateFrom">
-        <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-        </button>
-      </div>
-      <div class="date-chip">
-        <input type="date" id="ovDateTo">
-        <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-        </button>
-      </div>
-      <div class="hist-actions">
-        <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
-        <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
-      </div>
-    </div>
-  </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+              <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
+              <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
+            </div>
 
-  <!-- 3 cartas: Trabajo / Humo / Sonido -->
-  <div class="feature-cards">
-  <button id="featTrabajo" class="card feature-card" type="button" aria-controls="workCard">
-    <h3 class="feature-title">Trabajo</h3>
-    <div id="featTrabajoInfo" class="feature-sub">Hoy: — · Semana: —</div>
-  </button>
-  <button id="featHumo" class="card feature-card" type="button">
-    <h3 class="feature-title">Humo</h3>
-    <div id="featHumoInfo" class="feature-sub">Último: — · Estado: —</div>
-  </button>
-  <button id="featSonido" class="card feature-card" type="button">
-    <h3 class="feature-title">Sonido</h3>
-    <div id="featSonidoInfo" class="feature-sub">Nivel: — · Último: —</div>
-  </button>
-</div>
-
-
-  <!-- Mini dashboard TRABAJO — limpio y oculto por defecto -->
-  <div class="card" id="workCard" style="display:none">
-  <div class="card-head">
-    <h3 style="margin:0">Trabajo</h3>
-    <button id="btnWorkClose" class="btn small" type="button" aria-label="Cerrar">Cerrar</button>
-  </div>
-
+            <!-- Historial oculto hasta tocar "Ver historial" -->
+            <div id="ovProdHistWrap" style="display:none">
+              <div class="nice-table">
+                <table style="width:100%">
+                  <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
+                  <tbody id="ovProdTbody"><tr><td class="muted" colspan="2">Sin datos</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+  <!-- Trabajo -->
+<div class="card" id="workCard">
+  <h3>Trabajo</h3>
   <div id="workToday" class="muted">Trabajo de hoy: —</div>
-  <div id="workWeek"  class="muted">Trabajo de la semana: —</div>
+  <div id="workWeek" class="muted">Trabajo de la semana: —</div>
   <div id="workMonth" class="muted">Trabajo del mes: —</div>
-
-  <div class="toolbar" style="margin-top:10px">
-    <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-      <option value="dia">Día</option>
-      <option value="semana">Semana</option>
-      <option value="mes">Mes</option>
-    </select>
-    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
-    <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
-    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
-  </div>
-
-  <!-- Controles Historial TRABAJO -->
-  <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
-    <div class="date-chip">
-      <input type="date" id="workDateFrom">
-      <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
-        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-      </button>
-    </div>
-    <div class="date-chip">
-      <input type="date" id="workDateTo">
-      <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
-        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-      </button>
-    </div>
-    <div class="hist-actions">
-      <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
-      <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
-    </div>
-  </div>
-
   <div id="workChartWrap" style="display:none;margin-top:10px">
     <div class="chart-card">
-      <h3>Trabajo del período — Variables</h3>
+      <h3>Trabajo del día — Variables</h3>
       <div class="chart-box"><canvas id="workChart"></canvas></div>
     </div>
   </div>
-</div>
-
-
-  <!-- Producción abajo a ancho completo -->
-  <div class="card fullwidth" id="prodCard" style="margin-top:12px">
-  <h3>Producción</h3>
-
-  <div class="prod-grid">
-    <!-- Columna izquierda: formulario compacto -->
-    <div class="prod-form">
-      <div class="field">
-  <label for="ovProdDate" class="muted" style="font-weight:700">Fecha</label>
-  <div class="date-chip">
-    <input type="date" id="ovProdDate" />
-    <button class="cal-btn" type="button" aria-label="Elegir fecha" onclick="tryOpenPicker('ovProdDate')">
-      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" width="18" height="18">
-        <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-        <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-      </svg>
-    </button>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+    <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
+            <!-- REEMPLAZO: barra de acciones -->
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            <option value="dia">Día</option>
+            <option value="semana">Semana</option>
+            <option value="mes">Mes</option>
+          </select>
+          <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
+          <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
+        </div>
+        
+        <!-- AGREGADO: controles de Historial -->
+        <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
+          <div class="date-chip">
+            <input type="date" id="workDateFrom">
+            <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="date-chip">
+            <input type="date" id="workDateTo">
+            <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="hist-actions">
+            <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
+            <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
+          </div>
+        </div>
   </div>
 </div>
-
-
-      <div class="field">
-        <label for="ovProdKilos" class="muted" style="font-weight:700">Kilos</label>
-        <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos" class="input-sm">
-      </div>
-
-      <div class="prod-actions">
-        <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
-        <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
-      </div>
-    </div>
-
-    <!-- Columna derecha: historial -->
-    <div class="prod-hist" id="ovProdHistWrap">
-      <div class="nice-table">
-        <table style="width:100%">
-          <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
-          <tbody id="ovProdTbody"><tr><td class="muted" colspan="2">Sin datos</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
 
         <!-- Gráfica + historial por colmena -->
-        
+        <div class="card" style="margin-top:12px">
+          <div class="center"><button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button></div>
+          <div id="ovChartsWrap" style="display:none;margin-top:10px">
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 id="ovTitleTemp" style="margin:0 0 8px">Temperatura de hoy</h3>
+                <div class="chart-box"><canvas id="ovChartTemp"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <h3 id="ovTitleHum" style="margin:0 0 8px">Humedad de hoy</h3>
+                <div class="chart-box"><canvas id="ovChartHum"></canvas></div>
+              </div>
+            </div>
+            <div class="hist-controls" id="ovHistControls" style="display:flex;margin-top:10px">
+              <div class="date-chip">
+                <input type="date" id="ovDateFrom">
+                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('ovDateFrom')">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                </button>
+              </div>
+              <div class="date-chip">
+                <input type="date" id="ovDateTo">
+                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('ovDateTo')">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                </button>
+              </div>
+              <div class="hist-actions">
+                <button id="ovBtnShowRange" class="btn small" type="button">Mostrar</button>
+                <button id="ovBtnExitHistory" class="btn small" type="button">Borrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
       </div> <!-- overlay-content -->
     </div>
   </div>
 
   <!-- Overlay Global Producción -->
-<div id="prodOverlay" aria-hidden="true">
-  <div id="prodPanel">
-    <div class="overlay-header">
-      <button id="btnProdBack" class="btn small" type="button">Atrás</button>
-      <h3 style="margin:0">Producción — Panel</h3>
-    </div>
-    <div class="overlay-content">
-      <div class="card">
-        <h3>Filtros</h3>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-          <div class="date-chip">
-            <input type="date" id="prodFrom">
-            <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
-              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-              </svg>
-            </button>
-          </div>
-          <div class="date-chip">
-            <input type="date" id="prodTo">
-            <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
-              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-              </svg>
-            </button>
-          </div>
-          <div>
-            <select id="prodDevice" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-              <option value="">Todas</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
-          <!-- El botón CSV se agrega por JS, acá no va -->
-        </div>
+  <div id="prodOverlay" aria-hidden="true">
+    <div id="prodPanel">
+      <div class="overlay-header">
+        <button id="btnProdBack" class="btn small" type="button">Atrás</button>
+        <h3 style="margin:0">Producción — Panel</h3>
       </div>
-
-      <div class="card" style="margin-top:12px">
-        <h3>Historial</h3>
-        <div class="nice-table" style="overflow:auto;max-height:60vh">
-          <table style="width:100%">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Colmena</th>
-                <th class="num">Kilos</th>
-              </tr>
-            </thead>
-            <tbody id="prodGlobalTbody"></tbody>
-            <tfoot>
-              <tr>
-                <th colspan="2" style="text-align:right">Total</th>
-                <th id="prodGlobalTotal" class="num">0.00</th>
-              </tr>
-            </tfoot>
-          </table>
+      <div class="overlay-content">
+        <div class="card">
+          <h3>Filtros</h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div class="date-chip">
+              <input type="date" id="prodFrom">
+              <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+              </button>
+            </div>
+            <div class="date-chip">
+              <input type="date" id="prodTo">
+              <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+              </button>
+            </div>
+            <div>
+              <select id="prodDevice" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+                <option value="">Todas</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
+          </div>
         </div>
-      </div>
 
+        <div class="card" style="margin-top:12px">
+          <h3>Historial</h3>
+          <div class="nice-table" style="overflow:auto;max-height:60vh">
+            <table style="width:100%">
+              <thead><tr><th>Fecha</th><th>Colmena</th><th class="num">Kilos</th></tr></thead>
+              <tbody id="prodGlobalTbody"></tbody>
+              <tfoot><tr><th colspan="2" style="text-align:right">Total</th><th id="prodGlobalTotal" class="num">0.00</th></tr></tfoot>
+            </table>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
-</div>
-
 
 <script>
   // Año
@@ -759,24 +585,6 @@
   function toLocalDayEnd(dateInput){ return new Date(dateInput+"T23:59:59.999").getTime(); }
   function tryOpenPicker(id){ const el=$(id); if(el?.showPicker) el.showPicker(); else el?.focus(); }
 
-
-  // ---- Feature selection helpers ----
-const featureButtons = {
-  trabajo: $('featTrabajo'),
-  humo: $('featHumo'),
-  sonido: $('featSonido'),
-};
-
-function setFeatureActive(which){
-  Object.keys(featureButtons).forEach(k=>{
-    featureButtons[k]?.classList.toggle('active', k === which);
-  });
-}
-
-function clearFeatureActive(){
-  Object.values(featureButtons).forEach(b=> b?.classList.remove('active'));
-}
-
   // KPIs madre
   function updateLastReading(items){
     const el=$('lastReading');
@@ -839,39 +647,6 @@ async function getMonthlyProduction(){
     return {};
   }
 }
-
-  // Cartas de acceso rápido en overlay
-// --- Trabajo: abrir/cerrar y marcar activa ---
-$('featTrabajo').onclick = async ()=>{
-  const wc = $('workCard');
-  const isOpen = getComputedStyle(wc).display !== 'none';
-
-  if(isOpen){
-    // cerrar
-    $('btnWorkClose')?.click();  // usa el cierre centralizado
-    return;
-  }
-
-  // abrir tarjeta Trabajo
-  wc.style.display = 'block';
-  setFeatureActive('trabajo');
-
-  // Resumen
-  const { todayMs, weekMs, monthMs } = calcWorkTotals(lastItemsCache||[], currentOverlayDevice);
-  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
-  setText('workWeek',  `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
-  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
-
-  // Gráfico según período
-  const period = $('workRange')?.value || 'dia';
-  const data   = await getWorkDataFor(period, currentOverlayDevice);
-  const { fromT, toT } = periodBounds(period);
-  renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
-
-  wc.scrollIntoView({behavior:'smooth', block:'start'});
-};
-
-
 
   
   // Tarjetas colmena + estado
@@ -978,68 +753,28 @@ async function renderDeviceCards(items){
     if(card && !editing){ openOverlay(card.dataset.device); }
   });
   $('btnOverlayBack').onclick=closeOverlay;
-  
-function openOverlay(id){
-  currentOverlayDevice = String(id);
-  setText('overlayTitle','Colmena '+id);
-  const ov=$('deviceOverlay'); ov.style.display='block'; ov.setAttribute('aria-hidden','false');
-  $('devicePanel').scrollTo({top:0,behavior:'instant'});
 
-  // KPIs
-  updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
-
-  // Charts colmena: oculto por defecto
-  ovChartsVisible=false; $('ovChartsWrap').style.display='none';
-  if(ovChartTemp){ ovChartTemp.destroy(); ovChartTemp=null; }
-  if(ovChartHum){ ovChartHum.destroy(); ovChartHum=null; }
-  $('ovDateFrom').value = ymd(new Date());
-  $('ovDateTo').value   = ymd(new Date());
-
-  // Trabajo oculto al abrir
-  const wc=$('workCard'); if(wc) wc.style.display='none';
-  const whc=$('workHistControls'); if(whc) whc.style.display='none';
-  const wwrap=$('workChartWrap'); if(wwrap) wwrap.style.display='none';
-  const btnW=$('btnWorkChart'); if(btnW) btnW.textContent='Mostrar gráficos';
-
-  // Producción reset
-  $('ovProdDate').value = ymd(new Date());
-$('ovProdKilos').value = '';
-$('ovProdTbody').innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>';
-
-  const pane = $('ovProdHistWrap');
-pane.classList.remove('show');
-pane.style.display = 'none';               // ← inline manda, arrancamos oculto
-$('ovBtnToggleHist').onclick = async ()=>{
-  const pane = $('ovProdHistWrap');
-  const wantShow = !pane.classList.contains('show');
-
-  if (wantShow){
-    pane.classList.add('show');
-    pane.style.display = 'block';         // ← vence cualquier display previo
-    try{
-      await loadOvProdHistory();
-    }catch(e){
-      // si falla la carga, mantenemos al menos el "Sin datos"
-      console.warn('Hist prod error:', e);
-    }
-  }else{
-    pane.classList.remove('show');
-    pane.style.display = 'none';
+  function openOverlay(id){
+    currentOverlayDevice = String(id);
+    setText('overlayTitle','Colmena '+id);
+    const ov=$('deviceOverlay'); ov.style.display='block'; ov.setAttribute('aria-hidden','false');
+    $('devicePanel').scrollTo({top:0,behavior:'instant'});
+    updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+    $('ovProdDate').value = ymd(new Date());
+    $('ovProdKilos').value = '';
+    $('ovProdTbody').innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>';
+    $('ovProdHistWrap').style.display='none';
+    $('ovBtnToggleHist').textContent='Ver historial';
+    ovChartsVisible=false; $('ovChartsWrap').style.display='none';
+    if(ovChartTemp){ ovChartTemp.destroy(); ovChartTemp=null; }
+    if(ovChartHum){ ovChartHum.destroy(); ovChartHum=null; }
+    $('ovDateFrom').value = ymd(new Date());
+    $('ovDateTo').value = ymd(new Date());
   }
-
-  $('ovBtnToggleHist').textContent = wantShow ? 'Ocultar historial' : 'Ver historial';
-};
-
-} // ← ← ← CIERRE de openOverlay() AQUÍ (esta llave faltaba)
-
-/* Ahora sí, fuera de openOverlay() */
-function closeOverlay(){
-  const ov=$('deviceOverlay'); 
-  ov.style.display='none'; 
-  ov.setAttribute('aria-hidden','true');
-  currentOverlayDevice=null;
-}
-
+  function closeOverlay(){
+    const ov=$('deviceOverlay'); ov.style.display='none'; ov.setAttribute('aria-hidden','true');
+    currentOverlayDevice=null;
+  }
 
   // KPIs colmena
   function keyIsTemp(k){ const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.TEM')||K==='TEM'||K.includes('TEMP'); }
@@ -1063,35 +798,6 @@ function closeOverlay(){
     setText('ovHumVal', h?.value!=null ? fmt(h.value) : '—');
     setText('ovHumWhen', h ? dtAR(h.ts) : '—');
   }
-
-  // === HELPERS FALTANTES / ROBUSTOS ===
-function keyEqOrSuffix(k, wanted){
-  const K=String(k||'').toUpperCase().trim();
-  const W=String(wanted||'').toUpperCase().trim();
-  return K===W || K.endsWith('.'+W);
-}
-
-// Suma inteligente de MS: detecta si el stream es acumulado y usa deltas
-function totalMsByDeltas(msItems){
-  if(!msItems?.length) return 0;
-  const arr=[...msItems].sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(x=>Number(x.value)||0);
-  let nonDec=0; for(let i=1;i<arr.length;i++) if(arr[i]>=arr[i-1]) nonDec++;
-  const asAccum = nonDec >= Math.max(1, Math.floor((arr.length-1)*0.7));
-  if(asAccum){
-    let tot=0; for(let i=1;i<arr.length;i++){ const d=arr[i]-arr[i-1]; if(d>0) tot+=d; }
-    return tot;
-  }
-  return arr.reduce((a,b)=>a+(b>0?b:0),0);
-}
-
-function msInRange(items, deviceId, fromT, toT){
-  return (items||[]).filter(d=>{
-    if(String(d.device_id)!==String(deviceId)) return false;
-    if(!keyEqOrSuffix(d.sensor_key,'MS')) return false;
-    const t=new Date(d.ts).getTime();
-    return t>=fromT && t<=toT;
-  });
-}
 
 
   // AGREGADO: bounds en ms + ISO según período
@@ -1324,14 +1030,13 @@ async function workFetchRange(fromISO, toISO, deviceId){
   try{
     const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
     const { items } = await callWorker(q);
-    const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
+    const keys = ['C2R','NHR','NXR','ALR','SMR','MS','OPN'];
     return (items||[]).filter(d =>
       String(d.device_id)===String(deviceId) &&
-      keys.some(k => keyEqOrSuffix(d.sensor_key, k))
+      keys.includes(String(d.sensor_key||'').toUpperCase().trim())
     );
-  }catch(e){ return []; }
+  }catch(e){ return lastItemsCache||[]; }
 }
-
 
   
 
@@ -1351,25 +1056,6 @@ async function workFetchRange(fromISO, toISO, deviceId){
     if(!res.ok) throw new Error(await res.text());
     return res.json();
   }
-$('btnWorkClose').onclick = ()=>{
-  const wc = $('workCard');
-  if(wc){ wc.style.display='none'; }
-  if(workChart){ workChart.destroy(); workChart=null; }
-  $('workChartWrap').style.display='none';
-  $('btnWorkChart').textContent='Mostrar gráficos';
-  // NUEVO: destildar la carta activa
-  clearFeatureActive();
-};
-
-
-// Escape cierra el mini-dashboard si está abierto
-document.addEventListener('keydown', (e)=>{
-  if(e.key==='Escape'){
-    const wc = $('workCard');
-    if(wc && getComputedStyle(wc).display!=='none'){ $('btnWorkClose').click(); }
-  }
-});
-
 
   // Producción mini-dashboard
   $('ovBtnSaveProd').onclick = async ()=>{
@@ -1383,7 +1069,13 @@ document.addEventListener('keydown', (e)=>{
       if($('ovProdHistWrap').style.display!=='none'){ await loadOvProdHistory(); }
     }catch(e){ alert('Error guardando: ' + (e.message||e)); }
   };
-  
+  $('ovBtnToggleHist').onclick = async ()=>{
+    const wrap = $('ovProdHistWrap');
+    const show = wrap.style.display==='none';
+    wrap.style.display = show ? 'block' : 'none';
+    $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
+    if(show) await loadOvProdHistory();
+  };
   async function loadOvProdHistory(){
     if(!currentOverlayDevice) return;
     const { items } = await prodList({ device_id: currentOverlayDevice });
@@ -1392,172 +1084,108 @@ document.addEventListener('keydown', (e)=>{
     tb.innerHTML = items.map(r=>`<tr><td>${escapeHtml(r.fecha)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`).join('');
   }
 
-
   // Producción global
-  // Botón Producción (panel principal): robusto
-
-// ===== Producción global =====
-
-// Abrir overlay de Producción global
-function openProdOverlay(){
-  const ov = $('prodOverlay');
-  if (!ov){
-    console.error('prodOverlay no encontrado');
-    return;
-  }
-
-  // Mostrar overlay
-  ov.style.display = 'block';
-  ov.setAttribute('aria-hidden', 'false');
-  ov.style.zIndex = '1200';
-  ov.style.pointerEvents = 'auto';
-
-  // Ajustar ancho de fechas
-  ['prodFrom','prodTo'].forEach(id=>{
-    const el = $(id);
-    if (el){
-      el.style.width    = '150px';
-      el.style.minWidth = '120px';
-      el.style.maxWidth = '160px';
+  $('btnProdMain').onclick = ()=>{ openProdOverlay(); };
+  $('btnProdBack').onclick = ()=>{ closeProdOverlay(); };
+  $('btnProdShow').onclick = async ()=>{
+  const df=$('prodFrom').value, dt=$('prodTo').value;
+  const dev=$('prodDevice').value||'';
+  const fromISO=df?new Date(df+'T00:00:00').toISOString():undefined;
+  const toISO=dt?new Date(dt+'T23:59:59.999').toISOString():undefined;
+  try{
+    const { items }=await prodList({device_id:dev||undefined,fromISO,toISO});
+    const tb=$('prodGlobalTbody');
+    if(!items?.length){
+      tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+      setText('prodGlobalTotal','0.00');
+      $('btnProdCSV').style.display='none';
+      return;
     }
+    tb.innerHTML=items.map(r=>
+      `<tr><td>${escapeHtml(r.fecha)}</td><td>${escapeHtml(r.device_id)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`
+    ).join('');
+    const total=items.reduce((a,b)=>a+Number(b.kilos||0),0);
+    setText('prodGlobalTotal',total.toFixed(2));
+    $('btnProdCSV').style.display='inline-flex'; // mostrar CSV
+  }catch(e){ alert('Error consultando: '+(e.message||e)); }
+};
+
+function prodDownloadCSV(){
+  const rows=[['fecha','colmena','kilos']];
+  const tb=document.querySelectorAll('#prodGlobalTbody tr');
+  tb.forEach(tr=>{
+    const c=tr.querySelectorAll('td');
+    if(c.length===3) rows.push([c[0].innerText,c[1].innerText,c[2].innerText]);
+  });
+  if(rows.length<=1){ alert('Sin datos para exportar'); return; }
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='produccion.csv';
+  a.click();
+}
+
+  
+  function openProdOverlay(){
+  $('prodOverlay').style.display='block';
+  $('prodOverlay').setAttribute('aria-hidden','false');
+
+  // Achicar cuadros de fecha
+  ['prodFrom','prodTo'].forEach(id=>{
+    const el=$(id);
+    if(el){ el.style.width='150px'; el.style.minWidth='120px'; el.style.maxWidth='160px'; }
   });
 
   // Botón BORRAR (si no existe)
-  if (!$('btnProdReset')){
-    const sel = $('prodDevice');
-    if (sel && sel.parentElement){
-      const btn = document.createElement('button');
-      btn.id = 'btnProdReset';
-      btn.type = 'button';
-      btn.className = 'btn small';
-      btn.textContent = 'Borrar';
-      btn.onclick = prodResetFilters;
-
-      sel.parentElement.style.display = 'flex';
-      sel.parentElement.style.gap = '8px';
-      sel.parentElement.appendChild(btn);
-    }
+  if(!$('btnProdReset')){
+    const sel=$('prodDevice');
+    const btn=document.createElement('button');
+    btn.id='btnProdReset';
+    btn.type='button';
+    btn.className='btn small';
+    btn.textContent='Borrar';
+    btn.onclick=prodResetFilters;
+    sel.parentElement.style.display='flex';
+    sel.parentElement.style.gap='8px';
+    sel.parentElement.appendChild(btn);
   }
 
   // Botón CSV (si no existe)
-  const showBtn = $('btnProdShow');
-  if (showBtn && !$('btnProdCSV')){
-    const csv = document.createElement('button');
-    csv.id = 'btnProdCSV';
-    csv.type = 'button';
-    csv.className = 'btn small';
-    csv.textContent = 'Descargar CSV';
-    csv.style.display = 'none';
-    csv.onclick = prodDownloadCSV;
+  const showBtn=$('btnProdShow');
+  if(showBtn && !$('btnProdCSV')){
+    const csv=document.createElement('button');
+    csv.id='btnProdCSV';
+    csv.type='button';
+    csv.className='btn small';
+    csv.textContent='Descargar CSV';
+    csv.style.display='none';
+    csv.onclick=prodDownloadCSV;
     showBtn.parentElement.appendChild(csv);
   }
 }
 
-// Cerrar overlay de Producción global
-function closeProdOverlay(){
-  const ov = $('prodOverlay');
-  if (!ov) return;
-  ov.style.display = 'none';
-  ov.setAttribute('aria-hidden', 'true');
+
+
+  function prodResetFilters(){
+  const hoy=ymd(new Date());
+  $('prodFrom').value=hoy;
+  $('prodTo').value=hoy;
+  $('prodDevice').value='';
+  const tb=$('prodGlobalTbody');
+  tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+  setText('prodGlobalTotal','0.00');
+  if($('btnProdCSV')) $('btnProdCSV').style.display='none';
 }
 
-// Reset de filtros de Producción global
-function prodResetFilters(){
-  const hoy = ymd(new Date());
-  const pf  = $('prodFrom');
-  const pt  = $('prodTo');
-  const sel = $('prodDevice');
-  const tb  = $('prodGlobalTbody');
 
-  if (pf) pf.value = hoy;
-  if (pt) pt.value = hoy;
-  if (sel) sel.value = '';
 
-  if (tb){
-    tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+  
+
+  function closeProdOverlay(){
+    $('prodOverlay').style.display='none';
+    $('prodOverlay').setAttribute('aria-hidden','true');
   }
-  setText('prodGlobalTotal', '0.00');
-  if ($('btnProdCSV')) $('btnProdCSV').style.display = 'none';
-}
-
-// Descargar CSV desde la tabla global
-function prodDownloadCSV(){
-  const rows = [['fecha','colmena','kilos']];
-  const trs = document.querySelectorAll('#prodGlobalTbody tr');
-  trs.forEach(tr=>{
-    const c = tr.querySelectorAll('td');
-    if (c.length === 3){
-      rows.push([c[0].innerText, c[1].innerText, c[2].innerText]);
-    }
-  });
-  if (rows.length <= 1){
-    alert('Sin datos para exportar');
-    return;
-  }
-  const csv  = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const a    = document.createElement('a');
-  a.href     = URL.createObjectURL(blob);
-  a.download = 'produccion.csv';
-  a.click();
-}
-
-// Bind de botones de Producción (PRINCIPAL + OVERLAY)
-window.addEventListener('DOMContentLoaded', ()=>{
-  const btnMain = $('btnProdMain');
-  if (btnMain){
-    btnMain.addEventListener('click', (e)=>{
-      e.preventDefault();
-      e.stopPropagation();
-      openProdOverlay();
-    });
-  }
-
-  const btnBack = $('btnProdBack');
-  if (btnBack){
-    btnBack.onclick = ()=> closeProdOverlay();
-  }
-
-  const btnShow = $('btnProdShow');
-  if (btnShow){
-    btnShow.onclick = async ()=>{
-      const df  = $('prodFrom').value;
-      const dt  = $('prodTo').value;
-      const dev = $('prodDevice').value || '';
-
-      const fromISO = df ? new Date(df + 'T00:00:00').toISOString()       : undefined;
-      const toISO   = dt ? new Date(dt + 'T23:59:59.999').toISOString()   : undefined;
-
-      try{
-        const { items } = await prodList({ device_id: dev || undefined, fromISO, toISO });
-        const tb = $('prodGlobalTbody');
-
-        if (!items?.length){
-          tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-          setText('prodGlobalTotal','0.00');
-          if ($('btnProdCSV')) $('btnProdCSV').style.display='none';
-          return;
-        }
-
-        tb.innerHTML = items.map(r =>
-          `<tr>
-            <td>${escapeHtml(r.fecha)}</td>
-            <td>${escapeHtml(r.device_id)}</td>
-            <td class="num">${Number(r.kilos).toFixed(2)}</td>
-          </tr>`
-        ).join('');
-
-        const total = items.reduce((a,b)=> a + Number(b.kilos || 0), 0);
-        setText('prodGlobalTotal', total.toFixed(2));
-
-        if ($('btnProdCSV')) $('btnProdCSV').style.display='inline-flex';
-      }catch(e){
-        alert('Error consultando: ' + (e.message || e));
-      }
-    };
-  }
-});
-
 
   // Toggle tabla lecturas
   $('toggleTbl').onclick=()=>{ const w=$('tableWrap'); w.style.display=w.style.display==='none'?'block':'none'; };
@@ -1606,13 +1234,23 @@ function extractWorkEvents(items, deviceId) {
 }
 
 // Extraer valores MS (milisegundos de trabajo)
-function extractWorkTimes(items, deviceId){
-  const devId = String(deviceId);
-  return (items||[]).filter(d =>
-    String(d.device_id)===devId && keyEqOrSuffix(d.sensor_key,'MS')
+function extractWorkTimes(items, deviceId) {
+  return (items || []).filter(d =>
+    String(d.device_id) === String(deviceId) &&
+    String(d.sensor_key).toUpperCase() === 'MS'
   );
 }
 
+// Reemplazo
+function extractWorkTimes(items, deviceId) {
+  const devId = String(deviceId);
+  return (items || []).filter(d => {
+    if (String(d.device_id) !== devId) return false;
+    const k = String(d.sensor_key || '').toUpperCase().trim();
+    // Acepta "MS", "WORK.MS", "DEVICE.MS", etc.
+    return k === 'MS' || k.endsWith('.MS');
+  });
+}
 
 // Helper NUEVO
 function formatHM_fromMs(ms){
@@ -1648,29 +1286,33 @@ function filterWorkSeries(items, deviceId, fromT, toT){
 
   for(const d of (items||[])){
     if(String(d.device_id)!==String(deviceId)) continue;
+    const k = String(d.sensor_key||'').toUpperCase().trim();
+    if(!KEYS.includes(k)) continue;
     const t = new Date(d.ts).getTime();
     if(t<fromT || t>toT) continue;
-    for(const k of KEYS){
-      if(keyEqOrSuffix(d.sensor_key,k)){
-        const y = Number(d.value)||0;
-        const tMin = Math.floor(t/60000)*60000;
-        byKey[k].push({ t: tMin, y });
-        labelSet.add(tMin);
-        break;
-      }
-    }
+    const y = Number(d.value)||0;
+    // redondeo a minuto para alinear
+    const tMin = Math.floor(t/60000)*60000;
+    byKey[k].push({ t: tMin, y });
+    labelSet.add(tMin);
   }
 
   const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
   const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
-  const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
 
+  // map rápido por clave->timestamp->valor
+  const maps = {};
+  for(const k of Object.keys(byKey)){
+    const m = new Map();
+    byKey[k].sort((a,b)=>a.t-b.t);
+    for(const p of byKey[k]) m.set(p.t, p.y);
+    maps[k] = m;
+  }
+
+  const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
   const datasets = Object.keys(byKey).map(k=>({
     label:k,
-    data: labelsTs.map(ts=>{
-      const vv = byKey[k].find(p=>p.t===ts);
-      return vv ? vv.y : null;
-    }),
+    data: labelsTs.map(ts=> maps[k].has(ts) ? maps[k].get(ts) : null),
     borderColor: palette[k]||'#ccc',
     backgroundColor: 'transparent',
     borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
@@ -1678,7 +1320,6 @@ function filterWorkSeries(items, deviceId, fromT, toT){
 
   return { labels, datasets };
 }
-
 
 
   
@@ -1696,17 +1337,30 @@ function isSameISOWeek(d1, ref){
   return d1 >= start && d1 < end;
 }
 
-function calcWorkTotals(items, deviceId){
+function calcWorkTotals(items, deviceId) {
+  const msData = extractWorkTimes(items, deviceId);
+  let todayMs = 0, weekMs = 0, monthMs = 0;
   const now = new Date();
-  const day   = periodBounds('dia', now);
-  const week  = periodBounds('semana', now);
-  const month = periodBounds('mes', now);
-  const t = totalMsByDeltas(msInRange(items, deviceId, day.fromT,   day.toT));
-  const w = totalMsByDeltas(msInRange(items, deviceId, week.fromT,  week.toT));
-  const m = totalMsByDeltas(msInRange(items, deviceId, month.fromT, month.toT));
-  return { todayMs:t, weekMs:w, monthMs:m };
-}
 
+  for (const d of msData) {
+    const t = new Date(d.ts);
+    const valMs = Number(d.value) || 0;
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth() &&
+        t.getDate() === now.getDate()) {
+      todayMs += valMs;
+    }
+    if (isSameISOWeek(t, now)) {
+      weekMs += valMs;
+    }
+    if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth()) {
+      monthMs += valMs;
+    }
+  }
+
+  return { todayMs, weekMs, monthMs };
+}
 
 
 function isSameWeek(d1, d2) {
@@ -1805,10 +1459,9 @@ $('btnWorkChart').onclick = async ()=>{
 
 
 $('btnWorkCSV').onclick = ()=>{
-  if (!currentOverlayDevice) return;
-  downloadWorkCSV(currentOverlayDevice);
+  if (!currentOverlayDevice || !lastItemsCache) return;
+  downloadWorkCSV(lastItemsCache, currentOverlayDevice);
 };
-
 
   // ===== Clima (nuevo flujo por texto) =====
   const wxMap = {0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla escarchada',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos'};
