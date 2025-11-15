@@ -1364,13 +1364,7 @@ document.addEventListener('keydown', (e)=>{
       if($('ovProdHistWrap').style.display!=='none'){ await loadOvProdHistory(); }
     }catch(e){ alert('Error guardando: ' + (e.message||e)); }
   };
-  $('ovBtnToggleHist').onclick = async ()=>{
-    const wrap = $('ovProdHistWrap');
-    const show = wrap.style.display==='none';
-    wrap.style.display = show ? 'block' : 'none';
-    $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
-    if(show) await loadOvProdHistory();
-  };
+  
   async function loadOvProdHistory(){
     if(!currentOverlayDevice) return;
     const { items } = await prodList({ device_id: currentOverlayDevice });
