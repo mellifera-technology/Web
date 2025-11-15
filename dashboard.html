@@ -93,6 +93,25 @@
 .cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
 .cal-btn svg{width:18px;height:18px;color:#111}
 .cal-btn:focus{outline:2px solid var(--focus)}
+/* Filtros de producción: que no engorden las date-chip */
+.prod-filters-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:12px;
+  align-items:flex-start;          /* evita que las date-chip se estiren en altura */
+}
+
+/* Limitar el ancho de las date-chip solo en producción */
+.prod-filters-grid .date-chip{
+  max-width:230px;
+}
+
+/* En pantallas chicas, que apilen todo prolijo */
+@media(max-width:900px){
+  .prod-filters-grid{
+    grid-template-columns:1fr;
+  }
+}
 
 /* Input-chip: para Kilos */
 .input-chip{display:flex;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;overflow:hidden}
@@ -492,7 +511,7 @@
       <div class="overlay-content">
         <div class="card">
   <h3>Filtros</h3>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+  <div class="prod-filters-grid">
     <!-- Desde -->
     <div class="date-chip">
       <input type="date" id="prodFrom">
