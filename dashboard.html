@@ -491,41 +491,98 @@
       </div>
       <div class="overlay-content">
         <div class="card">
-          <h3>Filtros</h3>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-            <div class="date-chip">
-              <input type="date" id="prodFrom">
-              <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-              </button>
-            </div>
-            <div class="date-chip">
-              <input type="date" id="prodTo">
-              <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-              </button>
-            </div>
-            <div>
-              <select id="prodDevice" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-                <option value="">Todas</option>
-              </select>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
-          </div>
-        </div>
+  <h3>Filtros</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+    <!-- Desde -->
+    <div class="date-chip">
+      <input type="date" id="prodFrom">
+      <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
 
-        <div class="card" style="margin-top:12px">
-          <h3>Historial</h3>
-          <div class="nice-table" style="overflow:auto;max-height:60vh">
-            <table style="width:100%">
-              <thead><tr><th>Fecha</th><th>Colmena</th><th class="num">Kilos</th></tr></thead>
-              <tbody id="prodGlobalTbody"></tbody>
-              <tfoot><tr><th colspan="2" style="text-align:right">Total</th><th id="prodGlobalTotal" class="num">0.00</th></tr></tfoot>
-            </table>
-          </div>
-        </div>
+    <!-- Hasta -->
+    <div class="date-chip">
+      <input type="date" id="prodTo">
+      <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Colmena + Vista -->
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <select id="prodDevice"
+              style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+        <option value="">Todas las colmenas</option>
+      </select>
+      <select id="prodView"
+              style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+        <option value="colmena">Ver por colmena</option>
+        <option value="dia">Ver por día</option>
+        <option value="mes">Ver por mes</option>
+        <option value="anio">Vista anual</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
+    <!-- Aquí después te agrego por JS los botones Borrar y CSV -->
+  </div>
+</div>
+
+
+        <!-- Visualización de producción -->
+<div class="card" style="margin-top:12px">
+  <h3>Visualización</h3>
+  <div id="prodSummary" class="muted" style="margin-bottom:8px">
+    Seleccione un rango y presione “Mostrar” para ver la producción.
+  </div>
+
+  <div class="charts-grid">
+    <!-- Gráfico principal (barras o líneas) -->
+    <div class="chart-card">
+      <h4 id="prodMainTitle" style="margin:0 0 4px">Producción por colmena</h4>
+      <div class="chart-box" style="height:220px">
+        <canvas id="prodMainChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Gráfico secundario (solo para vista anual: torta) -->
+    <div class="chart-card" id="prodSecondaryCard" style="display:none">
+      <h4 id="prodSecondaryTitle" style="margin:0 0 4px">Distribución anual por colmena</h4>
+      <div class="chart-box" style="height:220px">
+        <canvas id="prodSecondaryChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Historial tabular -->
+<div class="card" style="margin-top:12px">
+  <h3>Historial</h3>
+  <div class="nice-table" style="overflow:auto;max-height:60vh">
+    <table style="width:100%">
+      <thead>
+        <tr><th>Fecha</th><th>Colmena</th><th class="num">Kilos</th></tr>
+      </thead>
+      <tbody id="prodGlobalTbody"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="2" style="text-align:right">Total</th>
+          <th id="prodGlobalTotal" class="num">0.00</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
 
       </div>
     </div>
@@ -560,6 +617,9 @@
   let historyMode=false;
   let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
   let wxChart=null; // gráfico clima
+  let prodMainChart=null;        // gráfico principal de producción
+  let prodSecondaryChart=null;   // gráfico secundario (torta anual)
+  let prodLastItems=[];          // últimos registros de producción cargados
   // Configuración de las tarjetas de colmena (afecta a TODAS)
 const CARD_CFG_KEY = 'miellifera.cardCfg';
 let cardCfg = loadCardCfg();
@@ -1313,27 +1373,43 @@ async function workFetchRange(fromISO, toISO, deviceId){
   $('btnProdMain').onclick = ()=>{ openProdOverlay(); };
   $('btnProdBack').onclick = ()=>{ closeProdOverlay(); };
   $('btnProdShow').onclick = async ()=>{
-  const df=$('prodFrom').value, dt=$('prodTo').value;
-  const dev=$('prodDevice').value||'';
-  const fromISO=df?new Date(df+'T00:00:00').toISOString():undefined;
-  const toISO=dt?new Date(dt+'T23:59:59.999').toISOString():undefined;
+  const df = $('prodFrom').value, dt = $('prodTo').value;
+  const dev = $('prodDevice').value || '';
+  const fromISO = df ? new Date(df+'T00:00:00').toISOString()       : undefined;
+  const toISO   = dt ? new Date(dt+'T23:59:59.999').toISOString()   : undefined;
+
   try{
-    const { items }=await prodList({device_id:dev||undefined,fromISO,toISO});
-    const tb=$('prodGlobalTbody');
+    const { items } = await prodList({ device_id: dev || undefined, fromISO, toISO });
+    prodLastItems = items || [];
+
+    const tb = $('prodGlobalTbody');
     if(!items?.length){
-      tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+      tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
       setText('prodGlobalTotal','0.00');
-      $('btnProdCSV').style.display='none';
+      const csvBtn = $('btnProdCSV');
+      if(csvBtn) csvBtn.style.display = 'none';
+      renderProdCharts(); // limpia gráficos y texto
       return;
     }
-    tb.innerHTML=items.map(r=>
+
+    tb.innerHTML = items.map(r=>
       `<tr><td>${escapeHtml(r.fecha)}</td><td>${escapeHtml(r.device_id)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`
     ).join('');
-    const total=items.reduce((a,b)=>a+Number(b.kilos||0),0);
-    setText('prodGlobalTotal',total.toFixed(2));
-    $('btnProdCSV').style.display='inline-flex'; // mostrar CSV
-  }catch(e){ alert('Error consultando: '+(e.message||e)); }
+
+    const total = items.reduce((a,b)=>a+Number(b.kilos||0),0);
+    setText('prodGlobalTotal', total.toFixed(2));
+
+    const csvBtn = $('btnProdCSV');
+    if(csvBtn) csvBtn.style.display = 'inline-flex';
+
+    // Actualizar gráficos según vista seleccionada
+    renderProdCharts();
+
+  }catch(e){
+    alert('Error consultando: '+(e.message||e));
+  }
 };
+
 
 function prodDownloadCSV(){
   const rows=[['fecha','colmena','kilos']];
@@ -1351,56 +1427,303 @@ function prodDownloadCSV(){
   a.click();
 }
 
-  
-  function openProdOverlay(){
-  $('prodOverlay').style.display='block';
-  $('prodOverlay').setAttribute('aria-hidden','false');
+// ===== Helpers de agregación para producción =====
+function summarizeProduction(items){
+  let total = 0;
+  const byHive = {};
+  for(const r of (items||[])){
+    const id = String(r.device_id||'').trim() || '—';
+    const k = Number(r.kilos||0);
+    total += k;
+    byHive[id] = (byHive[id]||0) + k;
+  }
+  let bestId = null, bestVal = 0;
+  for(const [id,val] of Object.entries(byHive)){
+    if(val > bestVal){ bestVal = val; bestId = id; }
+  }
+  return { total, byHive, bestId, bestVal, hives: Object.keys(byHive).length };
+}
 
-  // Achicar cuadros de fecha
-  ['prodFrom','prodTo'].forEach(id=>{
-    const el=$(id);
-    if(el){ el.style.width='150px'; el.style.minWidth='120px'; el.style.maxWidth='160px'; }
-  });
+// Agrupar por fecha (día)
+function groupByDay(items){
+  const map = {};
+  for(const r of (items||[])){
+    const f = String(r.fecha||'').slice(0,10);
+    if(!f) continue;
+    map[f] = (map[f]||0) + Number(r.kilos||0);
+  }
+  const labels = Object.keys(map).sort();
+  const data   = labels.map(d=>map[d]);
+  return { labels, data };
+}
 
-  // Botón BORRAR (si no existe)
-  if(!$('btnProdReset')){
-    const sel=$('prodDevice');
-    const btn=document.createElement('button');
-    btn.id='btnProdReset';
-    btn.type='button';
-    btn.className='btn small';
-    btn.textContent='Borrar';
-    btn.onclick=prodResetFilters;
-    sel.parentElement.style.display='flex';
-    sel.parentElement.style.gap='8px';
-    sel.parentElement.appendChild(btn);
+// Agrupar por mes (YYYY-MM)
+function groupByMonth(items){
+  const map = {};
+  for(const r of (items||[])){
+    const f = String(r.fecha||'');
+    if(!f) continue;
+    const key = f.slice(0,7); // YYYY-MM
+    map[key] = (map[key]||0) + Number(r.kilos||0);
+  }
+  const labels = Object.keys(map).sort();
+  const data   = labels.map(d=>map[d]);
+  return { labels, data };
+}
+
+// Agrupar por año (YYYY)
+function groupByYear(items){
+  const map = {};
+  for(const r of (items||[])){
+    const f = String(r.fecha||'');
+    if(!f) continue;
+    const key = f.slice(0,4);
+    map[key] = (map[key]||0) + Number(r.kilos||0);
+  }
+  const labels = Object.keys(map).sort();
+  const data   = labels.map(d=>map[d]);
+  return { labels, data };
+}
+
+// Render de los gráficos de producción según vista seleccionada
+function renderProdCharts(){
+  const items = prodLastItems || [];
+  const viewSel = $('prodView');
+  const view    = viewSel ? viewSel.value : 'colmena';
+  const devSel  = $('prodDevice');
+  const dev     = devSel ? (devSel.value || '') : '';
+
+  const summaryEl = $('prodSummary');
+  const secCard   = $('prodSecondaryCard');
+  const mainTitle = $('prodMainTitle');
+  const secTitle  = $('prodSecondaryTitle');
+
+  // Reset gráficos previos
+  if(prodMainChart){ prodMainChart.destroy(); prodMainChart=null; }
+  if(prodSecondaryChart){ prodSecondaryChart.destroy(); prodSecondaryChart=null; }
+  if(secCard) secCard.style.display = 'none';
+
+  if(!items.length){
+    if(summaryEl) summaryEl.textContent = 'Sin datos en el rango seleccionado.';
+    if(mainTitle) mainTitle.textContent = 'Producción por colmena';
+    return;
   }
 
-  // Botón CSV (si no existe)
-  const showBtn=$('btnProdShow');
-  if(showBtn && !$('btnProdCSV')){
-    const csv=document.createElement('button');
-    csv.id='btnProdCSV';
-    csv.type='button';
-    csv.className='btn small';
-    csv.textContent='Descargar CSV';
-    csv.style.display='none';
-    csv.onclick=prodDownloadCSV;
-    showBtn.parentElement.appendChild(csv);
+  const { total, byHive, bestId, bestVal, hives } = summarizeProduction(items);
+  let txt = `Total en el período: ${total.toFixed(2)} kg. `;
+  if(hives>0) txt += `Colmenas con producción: ${hives}. `;
+  if(bestId)  txt += `Colmena destacada: ${bestId} (${bestVal.toFixed(2)} kg).`;
+  if(dev)     txt += ` Filtro de colmena: ${dev}.`;
+  if(summaryEl) summaryEl.textContent = txt;
+
+  const ctxMain = $('prodMainChart')?.getContext('2d');
+  const ctxSec  = $('prodSecondaryChart')?.getContext('2d');
+  if(!ctxMain) return;
+
+  const palette = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
+
+  // Vista 1: por colmena (barras)
+  if(view === 'colmena'){
+    const labels = Object.keys(byHive);
+    const data   = labels.map(id=>byHive[id]);
+    if(mainTitle) mainTitle.textContent = 'Producción por colmena';
+
+    prodMainChart = new Chart(ctxMain,{
+      type:'bar',
+      data:{
+        labels,
+        datasets:[{
+          label:'Kilos en el período',
+          data,
+          backgroundColor: labels.map((_,i)=>palette[i%palette.length])
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{title:{display:true,text:'Colmena'}},
+          y:{title:{display:true,text:'Kilos'},beginAtZero:true}
+        }
+      }
+    });
+    return;
+  }
+
+  // Vista 2: por día (curva)
+  if(view === 'dia'){
+    const { labels, data } = groupByDay(items);
+    if(mainTitle) mainTitle.textContent = 'Producción diaria (todas las colmenas del rango)';
+
+    prodMainChart = new Chart(ctxMain,{
+      type:'line',
+      data:{
+        labels,
+        datasets:[{
+          label:'Kilos por día',
+          data,
+          borderColor:'#ffb74d',
+          backgroundColor:'transparent',
+          borderWidth:2,
+          tension:.25,
+          pointRadius:0
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        interaction:{mode:'index',intersect:false},
+        scales:{
+          x:{title:{display:true,text:'Fecha'}},
+          y:{title:{display:true,text:'Kilos'},beginAtZero:true}
+        }
+      }
+    });
+    return;
+  }
+
+  // Vista 3: por mes (barras)
+  if(view === 'mes'){
+    const { labels, data } = groupByMonth(items);
+    if(mainTitle) mainTitle.textContent = 'Producción mensual en el rango';
+
+    prodMainChart = new Chart(ctxMain,{
+      type:'bar',
+      data:{
+        labels,
+        datasets:[{
+          label:'Kilos por mes',
+          data,
+          backgroundColor: labels.map((_,i)=>palette[i%palette.length])
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{title:{display:true,text:'Mes'}},
+          y:{title:{display:true,text:'Kilos'},beginAtZero:true}
+        }
+      }
+    });
+    return;
+  }
+
+  // Vista 4: anual (barras por año + torta por colmena)
+  if(view === 'anio'){
+    const { labels, data } = groupByYear(items);
+    if(mainTitle) mainTitle.textContent = 'Producción anual';
+    if(labels.length){
+      prodMainChart = new Chart(ctxMain,{
+        type:'bar',
+        data:{
+          labels,
+          datasets:[{
+            label:'Kilos por año',
+            data,
+            backgroundColor: labels.map((_,i)=>palette[i%palette.length])
+          }]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{
+            x:{title:{display:true,text:'Año'}},
+            y:{title:{display:true,text:'Kilos'},beginAtZero:true}
+          }
+        }
+      });
+    }
+
+    // Torta de distribución por colmena (sobre todo el rango)
+    if(ctxSec && Object.keys(byHive).length>0 && secCard){
+      if(secTitle) secTitle.textContent = 'Distribución por colmena';
+      const pieLabels = Object.keys(byHive);
+      const pieData   = pieLabels.map(id=>byHive[id]);
+      prodSecondaryChart = new Chart(ctxSec,{
+        type:'pie',
+        data:{
+          labels: pieLabels,
+          datasets:[{
+            data: pieData,
+            backgroundColor: pieLabels.map((_,i)=>palette[i%palette.length])
+          }]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{position:'right'}}
+        }
+      });
+      secCard.style.display = 'block';
+    }
   }
 }
 
 
 
+  
+  function openProdOverlay(){
+  $('prodOverlay').style.display='block';
+  $('prodOverlay').setAttribute('aria-hidden','false');
+
+  // Botones Borrar y CSV junto al botón Mostrar
+  const showBtn = $('btnProdShow');
+  if(showBtn){
+    const row = showBtn.parentElement;
+    if(row){
+      if(!$('btnProdReset')){
+        const btn = document.createElement('button');
+        btn.id = 'btnProdReset';
+        btn.type = 'button';
+        btn.className = 'btn small';
+        btn.textContent = 'Borrar';
+        btn.onclick = prodResetFilters;
+        row.appendChild(btn);
+      }
+      if(!$('btnProdCSV')){
+        const csv = document.createElement('button');
+        csv.id='btnProdCSV';
+        csv.type='button';
+        csv.className='btn small';
+        csv.textContent='Descargar CSV';
+        csv.style.display='none';
+        csv.onclick=prodDownloadCSV;
+        row.appendChild(csv);
+      }
+    }
+  }
+
+  // Vista por defecto
+  const viewSel = $('prodView');
+  if(viewSel) viewSel.value = 'colmena';
+}
+
+
+
   function prodResetFilters(){
-  const hoy=ymd(new Date());
-  $('prodFrom').value=hoy;
-  $('prodTo').value=hoy;
-  $('prodDevice').value='';
-  const tb=$('prodGlobalTbody');
-  tb.innerHTML='<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+  const hoy = ymd(new Date());
+  $('prodFrom').value = hoy;
+  $('prodTo').value   = hoy;
+  $('prodDevice').value = '';
+  const viewSel = $('prodView');
+  if(viewSel) viewSel.value = 'colmena';
+
+  const tb = $('prodGlobalTbody');
+  if(tb) tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
   setText('prodGlobalTotal','0.00');
-  if($('btnProdCSV')) $('btnProdCSV').style.display='none';
+
+  const csvBtn = $('btnProdCSV');
+  if(csvBtn) csvBtn.style.display = 'none';
+
+  prodLastItems = [];
+  if(prodMainChart){ prodMainChart.destroy(); prodMainChart=null; }
+  if(prodSecondaryChart){ prodSecondaryChart.destroy(); prodSecondaryChart=null; }
+  const secCard = $('prodSecondaryCard');
+  if(secCard) secCard.style.display='none';
+  const summaryEl = $('prodSummary');
+  if(summaryEl) summaryEl.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
+  const mainTitle = $('prodMainTitle');
+  if(mainTitle) mainTitle.textContent = 'Producción por colmena';
 }
 
 
