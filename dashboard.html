@@ -274,50 +274,28 @@
           </div>
           <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
             <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
+<!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
 <div id="cardModel"
      class="card"
-     style="margin:8px auto 12px;max-width:260px;display:none">
-  <h3 style="margin-top:0;text-align:center">Modelo de tarjeta</h3>
+     style="margin:8px auto 12px;max-width:260px;display:none;text-align:center">
+  <h3 style="margin-top:0;">Modelo de tarjeta</h3>
 
-  <!-- Simulación de una colmena real -->
-  <div class="status-row" style="justify-content:center">
-    <span style="font-weight:600">Colmena XXXX</span>
-  </div>
-  <div class="status-row" style="justify-content:space-between">
-    <span>Conectado</span>
-    <span class="status-dot"></span>
-  </div>
-  <div class="status-row" style="justify-content:space-between">
-    <span>Estado</span>
-    <span class="status-dot"></span>
-  </div>
-
-  <!-- Línea de kilos / trabajo configurables -->
-  <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
-    <label class="muted" for="cardCfgKilos">Línea de kilos</label>
-    <select id="cardCfgKilos" class="btn small"
+  <!-- Controles simples: solo selects -->
+  <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;align-items:stretch">
+    <select id="cardCfgKilos"
+            class="btn small"
             style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
       <option value="mes">Kilos del mes</option>
       <option value="anio">Kilos del año</option>
     </select>
 
-    <label class="muted" for="cardCfgTrabajo">Línea de trabajo</label>
-    <select id="cardCfgTrabajo" class="btn small"
+    <select id="cardCfgTrabajo"
+            class="btn small"
             style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
       <option value="semana">Trabajo semanal</option>
       <option value="mes">Trabajo mensual</option>
       <option value="anio">Trabajo anual</option>
     </select>
-  </div>
-
-  <!-- Solo etiquetas de vista previa, sin números de ejemplo -->
-  <div style="margin-top:8px">
-    <div class="status-row" style="justify-content:space-between">
-      <span id="cardModelKilosLabel" class="muted">Kilos mes</span>
-    </div>
-    <div class="status-row" style="justify-content:space-between">
-      <span id="cardModelTrabajoLabel" class="muted">Trabajo semanal</span>
-    </div>
   </div>
 
   <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
