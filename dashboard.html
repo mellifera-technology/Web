@@ -1373,8 +1373,10 @@ document.addEventListener('keydown', (e)=>{
     tb.innerHTML = items.map(r=>`<tr><td>${escapeHtml(r.fecha)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`).join('');
   }
 
+
   // Producción global
   // Botón Producción (panel principal): robusto
+// Botón Producción (panel principal): robusto
 (function(){
   const b = $('btnProdMain');
   if(!b){ console.error('btnProdMain no encontrado'); return; }
@@ -1392,6 +1394,7 @@ document.addEventListener('keydown', (e)=>{
     openProdOverlay();
   }, { capture:true });
 })();
+
 
   $('btnProdBack').onclick = ()=>{ closeProdOverlay(); };
   $('btnProdShow').onclick = async ()=>{
