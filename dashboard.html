@@ -1396,119 +1396,9 @@ document.addEventListener('keydown', (e)=>{
   // Producción global
   // Botón Producción (panel principal): robusto
 
-(function(){
-  const b = $('btnProdMain');
-  if (!b){
-    console.error('btnProdMain no encontrado');
-    return;
-  }
+// ===== Producción global =====
 
-  b.addEventListener('click', (e)=>{
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Por si hay un overlay de colmena abierto, cerrarlo
-    const devOv = $('deviceOverlay');
-    if (devOv && devOv.style.display !== 'none'){
-      devOv.style.display = 'none';
-      devOv.setAttribute('aria-hidden', 'true');
-      if (typeof clearFeatureActive === 'function') clearFeatureActive();
-    }
-
-    // Abrir overlay de Producción global
-    openProdOverlay();
-  }, { capture: true });
-})();
-
-
-// Botón Atrás dentro del overlay de producción
-$('btnProdBack').onclick = ()=>{ 
-  closeProdOverlay(); 
-};
-
-// Botón Mostrar (consulta al Worker)
-$('btnProdShow').onclick = async ()=>{
-  const df  = $('prodFrom').value;
-  const dt  = $('prodTo').value;
-  const dev = $('prodDevice').value || '';
-
-  const fromISO = df ? new Date(df + 'T00:00:00').toISOString()       : undefined;
-  const toISO   = dt ? new Date(dt + 'T23:59:59.999').toISOString()   : undefined;
-
-  try{
-    const { items } = await prodList({ device_id: dev || undefined, fromISO, toISO });
-    const tb = $('prodGlobalTbody');
-
-    if (!items?.length){
-      tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-      setText('prodGlobalTotal','0.00');
-      if ($('btnProdCSV')) $('btnProdCSV').style.display='none';
-      return;
-    }
-
-    tb.innerHTML = items.map(r =>
-      `<tr>
-        <td>${escapeHtml(r.fecha)}</td>
-        <td>${escapeHtml(r.device_id)}</td>
-        <td class="num">${Number(r.kilos).toFixed(2)}</td>
-      </tr>`
-    ).join('');
-
-    const total = items.reduce((a,b)=> a + Number(b.kilos || 0), 0);
-    setText('prodGlobalTotal', total.toFixed(2));
-
-    if ($('btnProdCSV')) $('btnProdCSV').style.display='inline-flex';
-  }catch(e){
-    alert('Error consultando: ' + (e.message || e));
-  }
-};
-
-// Descargar CSV desde la tabla global
-function prodDownloadCSV(){
-  const rows = [['fecha','colmena','kilos']];
-  const trs = document.querySelectorAll('#prodGlobalTbody tr');
-  trs.forEach(tr=>{
-    const c = tr.querySelectorAll('td');
-    if (c.length === 3){
-      rows.push([c[0].innerText, c[1].innerText, c[2].innerText]);
-    }
-  });
-  if (rows.length <= 1){
-    alert('Sin datos para exportar');
-    return;
-  }
-  const csv  = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const a    = document.createElement('a');
-  a.href     = URL.createObjectURL(blob);
-  a.download = 'produccion.csv';
-  a.click();
-}
-
-
-  
-  
-
-
-
-
-
- 
-
-
-  function updateFeaturePreviews(baseItems, deviceId){
-  try{
-    const now=new Date();
-    const day  = periodBounds('dia', now);
-    const week = periodBounds('semana', now);
-    const msDay  = totalMsByDeltas(msInRange(baseItems||[], deviceId, day.fromT,  day.toT));
-    const msWeek = totalMsByDeltas(msInRange(baseItems||[], deviceId, week.fromT, week.toT));
-    const el=$('featTrabajoInfo'); if(el) el.textContent = `Hoy: ${formatHM_fromMs(msDay)} · Semana: ${formatHM_fromMs(msWeek)}`;
-  }catch{}
-  const hh=$('featHumoInfo');   if(hh) hh.textContent='Último: — · Estado: —';
-  const ss=$('featSonidoInfo'); if(ss) ss.textContent='Nivel: — · Último: —';
-}
-
+// Abrir overlay de Producción global
 function openProdOverlay(){
   const ov = $('prodOverlay');
   if (!ov){
@@ -1563,6 +1453,7 @@ function openProdOverlay(){
   }
 }
 
+// Cerrar overlay de Producción global
 function closeProdOverlay(){
   const ov = $('prodOverlay');
   if (!ov) return;
@@ -1573,10 +1464,10 @@ function closeProdOverlay(){
 // Reset de filtros de Producción global
 function prodResetFilters(){
   const hoy = ymd(new Date());
-  const pf = $('prodFrom');
-  const pt = $('prodTo');
+  const pf  = $('prodFrom');
+  const pt  = $('prodTo');
   const sel = $('prodDevice');
-  const tb = $('prodGlobalTbody');
+  const tb  = $('prodGlobalTbody');
 
   if (pf) pf.value = hoy;
   if (pt) pt.value = hoy;
@@ -1589,11 +1480,84 @@ function prodResetFilters(){
   if ($('btnProdCSV')) $('btnProdCSV').style.display = 'none';
 }
 
+// Descargar CSV desde la tabla global
+function prodDownloadCSV(){
+  const rows = [['fecha','colmena','kilos']];
+  const trs = document.querySelectorAll('#prodGlobalTbody tr');
+  trs.forEach(tr=>{
+    const c = tr.querySelectorAll('td');
+    if (c.length === 3){
+      rows.push([c[0].innerText, c[1].innerText, c[2].innerText]);
+    }
+  });
+  if (rows.length <= 1){
+    alert('Sin datos para exportar');
+    return;
+  }
+  const csv  = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'produccion.csv';
+  a.click();
+}
 
+// Bind de botones de Producción (PRINCIPAL + OVERLAY)
+window.addEventListener('DOMContentLoaded', ()=>{
+  const btnMain = $('btnProdMain');
+  if (btnMain){
+    btnMain.addEventListener('click', (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      openProdOverlay();
+    });
+  }
 
-  
+  const btnBack = $('btnProdBack');
+  if (btnBack){
+    btnBack.onclick = ()=> closeProdOverlay();
+  }
 
-  
+  const btnShow = $('btnProdShow');
+  if (btnShow){
+    btnShow.onclick = async ()=>{
+      const df  = $('prodFrom').value;
+      const dt  = $('prodTo').value;
+      const dev = $('prodDevice').value || '';
+
+      const fromISO = df ? new Date(df + 'T00:00:00').toISOString()       : undefined;
+      const toISO   = dt ? new Date(dt + 'T23:59:59.999').toISOString()   : undefined;
+
+      try{
+        const { items } = await prodList({ device_id: dev || undefined, fromISO, toISO });
+        const tb = $('prodGlobalTbody');
+
+        if (!items?.length){
+          tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+          setText('prodGlobalTotal','0.00');
+          if ($('btnProdCSV')) $('btnProdCSV').style.display='none';
+          return;
+        }
+
+        tb.innerHTML = items.map(r =>
+          `<tr>
+            <td>${escapeHtml(r.fecha)}</td>
+            <td>${escapeHtml(r.device_id)}</td>
+            <td class="num">${Number(r.kilos).toFixed(2)}</td>
+          </tr>`
+        ).join('');
+
+        const total = items.reduce((a,b)=> a + Number(b.kilos || 0), 0);
+        setText('prodGlobalTotal', total.toFixed(2));
+
+        if ($('btnProdCSV')) $('btnProdCSV').style.display='inline-flex';
+      }catch(e){
+        alert('Error consultando: ' + (e.message || e));
+      }
+    };
+  }
+});
+
 
   // Toggle tabla lecturas
   $('toggleTbl').onclick=()=>{ const w=$('tableWrap'); w.style.display=w.style.display==='none'?'block':'none'; };
