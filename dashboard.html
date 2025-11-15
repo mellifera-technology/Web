@@ -214,6 +214,14 @@
                 </div>
                 <!-- Próximos 3 -->
                 <div class="wx-tiles" id="wxTiles"></div>
+                      <!-- Curva de hoy -->
+      <div id="wxChartWrap" class="chart-card" style="margin-top:10px;display:none">
+        <h4 style="margin:0 0 4px">Evolución de hoy</h4>
+        <div class="chart-box" style="height:140px">
+          <canvas id="wxChart"></canvas>
+        </div>
+      </div>
+
               </div>
             </div>
           </div>
@@ -275,6 +283,7 @@
           <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
             <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
 <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
+<br><br><br>
 <div id="cardModel"
      class="card"
      style="margin:8px auto 12px;max-width:260px;display:none;text-align:center">
@@ -550,7 +559,7 @@
   let chartTemp=null, chartHum=null, chartsVisible=false, lastItemsCache=null;
   let historyMode=false;
   let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
-
+  let wxChart=null; // gráfico clima
   // Configuración de las tarjetas de colmena (afecta a TODAS)
 const CARD_CFG_KEY = 'miellifera.cardCfg';
 let cardCfg = loadCardCfg();
@@ -622,7 +631,21 @@ function syncCardModelLabels(){
   $('btnTutorials').onclick = ()=> location.href='tutoriales.html';
 
   // Toggle email/código
-  function maskVal(s){ if(!s) return '••••'; if(/@/.test(s)){ const [a,dom]=s.split('@'); const mm = a.length<=2 ? a[0]+'*' : a[0]+'*'.repeat(Math.max(1,a.length-2))+a.slice(-1); return mm+'@'+dom; } return '•'.repeat(Math.min(4,String(s).length)); }
+  function maskVal(s){
+  if(!s) return '••••';
+  if(/@/.test(s)){
+    const [local, dom] = s.split('@');
+    const l = String(local || '');
+    const d = String(dom   || '');
+    const lFirst = l.charAt(0) || '';
+    const lLast  = l.slice(-1) || '';
+    const dFirst = d.charAt(0) || '';
+    const dLast  = d.slice(-1) || '';
+    return `${lFirst}***${lLast}@${dFirst}***${dLast}`;
+  }
+  return '•'.repeat(Math.min(4, String(s).length));
+}
+
   function toggleReveal(targetId, btnId){
     const el=$(targetId), btn=$(btnId);
     const hidden = el.dataset.shown !== '1';
@@ -1758,7 +1781,13 @@ $('btnWorkHistCSV').onclick = async ()=>{
   }
 
   async function renderWeather(lat, lon, label){
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=4`;
+      const url = `https://api.open-meteo.com/v1/forecast` +
+              `?latitude=${lat}&longitude=${lon}` +
+              `&current=temperature_2m,relative_humidity_2m,weather_code` +
+              `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum` +
+              `&hourly=temperature_2m,relative_humidity_2m` +
+              `&timezone=auto&forecast_days=4`;
+
     const r = await fetch(url); const j = await r.json();
     const current = j.current || {};
     const daily = j.daily || {};
@@ -1789,6 +1818,99 @@ $('btnWorkHistCSV').onclick = async ()=>{
       </div>`;
     }).join('');
     $('wxTiles').innerHTML = tiles;
+        // Curva horaria de hoy (temp + humedad)
+    const hourly = j.hourly || {};
+    const hTime  = hourly.time || [];
+    const hTemp  = hourly.temperature_2m || [];
+    const hHum   = hourly.relative_humidity_2m || [];
+
+    const wrap = $('wxChartWrap');
+    const canvas = $('wxChart');
+
+    if(hTime.length && canvas){
+      // Tomamos solo las horas del día de "hoy" (primer elemento de daily.time)
+      const todayStr = (daily.time && daily.time[0]) ? String(daily.time[0]) : null;
+      const labels = [];
+      const tempVals = [];
+      const humVals  = [];
+
+      for(let i=0;i<hTime.length;i++){
+        const tStr = String(hTime[i]);
+        if(todayStr && !tStr.startsWith(todayStr)) continue;
+        const d = new Date(tStr);
+        const hh = String(d.getHours()).padStart(2,'0');
+        const mm = String(d.getMinutes()).padStart(2,'0');
+        labels.push(`${hh}:${mm}`);
+        tempVals.push(typeof hTemp[i]==='number' ? hTemp[i] : null);
+        humVals.push(typeof hHum[i]==='number' ? hHum[i] : null);
+      }
+
+      if(labels.length){
+        if(wxChart){ wxChart.destroy(); }
+
+        wxChart = new Chart(canvas.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Temperatura (°C)',
+                data: tempVals,
+                borderColor: '#ffb74d',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                tension: 0.25,
+                pointRadius: 0,
+                yAxisID: 'y'
+              },
+              {
+                label: 'Humedad (%)',
+                data: humVals,
+                borderColor: '#4da3ff',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                tension: 0.25,
+                pointRadius: 0,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, labels:{boxWidth:10,font:{size:10}} },
+              tooltip: { mode:'index', intersect:false }
+            },
+            interaction:{mode:'index',intersect:false},
+            scales: {
+              x: {
+                title:{display:false},
+                ticks:{maxTicksLimit:8,font:{size:9}}
+              },
+              y: {
+                position:'left',
+                title:{display:true,text:'°C',font:{size:10}},
+                ticks:{font:{size:9}}
+              },
+              y1: {
+                position:'right',
+                title:{display:true,text:'% HR',font:{size:10}},
+                ticks:{font:{size:9}},
+                grid:{drawOnChartArea:false}
+              }
+            }
+          }
+        });
+
+        if(wrap) wrap.style.display = 'block';
+      }else{
+        if(wrap) wrap.style.display = 'none';
+      }
+    }else{
+      if(wrap) wrap.style.display = 'none';
+    }
+
   }
   // ===== Fin Clima =====
 </script>
