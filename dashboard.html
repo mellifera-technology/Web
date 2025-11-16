@@ -112,6 +112,25 @@
     grid-template-columns:1fr;
   }
 }
+/* Mantener inputs prolijos sin deformar la date-chip */
+.prod-inputs{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.prod-inputs .date-chip{
+  max-width:230px;       /* Igual que en otros date-chip del sistema */
+}
+
+.prod-inputs .prod-kilos{
+  background:#10141a;
+  border:1px solid var(--border);
+  color:#fff;
+  padding:8px;
+  border-radius:10px;
+  width:160px;
+}
 
 /* Input-chip: para Kilos */
 .input-chip{display:flex;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;overflow:hidden}
@@ -159,6 +178,24 @@
   padding:6px 12px;
   cursor:pointer;
   font-weight:600;
+}
+
+/* Centrado absoluto de las tarjetas de Temp/Hum del overlay */
+.overlay-grid .card{
+  text-align:center;
+}
+
+.overlay-grid .card h3{
+  text-align:center;
+  width:100%;
+}
+
+.overlay-grid .card .metric{
+  justify-content:center;
+}
+
+.overlay-grid .card .muted{
+  text-align:center;
 }
 
 .mode-toggle button.selected{
@@ -524,16 +561,23 @@
           <h3>Producción</h3>
 
           <!-- Entrada alineada -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0">
-            <div class="date-chip">
-              <input type="date" id="ovProdDate">
-              <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
-              </button>
-            </div>
-            <input type="number" id="ovProdKilos" inputmode="decimal" min="0.01" step="0.01" placeholder="Kilos"
-                   style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-          </div>
+          <div class="prod-inputs">
+    <div class="date-chip">
+        <input type="date" id="ovProdDate">
+        <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+              <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+            </svg>
+        </button>
+    </div>
+
+    <input type="number" id="ovProdKilos"
+           inputmode="decimal" min="0.01" step="0.01"
+           placeholder="Kilos"
+           class="prod-kilos">
+</div>
+
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
             <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
