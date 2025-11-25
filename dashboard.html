@@ -51,6 +51,183 @@
     .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
     @media(max-width:860px){.cards-grid{grid-template-columns:1fr}}
 
+      /* Cartas extra bajo la gráfica: Sanidad / Calendario / Anotaciones */
+.meta-cards{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+  margin-top:18px;
+}
+
+@media(max-width:980px){
+  .meta-cards{
+    grid-template-columns:1fr;
+  }
+}
+
+.meta-card-title{
+  font-weight:700;
+  margin:0 0 4px;
+}
+
+.meta-card-text{
+  margin:0;
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+/* Overlay meta (Sanidad, Calendario, Notas) */
+#metaOverlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  z-index:1000;
+  background:rgba(8,10,14,.95);
+  backdrop-filter:blur(4px);
+}
+
+#metaPanel{
+  position:absolute;
+  inset:0;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.meta-tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.meta-tabs button{
+  background:#10141a;
+  border:1px solid var(--border);
+  color:#fff;
+  border-radius:999px;
+  padding:6px 12px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:.9rem;
+}
+
+.meta-tabs button.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#111;
+}
+
+.meta-section{
+  display:none;
+}
+
+.meta-section.active{
+  display:block;
+}
+
+/* filas de filtros/formularios dentro del overlay meta */
+.meta-filter-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.meta-filter-row select,
+.meta-filter-row input[type="date"],
+.meta-filter-row input[type="month"]{
+  background:#10141a;
+  border:1px solid var(--border);
+  color:#fff;
+  padding:6px 10px;
+  border-radius:10px;
+  font-size:.9rem;
+}
+
+.meta-form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:12px;
+}
+
+@media(max-width:760px){
+  .meta-form-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+.meta-form-grid textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+/* lista tipo calendario */
+.calendar-list-day{
+  margin-bottom:12px;
+}
+
+.calendar-list-day h4{
+  margin:0 0 4px;
+  font-size:.95rem;
+  color:var(--muted);
+}
+
+.calendar-event{
+  border-radius:10px;
+  padding:8px 10px;
+  margin-bottom:4px;
+  background:var(--card);
+  border:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+}
+
+.calendar-event-main{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.calendar-event-title{
+  font-weight:600;
+}
+
+.calendar-event-meta{
+  font-size:.85rem;
+  color:var(--muted);
+}
+
+/* notas */
+.note-item{
+  border-radius:10px;
+  padding:8px 10px;
+  margin-bottom:6px;
+  background:var(--card);
+  border:1px solid var(--border);
+}
+
+.note-item-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+
+.note-item-meta{
+  font-size:.85rem;
+  color:var(--muted);
+}
+
+
+
+
+
+
     table{border-collapse:separate;border-spacing:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
     thead th{position:sticky;top:0;background:var(--accent);color:#111;font-weight:800;padding:10px;border-bottom:2px solid #caa332}
     tbody td{padding:10px;border-bottom:1px solid var(--border)}
@@ -397,6 +574,31 @@
               </div>
             </div>
           </div>
+                    <!-- Cartas de manejo / calendario / anotaciones -->
+          <div class="meta-cards">
+            <div class="card" id="cardSanidad">
+              <h3 class="meta-card-title">Manejo sanitario</h3>
+              <p class="meta-card-text">
+                Registrar qué productos se usaron, cuándo se aplicaron, dosis y fecha de retiro. Evaluar si el tratamiento fue efectivo.
+              </p>
+              <button class="btn small yellow" type="button">Abrir manejo sanitario</button>
+            </div>
+            <div class="card" id="cardCalendario">
+              <h3 class="meta-card-title">Calendario</h3>
+              <p class="meta-card-text">
+                Ver y agendar manejos sanitarios y otros eventos de la piario por fecha y por colmena.
+              </p>
+              <button class="btn small yellow" type="button">Abrir calendario</button>
+            </div>
+            <div class="card" id="cardNotas">
+              <h3 class="meta-card-title">Anotaciones</h3>
+              <p class="meta-card-text">
+                Registrar observaciones de campo vinculadas a cada colmena y consultarlas más adelante.
+              </p>
+              <button class="btn small yellow" type="button">Abrir anotaciones</button>
+            </div>
+          </div>
+
           <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
             <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
 <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
@@ -461,13 +663,17 @@
   <!-- Overlay Colmena -->
   <div id="deviceOverlay" aria-hidden="true">
     <div id="devicePanel">
-      <div class="overlay-header">
+            <div class="overlay-header">
         <button id="btnOverlayBack" class="btn small" type="button" title="Atrás">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" style="margin-right:6px"><path d="M15 18l-6-6 6-6" stroke-width="2"/></svg>
           Atrás
         </button>
-        <h3 id="overlayTitle" style="margin:0">Colmena —</h3>
+        <h3 id="overlayTitle" style="margin:0;flex:1">Colmena —</h3>
+        <button id="btnOverlayNotes" class="btn small" type="button" title="Ver anotaciones de esta colmena">
+          ANOTACIONES
+        </button>
       </div>
+
       <div class="overlay-content">
                   <!-- Mini dashboard: Temp, Hum -->
         <div class="overlay-grid">
@@ -640,8 +846,8 @@
       </div>
       <div class="overlay-content">
         <div class="card">
-  <h3>Filtros</h3>
-  <div class="prod-filters-grid">
+    <h3>Filtros</h3>
+    <div class="prod-filters-grid">
     <!-- Desde -->
     <div class="date-chip">
       <input type="date" id="prodFrom">
@@ -679,6 +885,207 @@
       </select>
     </div>
   </div>
+
+    <!-- Overlay Meta (Sanidad / Calendario / Notas) -->
+  <div id="metaOverlay" aria-hidden="true">
+    <div id="metaPanel">
+      <div class="overlay-header">
+        <button id="btnMetaBack" class="btn small" type="button">Atrás</button>
+        <h3 id="metaTitle" style="margin:0">Panel</h3>
+      </div>
+      <div class="overlay-content">
+        <div class="meta-tabs">
+          <button type="button" id="tabSanidad" data-mode="sanidad">Manejo sanitario</button>
+          <button type="button" id="tabCalendario" data-mode="calendario">Calendario</button>
+          <button type="button" id="tabNotas" data-mode="notas">Anotaciones</button>
+        </div>
+
+        <!-- SANIDAD -->
+        <section id="metaSanidad" class="meta-section">
+          <h3>Manejo sanitario</h3>
+          <p class="muted" style="margin-top:0">
+            Registrar qué se aplicó, en qué colmena, fecha, dosis, período de retiro y si fue efectivo.
+          </p>
+
+          <div class="meta-filter-row">
+            <select id="sanidadFilterDevice">
+              <option value="">Todas las colmenas</option>
+            </select>
+
+            <div class="date-chip">
+              <input type="date" id="sanidadFrom">
+              <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('sanidadFrom')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="date-chip">
+              <input type="date" id="sanidadTo">
+              <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('sanidadTo')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+
+            <button id="btnSanidadReload" class="btn small" type="button">Actualizar</button>
+          </div>
+
+          <div class="meta-form-grid">
+            <div>
+              <label for="sanidadDevice" class="muted">Colmena</label>
+              <select id="sanidadDevice" style="width:100%">
+                <option value="">Seleccionar colmena…</option>
+              </select>
+            </div>
+            <div>
+              <label for="sanidadProduct" class="muted">Producto</label>
+              <input id="sanidadProduct" type="text" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            </div>
+            <div>
+              <label for="sanidadDate" class="muted">Fecha de aplicación</label>
+              <input id="sanidadDate" type="date" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            </div>
+            <div>
+              <label class="muted">Dosis</label>
+              <div style="display:flex;gap:6px">
+                <input id="sanidadDose" type="number" step="0.01" min="0" placeholder="Cantidad" style="flex:1;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+                <input id="sanidadUnit" type="text" placeholder="Unidad" style="width:90px;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+              </div>
+            </div>
+            <div>
+              <label for="sanidadWithdrawDays" class="muted">Días de retiro</label>
+              <input id="sanidadWithdrawDays" type="number" min="0" step="1" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            </div>
+            <div>
+              <label for="sanidadWithdrawDate" class="muted">Fecha de retiro estimada</label>
+              <input id="sanidadWithdrawDate" type="date" readonly style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px;opacity:.8">
+            </div>
+            <div style="grid-column:1/-1">
+              <label for="sanidadNotes" class="muted">Notas</label>
+              <textarea id="sanidadNotes" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px"></textarea>
+            </div>
+            <div>
+              <label class="muted">
+                <input id="sanidadEffective" type="checkbox" style="margin-right:6px">
+                Tratamiento efectivo
+              </label>
+            </div>
+            <div style="display:flex;align-items:flex-end;justify-content:flex-end">
+              <button id="btnSanidadSave" class="btn yellow small" type="button">Guardar tratamiento</button>
+            </div>
+          </div>
+
+          <div class="nice-table" style="max-height:260px;overflow:auto">
+            <table style="width:100%">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Colmena</th>
+                  <th>Producto</th>
+                  <th>Dosis</th>
+                  <th>Retiro</th>
+                  <th>Efectivo</th>
+                </tr>
+              </thead>
+              <tbody id="sanidadTbody">
+                <tr><td class="muted" colspan="6">Sin registros</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- CALENDARIO -->
+        <section id="metaCalendario" class="meta-section">
+          <h3>Calendario</h3>
+          <p class="muted" style="margin-top:0">
+            Ver manejos sanitarios y otros eventos por fecha y colmena.
+          </p>
+
+          <div class="meta-filter-row">
+            <select id="calDeviceFilter">
+              <option value="">Todas las colmenas</option>
+            </select>
+            <input type="month" id="calMonth" />
+            <button id="btnCalReload" class="btn small" type="button">Mostrar</button>
+          </div>
+
+          <div class="meta-form-grid">
+            <div>
+              <label class="muted" for="calDevice">Colmena</label>
+              <select id="calDevice" style="width:100%">
+                <option value="">General / apiario</option>
+              </select>
+            </div>
+            <div>
+              <label class="muted" for="calDate">Fecha</label>
+              <input id="calDate" type="date" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            </div>
+            <div>
+              <label class="muted" for="calTitle">Título</label>
+              <input id="calTitle" type="text" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            </div>
+            <div>
+              <label class="muted" for="calType">Tipo</label>
+              <select id="calType" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+                <option value="sanidad">Manejo sanitario</option>
+                <option value="revisión">Revisión</option>
+                <option value="alimentación">Alimentación</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="muted" for="calNotes">Notas</label>
+              <textarea id="calNotes" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px"></textarea>
+            </div>
+            <div style="grid-column:1/-1;display:flex;justify-content:flex-end">
+              <button id="btnCalSave" class="btn yellow small" type="button">Guardar evento</button>
+            </div>
+          </div>
+
+          <div id="calList"></div>
+        </section>
+
+        <!-- NOTAS -->
+        <section id="metaNotas" class="meta-section">
+          <h3>Anotaciones</h3>
+          <p class="muted" style="margin-top:0">
+            Registrar observaciones y ver el historial por colmena.
+          </p>
+
+          <div class="meta-filter-row">
+            <select id="notesDeviceFilter">
+              <option value="">Todas las colmenas</option>
+            </select>
+            <button id="btnNotesReload" class="btn small" type="button">Actualizar</button>
+          </div>
+
+          <div class="meta-form-grid">
+            <div>
+              <label class="muted" for="noteDevice">Colmena</label>
+              <select id="noteDevice" style="width:100%">
+                <option value="">Seleccionar colmena…</option>
+              </select>
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="muted" for="noteText">Texto de la anotación</label>
+              <textarea id="noteText" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px"></textarea>
+            </div>
+            <div style="grid-column:1/-1;display:flex;justify-content:flex-end">
+              <button id="btnNoteSave" class="btn yellow small" type="button">Guardar anotación</button>
+            </div>
+          </div>
+
+          <div id="notesList"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
 
   <div style="display:flex;gap:8px;margin-top:10px">
     <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
@@ -770,6 +1177,33 @@
   let prodSecondaryChart=null;   // gráfico secundario (torta anual)
   let prodLastItems=[];          // últimos registros de producción cargados
   // Configuración de las tarjetas de colmena (afecta a TODAS)
+    // Overlay meta (sanidad / calendario / notas)
+  let metaCurrentMode = null;          // 'sanidad' | 'calendario' | 'notas'
+  let metaDeviceContext = null;        // por ej. colmena desde la que abrimos notas
+
+  // Colores aleatorios por colmena para el calendario
+  const META_COLORS = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
+  const DEVICE_COLOR_CACHE = {};
+  function getDeviceColor(id){
+    if(!id) return '#9aa3ad';
+    if(!DEVICE_COLOR_CACHE[id]){
+      const keys = Object.keys(DEVICE_COLOR_CACHE);
+      const idx = keys.length % META_COLORS.length;
+      DEVICE_COLOR_CACHE[id] = META_COLORS[idx];
+    }
+    return DEVICE_COLOR_CACHE[id];
+  }
+
+  function getKnownDevices(){
+    const set = new Set();
+    for(const d of lastItemsCache || []){
+      const id = String(d.device_id||'').trim();
+      if(!id || /mother/i.test(id) || !isNumericId(id)) continue;
+      set.add(id);
+    }
+    return Array.from(set).sort((a,b)=>Number(a||0)-Number(b||0));
+  }
+
 const CARD_CFG_KEY = 'miellifera.cardCfg';
 let cardCfg = loadCardCfg();
 
@@ -1540,6 +1974,61 @@ async function workFetchRange(fromISO, toISO, deviceId){
     return res.json();
   }
 
+    // ===== Worker: Manejo sanitario / Calendario / Notas =====
+
+  // SANIDAD
+  async function healthInsert(payload){
+    // payload: { device_id, fecha, producto, dosis, unidad, dias_retiro, fecha_retiro, efectivo, notas }
+    return callWorker('/health', { method:'POST', body:payload });
+  }
+
+  async function healthList(params){
+    const url = new URL(BASE + '/health');
+    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if(params?.fromISO)  url.searchParams.set('from', params.fromISO);
+    if(params?.toISO)    url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` } });
+    if(!res.ok) throw new Error(await res.text());
+    return res.json(); // { items: [...] }
+  }
+
+  // CALENDARIO
+  async function eventsInsert(payload){
+    // payload: { device_id, fecha, titulo, tipo, notas }
+    return callWorker('/events', { method:'POST', body:payload });
+  }
+
+  async function eventsList(params){
+    const url = new URL(BASE + '/events');
+    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if(params?.fromISO)  url.searchParams.set('from', params.fromISO);
+    if(params?.toISO)    url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` } });
+    if(!res.ok) throw new Error(await res.text());
+    return res.json(); // { items: [...] }
+  }
+
+  // NOTAS
+  async function notesInsert(payload){
+    // payload: { device_id, texto }
+    return callWorker('/notes', { method:'POST', body:payload });
+  }
+
+  async function notesList(params){
+    const url = new URL(BASE + '/notes');
+    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
+    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` } });
+    if(!res.ok) throw new Error(await res.text());
+    return res.json(); // { items: [...] }
+  }
+
+
   // Producción mini-dashboard
   $('ovBtnSaveProd').onclick = async ()=>{
     if(!currentOverlayDevice) return;
@@ -1607,6 +2096,322 @@ async function workFetchRange(fromISO, toISO, deviceId){
     alert('Error consultando: '+(e.message||e));
   }
 };
+
+  // ===== Overlay Meta (Sanidad / Calendario / Notas) =====
+
+  function setMetaTabs(mode){
+    metaCurrentMode = mode;
+    const tabs = [
+      { id:'tabSanidad',   mode:'sanidad',   section:'metaSanidad',   title:'Manejo sanitario' },
+      { id:'tabCalendario',mode:'calendario',section:'metaCalendario',title:'Calendario' },
+      { id:'tabNotas',     mode:'notas',     section:'metaNotas',     title:'Anotaciones' }
+    ];
+    tabs.forEach(t=>{
+      const btn = $(t.id);
+      const sec = $(t.section);
+      if(!btn || !sec) return;
+      const active = (t.mode === mode);
+      btn.classList.toggle('active', active);
+      sec.classList.toggle('active', active);
+      if(active) setText('metaTitle', t.title);
+    });
+
+    // Cargar contenido según modo
+    if(mode==='sanidad')  refreshSanidad();
+    if(mode==='calendario') refreshCalendario();
+    if(mode==='notas')    refreshNotas();
+  }
+
+  function openMetaOverlay(mode, deviceId){
+    metaDeviceContext = deviceId || null;
+    const ov = $('metaOverlay');
+    if(!ov) return;
+    ov.style.display = 'block';
+    ov.setAttribute('aria-hidden','false');
+
+    // poblar selects de colmenas
+    const devices = getKnownDevices();
+    const sanDevSel   = $('sanidadDevice');
+    const sanFilter   = $('sanidadFilterDevice');
+    const calDevSel   = $('calDevice');
+    const calFilter   = $('calDeviceFilter');
+    const noteDevSel  = $('noteDevice');
+    const notesFilter = $('notesDeviceFilter');
+
+    const optionsHtml = devices.map(id=>`<option value="${id}">Colmena ${id}</option>`).join('');
+
+    if(sanDevSel)   sanDevSel.innerHTML   = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
+    if(sanFilter)   sanFilter.innerHTML   = '<option value="">Todas las colmenas</option>'   + optionsHtml;
+    if(calDevSel)   calDevSel.innerHTML   = '<option value="">General / apiario</option>'    + optionsHtml;
+    if(calFilter)   calFilter.innerHTML   = '<option value="">Todas las colmenas</option>'   + optionsHtml;
+    if(noteDevSel)  noteDevSel.innerHTML  = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
+    if(notesFilter) notesFilter.innerHTML = '<option value="">Todas las colmenas</option>'   + optionsHtml;
+
+    // Si venimos desde una colmena concreta (botón ANOTACIONES)
+    if(deviceId){
+      if(sanDevSel) sanDevSel.value = deviceId;
+      if(sanFilter) sanFilter.value = deviceId;
+      if(calDevSel) calDevSel.value = deviceId;
+      if(calFilter) calFilter.value = deviceId;
+      if(noteDevSel) noteDevSel.value = deviceId;
+      if(notesFilter) notesFilter.value = deviceId;
+    }
+
+    // defaults de fechas
+    const hoy = ymd(new Date());
+    if($('sanidadFrom') && !$('sanidadFrom').value) $('sanidadFrom').value = hoy;
+    if($('sanidadTo')   && !$('sanidadTo').value)   $('sanidadTo').value   = hoy;
+    if($('sanidadDate') && !$('sanidadDate').value) $('sanidadDate').value = hoy;
+
+    if($('calMonth') && !$('calMonth').value){
+      const d = new Date();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      $('calMonth').value = `${d.getFullYear()}-${m}`;
+    }
+    if($('calDate') && !$('calDate').value) $('calDate').value = hoy;
+
+    setMetaTabs(mode || 'sanidad');
+  }
+
+  function closeMetaOverlay(){
+    const ov = $('metaOverlay');
+    if(!ov) return;
+    ov.style.display = 'none';
+    ov.setAttribute('aria-hidden','true');
+    metaCurrentMode = null;
+    metaDeviceContext = null;
+  }
+
+  // ===== SANIDAD =====
+
+  function computeWithdrawDate(){
+    const dateStr = $('sanidadDate')?.value;
+    const days = Number($('sanidadWithdrawDays')?.value || 0);
+    const out = $('sanidadWithdrawDate');
+    if(!dateStr || !out){ return; }
+    if(!(days>0)){ out.value=''; return; }
+    const d = new Date(dateStr+'T00:00:00');
+    d.setDate(d.getDate() + days);
+    out.value = ymd(d);
+  }
+
+  async function refreshSanidad(){
+    try{
+      const dev = $('sanidadFilterDevice')?.value || '';
+      const df  = $('sanidadFrom')?.value || '';
+      const dt  = $('sanidadTo')?.value || '';
+      let fromISO, toISO;
+      if(df) fromISO = new Date(df+'T00:00:00').toISOString();
+      if(dt) toISO   = new Date(dt+'T23:59:59.999').toISOString();
+
+      const { items=[] } = await healthList({ device_id: dev || undefined, fromISO, toISO });
+      const tb = $('sanidadTbody');
+      if(!tb) return;
+      if(!items.length){
+        tb.innerHTML = '<tr><td class="muted" colspan="6">Sin registros</td></tr>';
+        return;
+      }
+      tb.innerHTML = items.map(r=>{
+        const fAplic = escapeHtml(r.fecha_aplicacion || r.fecha || '');
+        const col    = escapeHtml(r.device_id || '');
+        const prod   = escapeHtml(r.producto || r.product || '');
+        const dosis  = (r.dosis!=null ? String(r.dosis) : '');
+        const unidad = (r.unidad || '');
+        const retiro = escapeHtml(r.fecha_retiro || '');
+        const eff    = r.efectivo ? 'Sí' : 'No';
+        return `<tr>
+          <td>${fAplic}</td>
+          <td>${col}</td>
+          <td>${prod}</td>
+          <td>${escapeHtml(dosis + (unidad ? ' '+unidad : ''))}</td>
+          <td>${retiro}</td>
+          <td>${eff}</td>
+        </tr>`;
+      }).join('');
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  async function saveSanidad(){
+    const dev = $('sanidadDevice')?.value || '';
+    const fecha = $('sanidadDate')?.value || '';
+    const prod  = $('sanidadProduct')?.value || '';
+    const dosis = Number($('sanidadDose')?.value || 0);
+    const unidad= $('sanidadUnit')?.value || '';
+    const dias  = Number($('sanidadWithdrawDays')?.value || 0);
+    const fRet  = $('sanidadWithdrawDate')?.value || '';
+    const notas = $('sanidadNotes')?.value || '';
+    const eff   = $('sanidadEffective')?.checked || false;
+
+    if(!dev || !fecha || !prod){
+      alert('Completá al menos colmena, fecha y producto.');
+      return;
+    }
+    try{
+      await healthInsert({
+        device_id: dev,
+        fecha: fecha,
+        producto: prod,
+        dosis,
+        unidad,
+        dias_retiro: dias,
+        fecha_retiro: fRet || null,
+        efectivo: eff,
+        notas
+      });
+      $('sanidadNotes').value='';
+      refreshSanidad();
+    }catch(e){
+      alert('Error guardando manejo sanitario: '+(e.message||e));
+    }
+  }
+
+  // ===== CALENDARIO =====
+
+  function groupEventsByDay(items){
+    const map = {};
+    for(const r of items || []){
+      const f = String(r.fecha || '').slice(0,10);
+      if(!f) continue;
+      if(!map[f]) map[f] = [];
+      map[f].push(r);
+    }
+    const days = Object.keys(map).sort();
+    return days.map(d=>({ date:d, events:map[d] }));
+  }
+
+  async function refreshCalendario(){
+    try{
+      const dev = $('calDeviceFilter')?.value || '';
+      const month = $('calMonth')?.value || ''; // YYYY-MM
+      let fromISO, toISO;
+      if(month){
+        const [y,m] = month.split('-').map(n=>Number(n));
+        if(y && m){
+          const from = new Date(y, m-1, 1, 0,0,0,0);
+          const to   = new Date(y, m, 0, 23,59,59,999);
+          fromISO = from.toISOString();
+          toISO   = to.toISOString();
+        }
+      }
+      const { items=[] } = await eventsList({ device_id: dev || undefined, fromISO, toISO });
+      const grouped = groupEventsByDay(items);
+      const wrap = $('calList');
+      if(!wrap) return;
+      if(!grouped.length){
+        wrap.innerHTML = '<div class="muted">Sin eventos en el período seleccionado.</div>';
+        return;
+      }
+      wrap.innerHTML = grouped.map(day=>{
+        const eventosHtml = day.events.map(ev=>{
+          const colId = String(ev.device_id||'');
+          const color = getDeviceColor(colId);
+          const title = escapeHtml(ev.titulo || ev.title || '');
+          const tipo  = escapeHtml(ev.tipo || ev.type || '');
+          const notes = escapeHtml(ev.notas || ev.notes || '');
+          return `
+            <div class="calendar-event">
+              <div class="calendar-event-main">
+                <div class="calendar-event-title" style="color:${color}">
+                  ${ title || '(sin título)' }
+                </div>
+                <div class="calendar-event-meta">
+                  ${ colId ? `Colmena ${colId} · ` : ''}${ tipo || 'Evento' }
+                </div>
+                ${ notes ? `<div class="calendar-event-meta">${notes}</div>` : '' }
+              </div>
+            </div>`;
+        }).join('');
+        return `
+          <div class="calendar-list-day">
+            <h4>${escapeHtml(day.date)}</h4>
+            ${eventosHtml}
+          </div>`;
+      }).join('');
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  async function saveCalendario(){
+    const dev   = $('calDevice')?.value || '';
+    const fecha = $('calDate')?.value || '';
+    const titulo= $('calTitle')?.value || '';
+    const tipo  = $('calType')?.value || '';
+    const notas = $('calNotes')?.value || '';
+
+    if(!fecha || !titulo){
+      alert('Completá al menos fecha y título del evento.');
+      return;
+    }
+    try{
+      await eventsInsert({
+        device_id: dev || null,
+        fecha,
+        titulo,
+        tipo,
+        notas
+      });
+      $('calNotes').value='';
+      refreshCalendario();
+    }catch(e){
+      alert('Error guardando evento: '+(e.message||e));
+    }
+  }
+
+  // ===== NOTAS =====
+
+  async function refreshNotas(){
+    try{
+      const dev = $('notesDeviceFilter')?.value || '';
+      const { items=[] } = await notesList({ device_id: dev || undefined });
+      const wrap = $('notesList');
+      if(!wrap) return;
+      if(!items.length){
+        wrap.innerHTML = '<div class="muted">Sin anotaciones.</div>';
+        return;
+      }
+      wrap.innerHTML = items
+        .sort((a,b)=> new Date(b.created_at||b.fecha||0) - new Date(a.created_at||a.fecha||0))
+        .map(n=>{
+          const col = escapeHtml(n.device_id || '');
+          const text = escapeHtml(n.texto || n.text || '');
+          const ts   = n.created_at || n.fecha || '';
+          const d    = ts ? new Date(ts) : null;
+          const fecha = d ? d.toLocaleString('es-AR') : '';
+          return `
+            <div class="note-item">
+              <div class="note-item-head">
+                <div class="note-item-meta">
+                  ${ col ? `Colmena ${col}` : 'General' }
+                </div>
+                <div class="note-item-meta">${escapeHtml(fecha)}</div>
+              </div>
+              <div>${text}</div>
+            </div>`;
+        }).join('');
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  async function saveNota(){
+    const dev  = $('noteDevice')?.value || '';
+    const text = $('noteText')?.value || '';
+    if(!dev || !text.trim()){
+      alert('Seleccioná una colmena y escribí la anotación.');
+      return;
+    }
+    try{
+      await notesInsert({ device_id: dev, texto: text });
+      $('noteText').value='';
+      refreshNotas();
+    }catch(e){
+      alert('Error guardando anotación: '+(e.message||e));
+    }
+  }
+
 
 
 function prodDownloadCSV(){
@@ -2323,21 +3128,98 @@ function setModeSelection(mode){
   // (podemos luego enchufar otros dashboards)
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
-  const modeButtons = document.querySelectorAll('.mode-toggle button');
-  modeButtons.forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const mode = btn.dataset.mode || null;
-      // Si ya estaba seleccionado, lo deseleccionamos (cierra carta)
-      const wasSelected = btn.classList.contains('selected');
-      if(wasSelected){
-        setModeSelection(null);
-      }else{
-        setModeSelection(mode);
-      }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Botones de modo (Trabajo / Aire / Movimiento)
+    const modeButtons = document.querySelectorAll('.mode-toggle button');
+    modeButtons.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const mode = btn.dataset.mode || null;
+        const wasSelected = btn.classList.contains('selected');
+        if(wasSelected){
+          setModeSelection(null);
+        }else{
+          setModeSelection(mode);
+        }
+      });
     });
+
+    // Cartas meta en dashboard principal
+    const cardSan = $('cardSanidad');
+    const cardCal = $('cardCalendario');
+    const cardNot = $('cardNotas');
+
+    if(cardSan) cardSan.addEventListener('click', (e)=>{
+      // Evitar que el click en el botón amarillo dispare dos veces
+      e.preventDefault();
+      openMetaOverlay('sanidad', null);
+    });
+    if(cardCal) cardCal.addEventListener('click', (e)=>{
+      e.preventDefault();
+      openMetaOverlay('calendario', null);
+    });
+    if(cardNot) cardNot.addEventListener('click', (e)=>{
+      e.preventDefault();
+      openMetaOverlay('notas', null);
+    });
+
+    // Tabs del overlay meta
+    ['tabSanidad','tabCalendario','tabNotas'].forEach(id=>{
+      const btn = $(id);
+      if(!btn) return;
+      btn.addEventListener('click', ()=>{
+        const mode = btn.dataset.mode || 'sanidad';
+        setMetaTabs(mode);
+      });
+    });
+
+    // Botón atrás del overlay meta
+    const btnMetaBack = $('btnMetaBack');
+    if(btnMetaBack){
+      btnMetaBack.onclick = ()=> closeMetaOverlay();
+    }
+
+    // SANIDAD
+    if($('sanidadWithdrawDays')){
+      $('sanidadWithdrawDays').addEventListener('input', computeWithdrawDate);
+    }
+    if($('sanidadDate')){
+      $('sanidadDate').addEventListener('change', computeWithdrawDate);
+    }
+    if($('btnSanidadReload')){
+      $('btnSanidadReload').onclick = ()=> refreshSanidad();
+    }
+    if($('btnSanidadSave')){
+      $('btnSanidadSave').onclick = ()=> saveSanidad();
+    }
+
+    // CALENDARIO
+    if($('btnCalReload')){
+      $('btnCalReload').onclick = ()=> refreshCalendario();
+    }
+    if($('btnCalSave')){
+      $('btnCalSave').onclick = ()=> saveCalendario();
+    }
+
+    // NOTAS
+    if($('btnNotesReload')){
+      $('btnNotesReload').onclick = ()=> refreshNotas();
+    }
+    if($('btnNoteSave')){
+      $('btnNoteSave').onclick = ()=> saveNota();
+    }
+
+    // Botón ANOTACIONES en overlay de colmena
+    if($('btnOverlayNotes')){
+      $('btnOverlayNotes').onclick = ()=>{
+        if(currentOverlayDevice){
+          openMetaOverlay('notas', currentOverlayDevice);
+        }else{
+          openMetaOverlay('notas', null);
+        }
+      };
+    }
   });
-});
+
 
 
   async function renderWeather(lat, lon, label){
