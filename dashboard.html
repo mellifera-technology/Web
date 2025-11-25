@@ -3397,556 +3397,572 @@
       return lastItemsCache || [];
     }
   }
-
     /* =========================================================
- *   PRODUCCIÓN: APIARIO + COLMENA + REINAS
- * =======================================================*/
+   *   PRODUCCIÓN: APIARIO + COLMENA + REINAS
+   * =======================================================*/
 
-// --- API Worker producción ---
-async function prodInsert(device_id, fecha, kilos){
-  if(!(Number(kilos) > 0)) throw new Error('kilos debe ser > 0');
-  return callWorker('/production', {
-    method:'POST',
-    body:{ device_id, fecha, kilos }
-  });
-}
-
-async function prodList(params){
-  const url = new URL(BASE + '/production');
-  if(params?.device_id) url.searchParams.set('device_id', params.device_id);
-  if(params?.fromISO)   url.searchParams.set('from', params.fromISO);
-  if(params?.toISO)     url.searchParams.set('to', params.toISO);
-
-  const u = auth.currentUser;
-  if(!u) throw new Error('No auth');
-  const t = await u.getIdToken();
-  const res = await fetch(url.toString(), {
-    headers:{ 'Authorization': `Bearer ${t}` }
-  });
-  if(!res.ok) throw new Error(await res.text());
-  return res.json();   // { items: [...] }
-}
-
-// --- Estado en memoria de producción ---
-
-let prodApiaryYearChart   = null;
-let prodApiaryMonthlyChart= null;
-let prodHiveMonthlyChart  = null;
-let prodHiveQueenChart    = null;
-
-// Helpers de charts
-function destroyProdCharts(){
-  if(prodApiaryYearChart){    prodApiaryYearChart.destroy();    prodApiaryYearChart=null; }
-  if(prodApiaryMonthlyChart){ prodApiaryMonthlyChart.destroy(); prodApiaryMonthlyChart=null; }
-  if(prodHiveMonthlyChart){   prodHiveMonthlyChart.destroy();   prodHiveMonthlyChart=null; }
-  if(prodHiveQueenChart){     prodHiveQueenChart.destroy();     prodHiveQueenChart=null; }
-}
-
-// Tabla vacía por defecto
-function resetProdTable(){
-  const tb = $('prodGlobalTbody');
-  if(tb){
-    tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-  }
-  setText('prodGlobalTotal','0.00');
-}
-
-// Rellenar selects de colmenas (filtro + nueva producción)
-function fillProdDeviceSelects(){
-  const devices = getKnownDevices();   // ya lo tenés definido
-  const filterSel = $('prodDevice');
-  const newSel    = $('prodNewDevice');
-
-  const options = devices.map(id=>`<option value="${id}">${id}</option>`).join('');
-
-  if(filterSel){
-    filterSel.innerHTML = '<option value="">Todas</option>' + options;
-  }
-  if(newSel){
-    newSel.innerHTML = '<option value="">Seleccionar…</option>' + options;
-  }
-}
-
-// Abrir / cerrar overlay
-function openProdOverlay(){
-  const ov = $('prodOverlay');
-  if(!ov) return;
-
-  ov.style.display = 'block';
-  ov.setAttribute('aria-hidden','false');
-
-  // Filtros: al abrir, SIN rango de fechas y SIN colmena → apiario completo
-  const fromInput = $('prodFrom');
-  const toInput   = $('prodTo');
-  const devSel    = $('prodDevice');
-  const viewSel   = $('prodView'); // si existe
-
-  if (fromInput) fromInput.value = '';
-  if (toInput)   toInput.value   = '';
-  if (devSel)    devSel.value    = '';
-
-  // Vista por defecto: APIARIO ANUAL
-  if (viewSel) viewSel.value = 'anio';
-
-  // Selects de colmenas (filtro + carga nueva prod)
-  fillProdDeviceSelects();
-
-  // Limpiar estado previo
-  prodLastItems = [];
-  destroyProdCharts();
-  resetProdTable();
-
-  const csvBtn = $('btnProdCSV');
-  if (csvBtn) csvBtn.style.display = 'none';
-
-  const summary = $('prodSummary');
-  if (summary) {
-    summary.textContent = 'Cargando producción del apiario...';
-  }
-
-  // Disparar la búsqueda con filtros vacíos (apiario completo)
-  const showBtn = $('btnProdShow');
-  if (showBtn) {
-    showBtn.click();
-  }
-}
-
-function closeProdOverlay(){
-  const ov = $('prodOverlay');
-  if(!ov) return;
-  ov.style.display='none';
-  ov.setAttribute('aria-hidden','true');
-}
-
-// Botones abrir/cerrar overlay principal
-$('btnProdMain').onclick = ()=> openProdOverlay();
-$('btnProdBack').onclick = ()=> closeProdOverlay();
-
-// Resumen numérico
-function summarizeProduction(items){
-  let total = 0;
-  const byHive = {};
-  for(const r of (items || [])){
-    const id = String(r.device_id || '').trim() || '—';
-    const k  = Number(r.kilos || 0);
-    total += k;
-    byHive[id] = (byHive[id] || 0) + k;
-  }
-  let bestId = null, bestVal = 0;
-  for(const [id,val] of Object.entries(byHive)){
-    if(val > bestVal){ bestVal = val; bestId = id; }
-  }
-  return { total, byHive, bestId, bestVal, hives:Object.keys(byHive).length };
-}
-
-function updateProdSummary(items, devFilter){
-  const { total, byHive, bestId, bestVal, hives } = summarizeProduction(items);
-  let txt = `Total en el período: ${total.toFixed(2)} kg. `;
-  if(devFilter){
-    txt += `Colmena seleccionada: ${devFilter}.`;
-  }else{
-    if(hives > 0) txt += `Colmenas con producción: ${hives}. `;
-    if(bestId)    txt += `Colmena destacada: ${bestId} (${bestVal.toFixed(2)} kg).`;
-  }
-  const el = $('prodSummary');
-  if(el) el.textContent = txt;
-}
-
-// Agrupar por año
-function groupProdByYear(items){
-  const map = {};
-  for(const r of (items||[])){
-    const f = String(r.fecha || '');
-    if(!f) continue;
-    const y = Number(f.slice(0,4));
-    if(!y) continue;
-    const k = Number(r.kilos || 0);
-    map[y] = (map[y] || 0) + k;
-  }
-  const years = Object.keys(map).map(Number).sort((a,b)=>a-b);
-  return { years, data: years.map(y=>map[y]) };
-}
-
-// Agrupar por mes y año → series por año (labels = meses 1..12)
-function groupProdByMonthPerYear(items){
-  const map = {};  // year -> [12]
-  for(const r of (items||[])){
-    const f = String(r.fecha || '');
-    if(!f) continue;
-    const parts = f.split('-');
-    const y = Number(parts[0] || 0);
-    const m = Number(parts[1] || 0);
-    if(!y || !m) continue;
-    if(!map[y]) map[y] = new Array(12).fill(0);
-    map[y][m-1] += Number(r.kilos || 0);
-  }
-  const years = Object.keys(map).map(Number).sort((a,b)=>a-b);
-  const monthLabels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const series = years.map(y=>map[y] || new Array(12).fill(0));
-  return { years, monthLabels, series };
-}
-
-// Gráficos APIARIO (sin filtro de colmena)
-function renderApiaryCharts(items){
-  const { years, data } = groupProdByYear(items);
-  const { years: yearsM, monthLabels, series } = groupProdByMonthPerYear(items);
-  const palette = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
-
-  // Barra anual apiario
-  const ctxYear = $('prodApiaryYearChart')?.getContext('2d');
-  if(ctxYear && years.length){
-    prodApiaryYearChart = new Chart(ctxYear,{
-      type:'bar',
-      data:{
-        labels: years,
-        datasets:[{
-          data,
-          backgroundColor: years.map((_,i)=>palette[i % palette.length])
-        }]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{ legend:{display:false} },
-        scales:{
-          x:{ title:{display:true,text:'Año'} },
-          y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
-        }
-      }
+  // --- API Worker producción ---
+  async function prodInsert(device_id, fecha, kilos) {
+    if (!(Number(kilos) > 0)) throw new Error('kilos debe ser > 0');
+    return callWorker('/production', {
+      method: 'POST',
+      body: { device_id, fecha, kilos }
     });
   }
 
-  // Línea mensual por año (apiario)
-  const ctxMonth = $('prodApiaryMonthlyChart')?.getContext('2d');
-  if(ctxMonth && yearsM.length){
-    const datasets = yearsM.map((y,idx)=>({
-      label: String(y),
-      data: series[idx],
-      borderColor: palette[idx % palette.length],
-      backgroundColor:'transparent',
-      borderWidth:2,
-      tension:.25,
-      pointRadius:0,
-      spanGaps:true
-    }));
-    prodApiaryMonthlyChart = new Chart(ctxMonth,{
-      type:'line',
-      data:{ labels: monthLabels, datasets },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{ legend:{display:true} },
-        interaction:{ mode:'index',intersect:false },
-        scales:{
-          x:{ title:{display:true,text:'Mes'} },
-          y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
-        }
-      }
+  async function prodList(params) {
+    const url = new URL(BASE + '/production');
+    if (params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if (params?.fromISO) url.searchParams.set('from', params.fromISO);
+    if (params?.toISO) url.searchParams.set('to', params.toISO);
+
+    const u = auth.currentUser;
+    if (!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), {
+      headers: { 'Authorization': `Bearer ${t}` }
     });
-  }
-}
-
-// Gráficos COLMENA (filtro de colmena activo)
-async function renderHiveCharts(items, deviceId){
-  const ctxMonth  = $('prodHiveMonthlyChart')?.getContext('2d');
-  const ctxQueen  = $('prodHiveQueenChart')?.getContext('2d');
-  const titleMonth = $('prodHiveMonthlyTitle');
-  const titleQueen = $('prodHiveQueenTitle');
-
-  if(titleMonth) {
-    titleMonth.textContent = `Producción mensual por año – Colmena ${deviceId}`;
-  }
-  if(titleQueen) {
-    titleQueen.textContent = `Producción anual y cambios de reina – Colmena ${deviceId}`;
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();   // { items: [...] }
   }
 
-  const palette = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
+  // --- Estado en memoria de producción ---
 
-  // ===== 1) Mensual por año para ESA colmena (líneas) =====
-  const { years, monthLabels, series } = groupProdByMonthPerYear(items);
-  if (ctxMonth && years.length){
-    const datasets = years.map((y,idx)=>({
-      label: String(y),
-      data: series[idx],
-      borderColor: palette[idx % palette.length],
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      tension: .25,
-      pointRadius: 0,
-      spanGaps: true
-    }));
-    prodHiveMonthlyChart = new Chart(ctxMonth,{
-      type:'line',
-      data:{ labels: monthLabels, datasets },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{ legend:{display:true} },
-        interaction:{ mode:'index',intersect:false },
-        scales:{
-          x:{ title:{display:true,text:'Mes'} },
-          y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
-        }
-      }
-    });
+  let prodApiaryYearChart = null;
+  let prodApiaryMonthlyChart = null;
+  let prodHiveMonthlyChart = null;
+  let prodHiveQueenChart = null;
+
+  // Helpers de charts
+  function destroyProdCharts() {
+    if (prodApiaryYearChart) { prodApiaryYearChart.destroy(); prodApiaryYearChart = null; }
+    if (prodApiaryMonthlyChart) { prodApiaryMonthlyChart.destroy(); prodApiaryMonthlyChart = null; }
+    if (prodHiveMonthlyChart) { prodHiveMonthlyChart.destroy(); prodHiveMonthlyChart = null; }
+    if (prodHiveQueenChart) { prodHiveQueenChart.destroy(); prodHiveQueenChart = null; }
   }
 
-  // ===== 2) Anual + cambios de reina (barras por reina) =====
-  if (!ctxQueen) return;
-
-  const { years: yearsY, data: dataY } = groupProdByYear(items);
-  if (!yearsY.length) {
-    return;
-  }
-
-  // Traemos cambios de reina de /queens
-  let queens = [];
-  try{
-    const { items: qItems = [] } = await queenList({ device_id: deviceId });
-    queens = (qItems || []).slice().sort((a,b)=> Number(a.year) - Number(b.year));
-  }catch(e){
-    queens = [];
-  }
-
-  // Helper: qué reina aplica en un año dado (última <= año)
-  function queenYearFor(y){
-    let current = null;
-    for (const q of queens){
-      const qy = Number(q.year);
-      if (!qy) continue;
-      if (qy <= y) current = qy;
-    }
-    return current; // año de la reina vigente ese año
-  }
-
-  // Mapear cada reina (por año) a un color fijo
-  const queenColorMap = {};
-  let colorIdx = 0;
-  function colorForQueenYear(qYear){
-    if (!qYear) return '#9aa3ad';
-    if (!queenColorMap[qYear]){
-      queenColorMap[qYear] = palette[colorIdx % palette.length];
-      colorIdx++;
-    }
-    return queenColorMap[qYear];
-  }
-
-  // Reina aplicada por año (según año de producción)
-  const queenForEachYear = yearsY.map(y => queenYearFor(y));
-  const barColors = yearsY.map((y,idx) => colorForQueenYear(queenForEachYear[idx]));
-
-  // Marcadores de cambio de reina:
-  //  - solo en los años donde HAY registro de cambio
-  //  - color = color de la reina que queda vigente
-  const changeYears = new Set(queens.map(q => Number(q.year) || 0));
-  const markerData   = [];
-  const markerColors = [];
-
-  yearsY.forEach((y, idx) => {
-    if (changeYears.has(y)) {
-      markerData.push(dataY[idx]);               // punto arriba de la barra (sobre la misma altura)
-    } else {
-      markerData.push(null);                     // sin punto ese año
-    }
-    markerColors.push(colorForQueenYear(queenForEachYear[idx]));
-  });
-
-  prodHiveQueenChart = new Chart(ctxQueen,{
-    type:'bar',
-    data:{
-      labels: yearsY,
-      datasets:[
-        {
-          label:'Producción anual',
-          data: dataY,
-          backgroundColor: barColors,
-          borderWidth: 1
-        },
-        {
-          type:'line',
-          label:'Cambios de reina',
-          data: markerData,
-          showLine:false,
-          pointRadius:6,
-          pointHoverRadius:7,
-          pointBackgroundColor: markerColors,
-          pointBorderColor:'#ffffff',
-          borderWidth:0
-        }
-      ]
-    },
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins:{
-        legend:{ display:true }
-      },
-      interaction:{ mode:'index', intersect:false },
-      scales:{
-        x:{ title:{display:true,text:'Año'} },
-        y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
-      }
-    }
-  });
-}
-
-
-// Decide qué gráficos mostrar según filtro de colmena
-function renderProdCharts(){
-  destroyProdCharts();
-  const items = prodLastItems || [];
-  const apiaryWrap = $('prodApiaryCharts');
-  const hiveWrap   = $('prodHiveCharts');
-  const dev = $('prodDevice')?.value || '';
-
-  if(!items.length){
-    if(apiaryWrap) apiaryWrap.style.display='none';
-    if(hiveWrap)   hiveWrap.style.display='none';
-    const s = $('prodSummary');
-    if(s) s.textContent = 'Sin datos en el rango seleccionado.';
-    return;
-  }
-
-  if(dev){
-    if(apiaryWrap) apiaryWrap.style.display='none';
-    if(hiveWrap)   hiveWrap.style.display='grid';
-    renderHiveCharts(items, dev);
-  }else{
-    if(apiaryWrap) apiaryWrap.style.display='grid';
-    if(hiveWrap)   hiveWrap.style.display='none';
-    renderApiaryCharts(items);
-  }
-  updateProdSummary(items, dev || '');
-}
-
-// Mostrar resultados según filtros
-$('btnProdShow').onclick = async ()=>{
-  const df  = $('prodFrom').value;
-  const dt  = $('prodTo').value;
-  const dev = $('prodDevice').value || '';
-
-  const fromISO = df ? new Date(df+'T00:00:00').toISOString()       : undefined;
-  const toISO   = dt ? new Date(dt+'T23:59:59.999').toISOString()   : undefined;
-
-  try{
-    const { items } = await prodList({
-      device_id: dev || undefined,
-      fromISO,
-      toISO
-    });
-    prodLastItems = items || [];
-
-    // Pintar tabla
+  // Tabla vacía por defecto
+  function resetProdTable() {
     const tb = $('prodGlobalTbody');
-    if(!items?.length){
-      resetProdTable();
-      const csvBtn = $('btnProdCSV');
-      if(csvBtn) csvBtn.style.display = 'none';
-      renderProdCharts();
-      return;
+    if (tb) {
+      tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
     }
+    setText('prodGlobalTotal', '0.00');
+  }
 
-    tb.innerHTML = items.map(r=>`
-      <tr>
-        <td>${escapeHtml(r.fecha)}</td>
-        <td>${escapeHtml(r.device_id)}</td>
-        <td class="num">${Number(r.kilos).toFixed(2)}</td>
-      </tr>`).join('');
+  // Rellenar selects de colmenas (filtro + nueva producción)
+  function fillProdDeviceSelects() {
+    const devices = getKnownDevices();   // ya lo tenés definido
+    const filterSel = $('prodDevice');
+    const newSel = $('prodNewDevice');
 
-    const total = items.reduce((a,b)=> a + Number(b.kilos || 0), 0);
-    setText('prodGlobalTotal', total.toFixed(2));
+    const options = devices.map(id => `<option value="${id}">${id}</option>`).join('');
+
+    if (filterSel) {
+      filterSel.innerHTML = '<option value="">Todas</option>' + options;
+    }
+    if (newSel) {
+      newSel.innerHTML = '<option value="">Seleccionar…</option>' + options;
+    }
+  }
+
+  // Abrir / cerrar overlay
+  function openProdOverlay() {
+    const ov = $('prodOverlay');
+    if (!ov) return;
+
+    ov.style.display = 'block';
+    ov.setAttribute('aria-hidden', 'false');
+
+    // Filtros: al abrir, SIN rango de fechas y SIN colmena → apiario completo
+    const fromInput = $('prodFrom');
+    const toInput = $('prodTo');
+    const devSel = $('prodDevice');
+    const viewSel = $('prodView'); // si existe
+
+    if (fromInput) fromInput.value = '';
+    if (toInput) toInput.value = '';
+    if (devSel) devSel.value = '';
+
+    // Vista por defecto: APIARIO ANUAL
+    if (viewSel) viewSel.value = 'anio';
+
+    // Selects de colmenas (filtro + carga nueva prod)
+    fillProdDeviceSelects();
+
+    // Limpiar estado previo
+    prodLastItems = [];
+    destroyProdCharts();
+    resetProdTable();
 
     const csvBtn = $('btnProdCSV');
-    if(csvBtn) csvBtn.style.display = 'inline-flex';
+    if (csvBtn) csvBtn.style.display = 'none';
 
-    renderProdCharts();
-  }catch(e){
-    alert('Error consultando: ' + (e.message || e));
+    const summary = $('prodSummary');
+    if (summary) {
+      summary.textContent = 'Cargando producción del apiario...';
+    }
+
+    // Disparar la búsqueda con filtros vacíos (apiario completo)
+    const showBtn = $('btnProdShow');
+    if (showBtn) {
+      showBtn.click();
+    }
   }
-};
 
-// Reset filtros y gráficos
-function prodResetFilters(){
-  const hoy = ymd(new Date());
-  if($('prodFrom'))   $('prodFrom').value   = hoy;
-  if($('prodTo'))     $('prodTo').value     = hoy;
-  if($('prodDevice')) $('prodDevice').value = '';
-
-  prodLastItems = [];
-  destroyProdCharts();
-  resetProdTable();
-
-  const csvBtn = $('btnProdCSV');
-  if(csvBtn) csvBtn.style.display = 'none';
-
-  const s = $('prodSummary');
-  if(s) s.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
-}
-
-$('btnProdReset').onclick = ()=> prodResetFilters();
-
-// CSV de producción (historial)
-function prodDownloadCSV(){
-  const items = prodLastItems || [];
-  if(!items.length){
-    alert('Sin datos para exportar');
-    return;
+  function closeProdOverlay() {
+    const ov = $('prodOverlay');
+    if (!ov) return;
+    ov.style.display = 'none';
+    ov.setAttribute('aria-hidden', 'true');
   }
-  const rows = [['fecha','colmena','kilos']];
-  for(const r of items){
-    rows.push([String(r.fecha||''), String(r.device_id||''), String(Number(r.kilos||0).toFixed(2))]);
+
+  // Botones abrir/cerrar overlay principal
+  $('btnProdMain').onclick = () => openProdOverlay();
+  $('btnProdBack').onclick = () => closeProdOverlay();
+
+  // Resumen numérico
+  function summarizeProduction(items) {
+    let total = 0;
+    const byHive = {};
+    for (const r of (items || [])) {
+      const id = String(r.device_id || '').trim() || '—';
+      const k = Number(r.kilos || 0);
+      total += k;
+      byHive[id] = (byHive[id] || 0) + k;
+    }
+    let bestId = null, bestVal = 0;
+    for (const [id, val] of Object.entries(byHive)) {
+      if (val > bestVal) { bestVal = val; bestId = id; }
+    }
+    return { total, byHive, bestId, bestVal, hives: Object.keys(byHive).length };
   }
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = 'produccion.csv';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
 
-$('btnProdCSV').onclick = ()=> prodDownloadCSV();
+  function updateProdSummary(items, devFilter) {
+    const { total, byHive, bestId, bestVal, hives } = summarizeProduction(items);
+    let txt = `Total en el período: ${total.toFixed(2)} kg. `;
+    if (devFilter) {
+      txt += `Colmena seleccionada: ${devFilter}.`;
+    } else {
+      if (hives > 0) txt += `Colmenas con producción: ${hives}. `;
+      if (bestId) txt += `Colmena destacada: ${bestId} (${bestVal.toFixed(2)} kg).`;
+    }
+    const el = $('prodSummary');
+    if (el) el.textContent = txt;
+  }
 
-// Formulario “Nueva producción”
-const prodNewForm = $('prodNewForm');
-if(prodNewForm){
-  prodNewForm.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const dev   = $('prodNewDevice')?.value || '';
-    const fecha = $('prodNewDate')?.value   || '';
-    const kilos = Number($('prodNewKilos')?.value || 0);
+  // Agrupar por año (acepta r.fecha o r.date)
+  function groupProdByYear(items) {
+    const map = {};
+    for (const r of (items || [])) {
+      const f = String(r.fecha || r.date || '');
+      if (!f) continue;
+      const y = Number(f.slice(0, 4));
+      if (!y) continue;
+      const k = Number(r.kilos || 0);
+      map[y] = (map[y] || 0) + k;
+    }
+    const years = Object.keys(map).map(Number).sort((a, b) => a - b);
+    return { years, data: years.map(y => map[y]) };
+  }
 
-    if(!dev || !fecha || !(kilos > 0)){
-      alert('Complete colmena, fecha y kilos > 0');
+  // Agrupar por mes y año → series por año (labels = meses 1..12)
+  // Soporta r.fecha o r.date
+  function groupProdByMonthPerYear(items) {
+    const map = {};  // year -> [12]
+    for (const r of (items || [])) {
+      const f = String(r.fecha || r.date || '');
+      if (!f) continue;
+      const parts = f.split('-');
+      const y = Number(parts[0] || 0);
+      const m = Number(parts[1] || 0);
+      if (!y || !m) continue;
+      if (!map[y]) map[y] = new Array(12).fill(0);
+      map[y][m - 1] += Number(r.kilos || 0);
+    }
+    const years = Object.keys(map).map(Number).sort((a, b) => a - b);
+    const monthLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const series = years.map(y => map[y] || new Array(12).fill(0));
+    return { years, monthLabels, series };
+  }
+
+  // Gráficos APIARIO (sin filtro de colmena)
+  function renderApiaryCharts(items) {
+    const { years, data } = groupProdByYear(items);
+    const { years: yearsM, monthLabels, series } = groupProdByMonthPerYear(items);
+    const palette = ['#ffb74d', '#4da3ff', '#49d17d', '#ff6b6b', '#7fb3ff', '#ce93d8', '#fff176', '#80cbc4'];
+
+    const ctxYear = $('prodApiaryYearChart')?.getContext('2d');
+    if (ctxYear && years.length) {
+      prodApiaryYearChart = new Chart(ctxYear, {
+        type: 'bar',
+        data: {
+          labels: years,
+          datasets: [{
+            data,
+            backgroundColor: years.map((_, i) => palette[i % palette.length])
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Año' } },
+            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    const ctxMonth = $('prodApiaryMonthlyChart')?.getContext('2d');
+    if (ctxMonth && yearsM.length) {
+      const datasets = yearsM.map((y, idx) => ({
+        label: String(y),
+        data: series[idx],
+        borderColor: palette[idx % palette.length],
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: .25,
+        pointRadius: 0,
+        spanGaps: true
+      }));
+      prodApiaryMonthlyChart = new Chart(ctxMonth, {
+        type: 'line',
+        data: { labels: monthLabels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { title: { display: true, text: 'Mes' } },
+            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+  }
+
+  // Gráficos COLMENA (filtro de colmena activo)
+  async function renderHiveCharts(items, deviceId) {
+    const ctxMonth = $('prodHiveMonthlyChart')?.getContext('2d');
+    const ctxQueen = $('prodHiveQueenChart')?.getContext('2d');
+    const titleMonth = $('prodHiveMonthlyTitle');
+    const titleQueen = $('prodHiveQueenTitle');
+
+    if (titleMonth) {
+      titleMonth.textContent = `Producción mensual por año – Colmena ${deviceId}`;
+    }
+    if (titleQueen) {
+      titleQueen.textContent = `Producción anual y cambios de reina – Colmena ${deviceId}`;
+    }
+
+    // Filtramos explícitamente por colmena por si el Worker devuelve todo el apiario
+    const hiveItems = (items || []).filter(r =>
+      String(r.device_id || '').trim() === String(deviceId).trim()
+    );
+
+    if (!hiveItems.length) {
+      // Sin datos para esa colmena → evitamos gráficos "en blanco silencioso"
+      if (ctxMonth && prodHiveMonthlyChart) { prodHiveMonthlyChart.destroy(); prodHiveMonthlyChart = null; }
+      if (ctxQueen && prodHiveQueenChart) { prodHiveQueenChart.destroy(); prodHiveQueenChart = null; }
+      updateProdSummary(items, deviceId); // igual mostramos resumen
       return;
     }
-    try{
-      await prodInsert(dev, fecha, kilos);
-      $('prodNewKilos').value = '';
 
-      // Si ya hay un rango cargado, refrescamos la vista actual
-      if($('prodFrom').value && $('prodTo').value){
-        $('btnProdShow').click();
-      }
-    }catch(e){
-      alert('Error guardando producción: ' + (e.message || e));
+    const palette = ['#ffb74d', '#4da3ff', '#49d17d', '#ff6b6b', '#7fb3ff', '#ce93d8', '#fff176', '#80cbc4'];
+
+    // ===== 1) Mensual por año para ESA colmena (líneas) =====
+    const { years, monthLabels, series } = groupProdByMonthPerYear(hiveItems);
+    if (ctxMonth && years.length) {
+      const datasets = years.map((y, idx) => ({
+        label: String(y),
+        data: series[idx],
+        borderColor: palette[idx % palette.length],
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: .25,
+        pointRadius: 0,
+        spanGaps: true
+      }));
+      prodHiveMonthlyChart = new Chart(ctxMonth, {
+        type: 'line',
+        data: { labels: monthLabels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { title: { display: true, text: 'Mes' } },
+            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
+          }
+        }
+      });
     }
-  });
-}
 
-// Inicializar fechas por defecto al cargar (madre + producción)
-function initProdDefaults(){
-  const t = ymd(new Date());
-  const ovd = $('ovProdDate'); // overlay por colmena
-  if(ovd) ovd.value = t;
-  const pf = $('prodFrom'), pt = $('prodTo');
-  if(pf) pf.value = t;
-  if(pt) pt.value = t;
-}
+    // ===== 2) Anual + cambios de reina (barras por reina) =====
+    if (!ctxQueen) {
+      updateProdSummary(hiveItems, deviceId);
+      return;
+    }
 
+    const { years: yearsY, data: dataY } = groupProdByYear(hiveItems);
+    if (!yearsY.length) {
+      updateProdSummary(hiveItems, deviceId);
+      return;
+    }
+
+    // Traemos cambios de reina de /queens
+    let queens = [];
+    try {
+      const { items: qItems = [] } = await queenList({ device_id: deviceId });
+      queens = (qItems || []).slice().sort((a, b) => Number(a.year) - Number(b.year));
+    } catch (e) {
+      queens = [];
+    }
+
+    // Helper: qué reina aplica en un año dado (última <= año)
+    function queenYearFor(y) {
+      let current = null;
+      for (const q of queens) {
+        const qy = Number(q.year);
+        if (!qy) continue;
+        if (qy <= y) current = qy;
+      }
+      return current; // año de la reina vigente ese año
+    }
+
+    // Mapear cada reina (por año) a un color fijo
+    const queenColorMap = {};
+    let colorIdx = 0;
+    function colorForQueenYear(qYear) {
+      if (!qYear) return '#9aa3ad';
+      if (!queenColorMap[qYear]) {
+        queenColorMap[qYear] = palette[colorIdx % palette.length];
+        colorIdx++;
+      }
+      return queenColorMap[qYear];
+    }
+
+    // Reina aplicada por año (según año de producción)
+    const queenForEachYear = yearsY.map(y => queenYearFor(y));
+    const barColors = yearsY.map((y, idx) => colorForQueenYear(queenForEachYear[idx]));
+
+    // Marcadores de cambio de reina:
+    const changeYears = new Set(queens.map(q => Number(q.year) || 0));
+    const markerData = [];
+    const markerColors = [];
+
+    yearsY.forEach((y, idx) => {
+      if (changeYears.has(y)) {
+        markerData.push(dataY[idx]); // punto arriba de la barra
+      } else {
+        markerData.push(null);
+      }
+      markerColors.push(colorForQueenYear(queenForEachYear[idx]));
+    });
+
+    prodHiveQueenChart = new Chart(ctxQueen, {
+      type: 'bar',
+      data: {
+        labels: yearsY,
+        datasets: [
+          {
+            label: 'Producción anual',
+            data: dataY,
+            backgroundColor: barColors,
+            borderWidth: 1
+          },
+          {
+            type: 'line',
+            label: 'Cambios de reina',
+            data: markerData,
+            showLine: false,
+            pointRadius: 6,
+            pointHoverRadius: 7,
+            pointBackgroundColor: markerColors,
+            pointBorderColor: '#ffffff',
+            borderWidth: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true }
+        },
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: { title: { display: true, text: 'Año' } },
+          y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
+        }
+      }
+    });
+
+    updateProdSummary(hiveItems, deviceId);
+  }
+
+  // Decide qué gráficos mostrar según filtro de colmena
+  function renderProdCharts() {
+    destroyProdCharts();
+    const items = prodLastItems || [];
+    const apiaryWrap = $('prodApiaryCharts');
+    const hiveWrap = $('prodHiveCharts');
+    const dev = $('prodDevice')?.value || '';
+
+    if (!items.length) {
+      if (apiaryWrap) apiaryWrap.style.display = 'none';
+      if (hiveWrap) hiveWrap.style.display = 'none';
+      const s = $('prodSummary');
+      if (s) s.textContent = 'Sin datos en el rango seleccionado.';
+      return;
+    }
+
+    if (dev) {
+      if (apiaryWrap) apiaryWrap.style.display = 'none';
+      if (hiveWrap) hiveWrap.style.display = 'grid';
+      renderHiveCharts(items, dev);
+    } else {
+      if (apiaryWrap) apiaryWrap.style.display = 'grid';
+      if (hiveWrap) hiveWrap.style.display = 'none';
+      renderApiaryCharts(items);
+      updateProdSummary(items, '');
+    }
+  }
+
+  // Mostrar resultados según filtros
+  $('btnProdShow').onclick = async () => {
+    const df = $('prodFrom').value;
+    const dt = $('prodTo').value;
+    const dev = $('prodDevice').value || '';
+
+    const fromISO = df ? new Date(df + 'T00:00:00').toISOString() : undefined;
+    const toISO = dt ? new Date(dt + 'T23:59:59.999').toISOString() : undefined;
+
+    try {
+      const { items } = await prodList({
+        device_id: dev || undefined,
+        fromISO,
+        toISO
+      });
+      prodLastItems = items || [];
+
+      const tb = $('prodGlobalTbody');
+      if (!items?.length) {
+        resetProdTable();
+        const csvBtn = $('btnProdCSV');
+        if (csvBtn) csvBtn.style.display = 'none';
+        renderProdCharts();
+        return;
+      }
+
+      tb.innerHTML = items.map(r => `
+        <tr>
+          <td>${escapeHtml(String(r.fecha || r.date || ''))}</td>
+          <td>${escapeHtml(r.device_id)}</td>
+          <td class="num">${Number(r.kilos).toFixed(2)}</td>
+        </tr>`).join('');
+
+      const total = items.reduce((a, b) => a + Number(b.kilos || 0), 0);
+      setText('prodGlobalTotal', total.toFixed(2));
+
+      const csvBtn = $('btnProdCSV');
+      if (csvBtn) csvBtn.style.display = 'inline-flex';
+
+      renderProdCharts();
+    } catch (e) {
+      alert('Error consultando: ' + (e.message || e));
+    }
+  };
+
+  // Reset filtros y gráficos
+  function prodResetFilters() {
+    const hoy = ymd(new Date());
+    if ($('prodFrom')) $('prodFrom').value = hoy;
+    if ($('prodTo')) $('prodTo').value = hoy;
+    if ($('prodDevice')) $('prodDevice').value = '';
+
+    prodLastItems = [];
+    destroyProdCharts();
+    resetProdTable();
+
+    const csvBtn = $('btnProdCSV');
+    if (csvBtn) csvBtn.style.display = 'none';
+
+    const s = $('prodSummary');
+    if (s) s.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
+  }
+
+  $('btnProdReset').onclick = () => prodResetFilters();
+
+  // CSV de producción (historial)
+  function prodDownloadCSV() {
+    const items = prodLastItems || [];
+    if (!items.length) {
+      alert('Sin datos para exportar');
+      return;
+    }
+    const rows = [['fecha', 'colmena', 'kilos']];
+    for (const r of items) {
+      rows.push([
+        String(r.fecha || r.date || ''),
+        String(r.device_id || ''),
+        String(Number(r.kilos || 0).toFixed(2))
+      ]);
+    }
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'produccion.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  $('btnProdCSV').onclick = () => prodDownloadCSV();
+
+  // Formulario “Nueva producción”
+  const prodNewForm = $('prodNewForm');
+  if (prodNewForm) {
+    prodNewForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const dev = $('prodNewDevice')?.value || '';
+      const fecha = $('prodNewDate')?.value || '';
+      const kilos = Number($('prodNewKilos')?.value || 0);
+
+      if (!dev || !fecha || !(kilos > 0)) {
+        alert('Complete colmena, fecha y kilos > 0');
+        return;
+      }
+      try {
+        await prodInsert(dev, fecha, kilos);
+        $('prodNewKilos').value = '';
+
+        // Si ya hay un rango cargado, refrescamos la vista actual
+        if ($('prodFrom').value && $('prodTo').value) {
+          $('btnProdShow').click();
+        }
+      } catch (e) {
+        alert('Error guardando producción: ' + (e.message || e));
+      }
+    });
+  }
+
+  // Inicializar fechas por defecto al cargar (madre + producción)
+  function initProdDefaults() {
+    const t = ymd(new Date());
+    const ovd = $('ovProdDate'); // overlay por colmena
+    if (ovd) ovd.value = t;
+    const pf = $('prodFrom'), pt = $('prodTo');
+    if (pf) pf.value = t;
+    if (pt) pt.value = t;
+  }
 
   /* =========================================================
    *  WORKER META: SANIDAD / CALENDARIO / NOTAS
