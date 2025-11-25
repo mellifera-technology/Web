@@ -837,7 +837,7 @@
     </div>
   </div>
 
-  <!-- Overlay Global Producción -->
+    <!-- Overlay Global Producción -->
   <div id="prodOverlay" aria-hidden="true">
     <div id="prodPanel">
       <div class="overlay-header">
@@ -846,47 +846,102 @@
       </div>
       <div class="overlay-content">
         <div class="card">
-    <h3>Filtros</h3>
-    <div class="prod-filters-grid">
-    <!-- Desde -->
-    <div class="date-chip">
-      <input type="date" id="prodFrom">
-      <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
-        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-          <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-          <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-        </svg>
-      </button>
-    </div>
+          <h3>Filtros</h3>
+          <div class="prod-filters-grid">
+            <!-- Desde -->
+            <div class="date-chip">
+              <input type="date" id="prodFrom">
+              <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
 
-    <!-- Hasta -->
-    <div class="date-chip">
-      <input type="date" id="prodTo">
-      <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
-        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-          <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-          <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-        </svg>
-      </button>
-    </div>
+            <!-- Hasta -->
+            <div class="date-chip">
+              <input type="date" id="prodTo">
+              <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
 
-    <!-- Colmena + Vista -->
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <select id="prodDevice"
-              style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-        <option value="">Todas las colmenas</option>
-      </select>
-      <select id="prodView"
-              style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-        <option value="colmena">Ver por colmena</option>
-        <option value="dia">Ver por día</option>
-        <option value="mes">Ver por mes</option>
-        <option value="anio">Vista anual</option>
-      </select>
+            <!-- Colmena + Vista -->
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <select id="prodDevice"
+                      style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+                <option value="">Todas las colmenas</option>
+              </select>
+              <select id="prodView"
+                      style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
+                <option value="colmena">Ver por colmena</option>
+                <option value="dia">Ver por día</option>
+                <option value="mes">Ver por mes</option>
+                <option value="anio">Vista anual</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
+            <!-- Los botones Borrar / CSV los agrega el JS -->
+          </div>
+        </div>
+
+        <!-- Visualización de producción -->
+        <div class="card" style="margin-top:12px">
+          <h3>Visualización</h3>
+          <div id="prodSummary" class="muted" style="margin-bottom:8px">
+            Seleccione un rango y presione “Mostrar” para ver la producción.
+          </div>
+
+          <div class="charts-grid">
+            <!-- Gráfico principal -->
+            <div class="chart-card">
+              <h4 id="prodMainTitle" style="margin:0 0 4px">Producción por colmena</h4>
+              <div class="chart-box" style="height:220px">
+                <canvas id="prodMainChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Gráfico secundario (vista anual) -->
+            <div class="chart-card" id="prodSecondaryCard" style="display:none">
+              <h4 id="prodSecondaryTitle" style="margin:0 0 4px">Distribución anual por colmena</h4>
+              <div class="chart-box" style="height:220px">
+                <canvas id="prodSecondaryChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historial tabular -->
+        <div class="card" style="margin-top:12px">
+          <h3>Historial</h3>
+          <div class="nice-table" style="overflow:auto;max-height:60vh">
+            <table style="width:100%">
+              <thead>
+                <tr><th>Fecha</th><th>Colmena</th><th class="num">Kilos</th></tr>
+              </thead>
+              <tbody id="prodGlobalTbody"></tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="2" style="text-align:right">Total</th>
+                  <th id="prodGlobalTotal" class="num">0.00</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
-    <!-- Overlay Meta (Sanidad / Calendario / Notas) -->
+  <!-- Overlay Meta (Sanidad / Calendario / Notas) COMO HERMANO, NO ANIDADO -->
   <div id="metaOverlay" aria-hidden="true">
     <div id="metaPanel">
       <div class="overlay-header">
@@ -1085,6 +1140,7 @@
       </div>
     </div>
   </div>
+
 
 
   <div style="display:flex;gap:8px;margin-top:10px">
@@ -3010,9 +3066,16 @@ $('btnWorkChart').onclick = async ()=>{
 
 
 $('btnWorkCSV').onclick = ()=>{
-  if (!currentOverlayDevice || !lastItemsCache) return;
-  downloadWorkCSV(lastItemsCache, currentOverlayDevice);
+  if (!currentOverlayDevice) return;
+  // Sin rango de fechas: usa cache actual
+  downloadWorkCSV(currentOverlayDevice);
 };
+$('btnWorkHistCSV').onclick = async ()=>{
+  const df = $('workDateFrom').value, dt = $('workDateTo').value;
+  if(!df || !dt || !currentOverlayDevice) return;
+  await downloadWorkCSV(currentOverlayDevice, df, dt);
+};
+
 
   // ===== Clima (nuevo flujo por texto) =====
   const wxMap = {0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla escarchada',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos'};
@@ -3357,4 +3420,4 @@ function setModeSelection(mode){
   // ===== Fin Clima =====
 </script>
 </body>
-</html>
+</html>.
