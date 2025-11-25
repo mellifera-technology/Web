@@ -430,6 +430,7 @@
     #prodPanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
   </style>
 </head>
+
 <body>
   <header class="header">
     <div class="nav-grid">
@@ -508,14 +509,13 @@
                 </div>
                 <!-- Próximos 3 -->
                 <div class="wx-tiles" id="wxTiles"></div>
-                      <!-- Curva de hoy -->
-      <div id="wxChartWrap" class="chart-card" style="margin-top:10px;display:none">
-        <h4 style="margin:0 0 4px">Evolución de hoy</h4>
-        <div class="chart-box" style="height:140px">
-          <canvas id="wxChart"></canvas>
-        </div>
-      </div>
-
+                <!-- Curva de hoy -->
+                <div id="wxChartWrap" class="chart-card" style="margin-top:10px;display:none">
+                  <h4 style="margin:0 0 4px">Evolución de hoy</h4>
+                  <div class="chart-box" style="height:140px">
+                    <canvas id="wxChart"></canvas>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -574,7 +574,8 @@
               </div>
             </div>
           </div>
-                    <!-- Cartas de manejo / calendario / anotaciones -->
+
+          <!-- Cartas de manejo / calendario / anotaciones -->
           <div class="meta-cards">
             <div class="card" id="cardSanidad">
               <h3 class="meta-card-title">Manejo sanitario</h3>
@@ -600,38 +601,34 @@
           </div>
 
           <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
-            <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
-<!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
-<br><br><br>
-<div id="cardModel"
-     class="card"
-     style="margin:8px auto 12px;max-width:260px;display:none;text-align:center">
-  <h3 style="margin-top:0;">Modelo de tarjeta</h3>
+          <br><br><br>
+          <div id="cardModel"
+               class="card"
+               style="margin:8px auto 12px;max-width:260px;display:none;text-align:center">
+            <h3 style="margin-top:0;">Modelo de tarjeta</h3>
 
-  <!-- Controles simples: solo selects -->
-  <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;align-items:stretch">
-    <select id="cardCfgKilos"
-            class="btn small"
-            style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-      <option value="mes">Kilos del mes</option>
-      <option value="anio">Kilos del año</option>
-    </select>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;align-items:stretch">
+              <select id="cardCfgKilos"
+                      class="btn small"
+                      style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+                <option value="mes">Kilos del mes</option>
+                <option value="anio">Kilos del año</option>
+              </select>
 
-    <select id="cardCfgTrabajo"
-            class="btn small"
-            style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-      <option value="semana">Trabajo semanal</option>
-      <option value="mes">Trabajo mensual</option>
-      <option value="anio">Trabajo anual</option>
-    </select>
-  </div>
+              <select id="cardCfgTrabajo"
+                      class="btn small"
+                      style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+                <option value="semana">Trabajo semanal</option>
+                <option value="mes">Trabajo mensual</option>
+                <option value="anio">Trabajo anual</option>
+              </select>
+            </div>
 
-  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-    <button id="cardCfgConfirm" class="btn small yellow" type="button">Confirmar</button>
-    <button id="cardCfgReset" class="btn small" type="button">Resetear</button>
-  </div>
-</div>
-
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+              <button id="cardCfgConfirm" class="btn small yellow" type="button">Confirmar</button>
+              <button id="cardCfgReset" class="btn small" type="button">Resetear</button>
+            </div>
+          </div>
 
           <div class="cards-head">
             <button id="btnEdit" class="btn small" type="button" aria-pressed="false">Editar orden</button>
@@ -663,7 +660,7 @@
   <!-- Overlay Colmena -->
   <div id="deviceOverlay" aria-hidden="true">
     <div id="devicePanel">
-            <div class="overlay-header">
+      <div class="overlay-header">
         <button id="btnOverlayBack" class="btn small" type="button" title="Atrás">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" style="margin-right:6px"><path d="M15 18l-6-6 6-6" stroke-width="2"/></svg>
           Atrás
@@ -675,7 +672,7 @@
       </div>
 
       <div class="overlay-content">
-                  <!-- Mini dashboard: Temp, Hum -->
+        <!-- Mini dashboard: Temp, Hum -->
         <div class="overlay-grid">
           <div class="card">
             <h3>Temperatura Colmena</h3>
@@ -695,7 +692,7 @@
           </div>
         </div>
 
-        <!-- Gráfica + historial por colmena (igual lógica que dashboard principal) -->
+        <!-- Gráfica + historial por colmena -->
         <div class="card" style="margin-top:12px">
           <div class="center">
             <button id="overlayBtnChart" class="btn yellow" type="button">Mostrar gráfica</button>
@@ -732,7 +729,7 @@
           </div>
         </div>
 
-        <!-- Botones de análisis: Trabajo / Aire / Movimiento -->
+        <!-- Herramientas de análisis -->
         <div class="card" style="margin-top:12px">
           <h3 style="margin-top:0">Herramientas de análisis</h3>
           <div class="mode-toggle">
@@ -742,7 +739,7 @@
           </div>
         </div>
 
-        <!-- Trabajo (se muestra/oculta según botón "Trabajo") -->
+        <!-- Trabajo -->
         <div class="card" id="workCard" style="margin-top:12px;display:none">
           <h3>Trabajo</h3>
           <div id="workToday" class="muted">Trabajo de hoy: —</div>
@@ -767,7 +764,6 @@
             <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
           </div>
 
-          <!-- Controles de Historial de trabajo -->
           <div id="workHistControls" class="hist-controls" style="display:none;margin-top:10px">
             <div class="date-chip">
               <input type="date" id="workDateFrom">
@@ -788,35 +784,32 @@
           </div>
         </div>
 
-        <!-- Producción: ocupa todo el ancho, abajo de todo -->
+        <!-- Producción por colmena (overlay) -->
         <div class="card" id="ovProdCard" style="margin-top:12px">
           <h3>Producción</h3>
 
-          <!-- Entrada alineada -->
           <div class="prod-inputs">
-    <div class="date-chip">
-        <input type="date" id="ovProdDate">
-        <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
-            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-              <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-              <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-            </svg>
-        </button>
-    </div>
+            <div class="date-chip">
+              <input type="date" id="ovProdDate">
+              <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
 
-    <input type="number" id="ovProdKilos"
-           inputmode="decimal" min="0.01" step="0.01"
-           placeholder="Kilos"
-           class="prod-kilos">
-</div>
-
+            <input type="number" id="ovProdKilos"
+                   inputmode="decimal" min="0.01" step="0.01"
+                   placeholder="Kilos"
+                   class="prod-kilos">
+          </div>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
             <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
             <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
           </div>
 
-          <!-- Historial con scroll interno -->
           <div id="ovProdHistWrap" style="display:none">
             <div class="nice-table">
               <div style="max-height:220px;overflow:auto">
@@ -831,13 +824,11 @@
           </div>
         </div>
 
-        
-
       </div> <!-- overlay-content -->
     </div>
   </div>
 
-    <!-- Overlay Global Producción -->
+  <!-- Overlay Global Producción -->
   <div id="prodOverlay" aria-hidden="true">
     <div id="prodPanel">
       <div class="overlay-header">
@@ -848,7 +839,6 @@
         <div class="card">
           <h3>Filtros</h3>
           <div class="prod-filters-grid">
-            <!-- Desde -->
             <div class="date-chip">
               <input type="date" id="prodFrom">
               <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
@@ -859,7 +849,6 @@
               </button>
             </div>
 
-            <!-- Hasta -->
             <div class="date-chip">
               <input type="date" id="prodTo">
               <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
@@ -870,7 +859,6 @@
               </button>
             </div>
 
-            <!-- Colmena + Vista -->
             <div style="display:flex;flex-direction:column;gap:6px">
               <select id="prodDevice"
                       style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
@@ -888,11 +876,10 @@
 
           <div style="display:flex;gap:8px;margin-top:10px">
             <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
-            <!-- Los botones Borrar / CSV los agrega el JS -->
+            <!-- Botones extra (Borrar / CSV) los agrega el JS -->
           </div>
         </div>
 
-        <!-- Visualización de producción -->
         <div class="card" style="margin-top:12px">
           <h3>Visualización</h3>
           <div id="prodSummary" class="muted" style="margin-bottom:8px">
@@ -900,7 +887,6 @@
           </div>
 
           <div class="charts-grid">
-            <!-- Gráfico principal -->
             <div class="chart-card">
               <h4 id="prodMainTitle" style="margin:0 0 4px">Producción por colmena</h4>
               <div class="chart-box" style="height:220px">
@@ -908,7 +894,6 @@
               </div>
             </div>
 
-            <!-- Gráfico secundario (vista anual) -->
             <div class="chart-card" id="prodSecondaryCard" style="display:none">
               <h4 id="prodSecondaryTitle" style="margin:0 0 4px">Distribución anual por colmena</h4>
               <div class="chart-box" style="height:220px">
@@ -918,7 +903,6 @@
           </div>
         </div>
 
-        <!-- Historial tabular -->
         <div class="card" style="margin-top:12px">
           <h3>Historial</h3>
           <div class="nice-table" style="overflow:auto;max-height:60vh">
@@ -941,7 +925,7 @@
     </div>
   </div>
 
-  <!-- Overlay Meta (Sanidad / Calendario / Notas) COMO HERMANO, NO ANIDADO -->
+  <!-- Overlay Meta (Sanidad / Calendario / Notas) -->
   <div id="metaOverlay" aria-hidden="true">
     <div id="metaPanel">
       <div class="overlay-header">
@@ -1141,64 +1125,6 @@
     </div>
   </div>
 
-
-
-  <div style="display:flex;gap:8px;margin-top:10px">
-    <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
-    <!-- Aquí después te agrego por JS los botones Borrar y CSV -->
-  </div>
-</div>
-
-
-        <!-- Visualización de producción -->
-<div class="card" style="margin-top:12px">
-  <h3>Visualización</h3>
-  <div id="prodSummary" class="muted" style="margin-bottom:8px">
-    Seleccione un rango y presione “Mostrar” para ver la producción.
-  </div>
-
-  <div class="charts-grid">
-    <!-- Gráfico principal (barras o líneas) -->
-    <div class="chart-card">
-      <h4 id="prodMainTitle" style="margin:0 0 4px">Producción por colmena</h4>
-      <div class="chart-box" style="height:220px">
-        <canvas id="prodMainChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Gráfico secundario (solo para vista anual: torta) -->
-    <div class="chart-card" id="prodSecondaryCard" style="display:none">
-      <h4 id="prodSecondaryTitle" style="margin:0 0 4px">Distribución anual por colmena</h4>
-      <div class="chart-box" style="height:220px">
-        <canvas id="prodSecondaryChart"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Historial tabular -->
-<div class="card" style="margin-top:12px">
-  <h3>Historial</h3>
-  <div class="nice-table" style="overflow:auto;max-height:60vh">
-    <table style="width:100%">
-      <thead>
-        <tr><th>Fecha</th><th>Colmena</th><th class="num">Kilos</th></tr>
-      </thead>
-      <tbody id="prodGlobalTbody"></tbody>
-      <tfoot>
-        <tr>
-          <th colspan="2" style="text-align:right">Total</th>
-          <th id="prodGlobalTotal" class="num">0.00</th>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
-
-
-      </div>
-    </div>
-  </div>
 
 <script>
   // Año
