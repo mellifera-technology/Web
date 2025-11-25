@@ -789,6 +789,159 @@
     line-height: 1.2;
   }
 
+  /* ================== Reina ================== */
+
+  .queen-layout{
+    display:grid;
+    grid-template-columns: minmax(0,1.2fr) minmax(0,1.3fr);
+    gap:16px;
+  }
+
+  @media(max-width:900px){
+    .queen-layout{
+      grid-template-columns:1fr;
+    }
+  }
+
+  .queen-main-card{
+    text-align:center;
+  }
+
+  .queen-circle-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:18px 0 10px;
+  }
+
+  .queen-circle{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    border:6px solid var(--border);
+    background:radial-gradient(circle at 30% 30%, #ffffff, #cfd6df);
+    box-shadow:0 0 0 4px rgba(0,0,0,.35),
+              0 0 24px rgba(0,0,0,.7);
+  }
+
+  .queen-year-label{
+    font-size:1.8rem;
+    font-weight:800;
+    letter-spacing:.05em;
+  }
+
+  .queen-legend{
+    font-size:.9rem;
+    margin-top:6px;
+  }
+
+  /* Panel lateral */
+  .queen-side{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .queen-form-row{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin-bottom:12px;
+    text-align:left;
+  }
+
+  .queen-form-row input{
+    background:#10141a;
+    border:1px solid var(--border);
+    color:#fff;
+    padding:8px 10px;
+    border-radius:10px;
+  }
+
+  /* Historial */
+  .queen-history-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+  }
+
+  .queen-history-body{
+    max-height:220px;
+    overflow:auto;
+  }
+
+  .queen-history-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+  }
+
+  .queen-history-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:var(--card);
+    border:1px solid var(--border);
+    margin-bottom:6px;
+  }
+
+  .queen-history-item-main{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+
+  .queen-history-year{
+    font-weight:700;
+  }
+
+  .queen-history-meta{
+    font-size:.85rem;
+    color:var(--muted);
+  }
+
+  /* Leyenda de colores */
+  .queen-color-legend{
+    margin-top:16px;
+  }
+
+  .queen-color-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px 24px;
+  }
+
+  .queen-color-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:.9rem;
+  }
+
+  .queen-color-dot{
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    border:2px solid #fff;
+    box-shadow:0 0 0 1px rgba(0,0,0,.4);
+  }
+
+  /* Colores específicos */
+  .queen-color-white{ background:#fdfdfd; }
+  .queen-color-yellow{ background:#ffd54f; }
+  .queen-color-red{ background:#ff6b6b; }
+  .queen-color-green{ background:#49d17d; }
+  .queen-color-blue{ background:#4da3ff; }
+
+  /* Círculo principal adaptando color dinamicamente por JS:
+    por defecto lo dejamos "blanco" y el JS pisa el background. */
+
+
   /* =========================================================
    *  TABLAS “NICE” (producción, sanidad, etc.)
    * =======================================================*/
@@ -1211,13 +1364,14 @@
   <div id="deviceOverlay" aria-hidden="true">
     <div id="devicePanel">
       <div class="overlay-header">
-        <button id="btnOverlayBack" class="btn small" type="button" title="Atrás">
+        <button id="btnOverlayBack" class="btn small" type="button" title="Volver">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" style="margin-right:6px"><path d="M15 18l-6-6 6-6" stroke-width="2"/></svg>
-          Atrás
+          Volver
         </button>
         <h3 id="overlayTitle" style="margin:0;flex:1">Colmena —</h3>
+        <button class="btn small" id="btnOverlayQueen">Reina</button>
         <button id="btnOverlayNotes" class="btn small" type="button" title="Ver anotaciones de esta colmena">
-          ANOTACIONES
+          Anotaciones
         </button>
       </div>
 
@@ -1377,12 +1531,96 @@
       </div> <!-- overlay-content -->
     </div>
   </div>
+  <!-- ================= Overlay Reina ================= -->
+  <div id="queenOverlay" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(8,10,14,.95);backdrop-filter:blur(4px);" aria-hidden="true">
+    <div id="queenPanel" style="max-width:800px;margin:0 auto;display:grid;grid-template-rows:auto 1fr;">
+      <div class="overlay-header">
+        <button class="btn small" id="btnQueenBack">Volver</button>
+        <h2 id="queenTitle" style="margin:0;flex:1">Reina · Colmena</h2>
+      </div>
+      <div class="overlay-content" style="padding:16px;overflow:auto;">
+        <div class="queen-layout">
+          <!-- Carta central con círculo y año -->
+          <div class="card queen-main-card">
+            <h3 style="margin-top:0;margin-bottom:8px;">Estado de la reina</h3>
+            <p class="muted" id="queenSubtitle">Última reina registrada</p>
+            <div class="queen-circle-wrap">
+              <div id="queenCircle" class="queen-circle"></div>
+            </div>
+            <div class="queen-year-label">
+              <span id="queenYear">—</span>
+            </div>
+            <p class="muted queen-legend" id="queenLegend">
+              Sin datos de reina para esta colmena.
+            </p>
+          </div>
+
+          <!-- Panel lateral: alta + historial -->
+          <div class="queen-side">
+            <div class="card queen-form-card">
+              <h3 style="margin-top:0;">Nueva reina</h3>
+              <p class="muted" style="margin-top:0;">
+                Registre el año de introducción de la nueva reina.
+              </p>
+              <div class="queen-form-row">
+                <label for="queenYearInput">Año de adquisición</label>
+                <input id="queenYearInput" type="number" min="1900" max="2100" placeholder="2025">
+              </div>
+              <button class="btn yellow" id="queenSaveBtn" type="button">
+                Guardar nueva reina
+              </button>
+            </div>
+
+            <div class="card queen-history-card">
+              <div class="queen-history-head">
+                <h3 style="margin:0;">Historial de reinas</h3>
+                <button class="btn small" id="queenReloadBtn" type="button">
+                  Actualizar
+                </button>
+              </div>
+              <div class="queen-history-body" id="queenHistoryWrap">
+                <p class="muted">Sin registros para esta colmena.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leyenda de colores -->
+        <div class="card queen-color-legend">
+          <h4 style="margin-top:0;">Códigos de colores (último dígito del año)</h4>
+          <div class="queen-color-grid">
+            <div class="queen-color-item">
+              <span class="queen-color-dot queen-color-white"></span>
+              <span>1 o 6 → Blanco</span>
+            </div>
+            <div class="queen-color-item">
+              <span class="queen-color-dot queen-color-yellow"></span>
+              <span>2 o 7 → Amarillo</span>
+            </div>
+            <div class="queen-color-item">
+              <span class="queen-color-dot queen-color-red"></span>
+              <span>3 o 8 → Rojo</span>
+            </div>
+            <div class="queen-color-item">
+              <span class="queen-color-dot queen-color-green"></span>
+              <span>4 o 9 → Verde</span>
+            </div>
+            <div class="queen-color-item">
+              <span class="queen-color-dot queen-color-blue"></span>
+              <span>5 o 0 → Azul</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- =============== Fin Overlay Reina =============== -->
 
   <!-- Overlay Global Producción -->
   <div id="prodOverlay" aria-hidden="true">
     <div id="prodPanel">
       <div class="overlay-header">
-        <button id="btnProdBack" class="btn small" type="button">Atrás</button>
+        <button id="btnProdBack" class="btn small" type="button">Volver</button>
         <h3 style="margin:0">Producción — Panel</h3>
       </div>
       <div class="overlay-content">
@@ -1479,7 +1717,7 @@
   <div id="metaOverlay" aria-hidden="true">
     <div id="metaPanel">
       <div class="overlay-header">
-        <button id="btnMetaBack" class="btn small" type="button">Atrás</button>
+        <button id="btnMetaBack" class="btn small" type="button">Volver</button>
         <h3 id="metaTitle" style="margin:0">Panel</h3>
       </div>
       <div class="overlay-content">
@@ -1739,6 +1977,8 @@
   // Meta overlay (Sanidad / Calendario / Notas)
   let metaCurrentMode = null;    // 'sanidad' | 'calendario' | 'notas'
   let metaDeviceContext = null;  // colmena desde la que abrimos notas (opcional)
+  let queenDeviceContext = null;   // Colmena actual en overlay de reina
+
 
   /* =========================================================
    *  COLORES POR COLMENA (para calendario)
@@ -1833,6 +2073,20 @@
   function clearWxPlace() {
     try { localStorage.removeItem(WX_KEY); } catch { }
   }
+
+  // ===== Reina: color según último dígito del año =====
+  function queenColorForYear(year){
+    const y = Number(year);
+    if(!Number.isInteger(y)) return { color:'#9aa3ad', name:'Sin dato' };
+    const d = Math.abs(y) % 10;
+    if(d===1 || d===6) return { color:'#fdfdfd', name:'Blanco' };
+    if(d===2 || d===7) return { color:'#ffd54f', name:'Amarillo' };
+    if(d===3 || d===8) return { color:'#ff6b6b', name:'Rojo' };
+    if(d===4 || d===9) return { color:'#49d17d', name:'Verde' };
+    if(d===5 || d===0) return { color:'#4da3ff', name:'Azul' };
+    return { color:'#9aa3ad', name:'Sin dato' };
+  }
+
 
   /* =========================================================
    *  AUTH: LOGIN / LOGOUT / ARRANQUE
@@ -2914,6 +3168,24 @@
     return res.json(); // { items: [...] }
   }
 
+  // ===== Queens Worker =====
+  async function queenInsert(payload){
+    // payload: { device_id, year }
+    return callWorker('/queens', { method:'POST', body:payload });
+  }
+
+  async function queenList(params){
+    const url = new URL(BASE + '/queens');
+    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
+    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), {
+      headers:{ 'Authorization': `Bearer ${t}` }
+    });
+    if(!res.ok) throw new Error(await res.text());
+    return res.json(); // { items:[...] }
+  }
+
   /* =========================================================
    *  PRODUCCIÓN: MINI DASHBOARD EN OVERLAY COLMENA
    * =======================================================*/
@@ -2959,6 +3231,129 @@
       </tr>`
     ).join('');
   }
+
+  // ================== Reina: render y overlay ==================
+  function renderQueenMainCard(deviceId, items){
+    const circle = $('queenCircle');
+    const yearEl = $('queenYear');
+    const legend = $('queenLegend');
+    const subtitle = $('queenSubtitle');
+
+    if(!circle || !yearEl || !legend || !subtitle){
+      return;
+    }
+
+    if(!items || !items.length){
+      // Sin datos
+      circle.style.background = 'radial-gradient(circle at 30% 30%, #888, #444)';
+      circle.style.borderColor = 'var(--border)';
+      yearEl.textContent = '—';
+      legend.textContent = 'Sin datos de reina para esta colmena.';
+      subtitle.textContent = 'Última reina registrada';
+      return;
+    }
+
+    // Tomamos la más reciente
+    const latest = items[0]; // ya vienen ordenadas DESC por created_at
+    const year = Number(latest.year);
+    const { color, name } = queenColorForYear(year);
+
+    circle.style.background = color;
+    circle.style.borderColor = '#ffffff';
+    yearEl.textContent = String(year);
+    legend.textContent = `Color ${name} para año terminado en ${Math.abs(year)%10}.`;
+    subtitle.textContent = `Última reina registrada para Colmena ${deviceId}`;
+  }
+
+  function renderQueenHistory(items){
+    const wrap = $('queenHistoryWrap');
+    if(!wrap) return;
+
+    if(!items || !items.length){
+      wrap.innerHTML = '<p class="muted">Sin registros para esta colmena.</p>';
+      return;
+    }
+
+    const ul = document.createElement('ul');
+    ul.className = 'queen-history-list';
+
+    items.forEach(r=>{
+      const li = document.createElement('li');
+      li.className = 'queen-history-item';
+
+      const main = document.createElement('div');
+      main.className = 'queen-history-item-main';
+
+      const y = document.createElement('div');
+      y.className = 'queen-history-year';
+      y.textContent = `Reina ${r.year}`;
+
+      const meta = document.createElement('div');
+      meta.className = 'queen-history-meta';
+      const d = r.created_at ? new Date(r.created_at) : null;
+      const fecha = d ? d.toLocaleString('es-AR') : '(sin fecha)';
+      meta.textContent = `Registrada el ${fecha}`;
+
+      main.appendChild(y);
+      main.appendChild(meta);
+
+      li.appendChild(main);
+      ul.appendChild(li);
+    });
+
+    wrap.innerHTML = '';
+    wrap.appendChild(ul);
+  }
+
+  async function loadQueenData(deviceId){
+    try{
+      const { items=[] } = await queenList({ device_id: deviceId });
+      renderQueenMainCard(deviceId, items);
+      renderQueenHistory(items);
+    }catch(e){
+      console.error(e);
+      const wrap = $('queenHistoryWrap');
+      if(wrap){
+        wrap.innerHTML = '<p class="muted">Error cargando historial de reinas.</p>';
+      }
+    }
+  }
+
+  function openQueenOverlay(deviceId){
+    queenDeviceContext = String(deviceId||'');
+    const ov = $('queenOverlay');
+    const title = $('queenTitle');
+    const input = $('queenYearInput');
+
+    if(title) title.textContent = `Reina · Colmena ${queenDeviceContext || '—'}`;
+    if(ov){
+      ov.style.display = 'block';
+      ov.setAttribute('aria-hidden','false');
+    }
+    if(input){
+      const year = new Date().getFullYear();
+      input.value = year;
+      input.focus();
+    }
+
+    // Cargar datos
+    if(queenDeviceContext){
+      loadQueenData(queenDeviceContext);
+    }else{
+      renderQueenMainCard(null, []);
+      renderQueenHistory([]);
+    }
+  }
+
+  function closeQueenOverlay(){
+    const ov = $('queenOverlay');
+    if(ov){
+      ov.style.display = 'none';
+      ov.setAttribute('aria-hidden','true');
+    }
+    queenDeviceContext = null;
+  }
+
 
   /* =========================================================
    *  PRODUCCIÓN GLOBAL: OVERLAY
@@ -4251,6 +4646,54 @@
     }
     if ($('btnCalSave')) {
       $('btnCalSave').onclick = () => saveCalendario();
+    }
+    // Botón REINA en overlay de colmena
+    if($('btnOverlayQueen')){
+      $('btnOverlayQueen').onclick = ()=>{
+        if(currentOverlayDevice){
+          openQueenOverlay(currentOverlayDevice);
+        }else{
+          // Si por algún motivo no hay colmena activa, igual abrimos vacío
+          openQueenOverlay(null);
+        }
+      };
+    }
+
+    // Botón Volver del overlay de Reina
+    if($('btnQueenBack')){
+      $('btnQueenBack').onclick = ()=> closeQueenOverlay();
+    }
+
+    // Guardar nueva reina
+    if($('queenSaveBtn')){
+      $('queenSaveBtn').onclick = async ()=>{
+        if(!queenDeviceContext){
+          alert('No hay colmena seleccionada.');
+          return;
+        }
+        const yearInput = $('queenYearInput');
+        const year = Number(yearInput?.value || 0);
+        if(!Number.isInteger(year) || year<1900 || year>2100){
+          alert('Ingrese un año válido (ej. 2025).');
+          return;
+        }
+        try{
+          await queenInsert({ device_id: queenDeviceContext, year });
+          // Refrescamos datos
+          await loadQueenData(queenDeviceContext);
+        }catch(e){
+          alert('Error guardando reina: ' + (e.message||e));
+        }
+      };
+    }
+
+    // Actualizar historial/estado
+    if($('queenReloadBtn')){
+      $('queenReloadBtn').onclick = ()=>{
+        if(queenDeviceContext){
+          loadQueenData(queenDeviceContext);
+        }
+      };
     }
 
     // NOTAS
