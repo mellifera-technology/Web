@@ -788,6 +788,253 @@
     padding: 8px 10px;
     line-height: 1.2;
   }
+  /* ================= SANIDAD ================= */
+
+.sanidad-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.sanidad-panel {
+  background: var(--card-bg, #10141c);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.sanidad-panel h4 {
+  margin: 0 0 .75rem;
+  font-size: 0.95rem;
+}
+
+.sanidad-form .field-row,
+.varroa-form .field-row {
+  margin-bottom: .75rem;
+}
+
+.sanidad-form label,
+.varroa-form label {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  font-size: .85rem;
+}
+
+.sanidad-form input[type="date"],
+.sanidad-form input[type="text"],
+.sanidad-form select,
+.varroa-form input[type="date"],
+.varroa-form input[type="number"],
+.varroa-form select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft, #2a3240);
+  background: var(--bg-soft, #0c1118);
+  color: #f5f7fb;
+  font-size: .85rem;
+}
+
+.sanidad-cards {
+  display: grid;
+  gap: .75rem;
+}
+
+.san-card {
+  border-radius: 10px;
+  padding: .75rem .9rem;
+  background: radial-gradient(circle at 0 0, rgba(255,255,255,0.02), transparent 45%);
+  border: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.san-card-ok {
+  border-left: 4px solid var(--ok, #49d17d);
+}
+
+.san-card-late {
+  border-left: 4px solid var(--bad, #ff6b6b);
+  background: radial-gradient(circle at 0 0, rgba(255,0,0,0.06), transparent 55%);
+}
+
+.san-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.san-card-header h4 {
+  margin: 0;
+  font-size: .9rem;
+}
+
+.san-card-status {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.1rem .4rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+}
+
+.san-card-body {
+  font-size: .8rem;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.san-card-product {
+  font-weight: 600;
+}
+
+.san-card-dates .label {
+  opacity: .7;
+  margin-right: .25rem;
+}
+
+.san-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+  margin-top: .3rem;
+}
+
+.san-card-footer .field-inline {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  font-size: .75rem;
+}
+
+.san-card-footer .field-inline.check {
+  flex-direction: row;
+  align-items: center;
+  gap: .35rem;
+}
+
+.san-card-footer input[type="date"] {
+  padding: 0.1rem 0.4rem;
+  font-size: .8rem;
+}
+
+.san-card-footer .btn.btn-small {
+  font-size: .75rem;
+  padding: 0.25rem .6rem;
+}
+
+/* Historial sanidad */
+
+.sanidad-historial {
+  margin-top: .5rem;
+}
+
+.sanidad-hist-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  align-items: flex-end;
+  margin-bottom: .7rem;
+}
+
+.sanidad-hist-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  font-size: .8rem;
+}
+
+/* ================= BARROA ================= */
+
+.varroa-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.varroa-panel {
+  background: var(--card-bg, #10141c);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.varroa-panel h4 {
+  margin: 0 0 .75rem;
+  font-size: 0.95rem;
+}
+
+.varroa-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  align-items: flex-end;
+  margin-bottom: .7rem;
+}
+
+.varroa-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  font-size: .8rem;
+}
+
+/* Pastilla de % barroa */
+
+.varroa-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 600;
+  min-width: 3.5rem;
+  text-align: center;
+}
+
+.varroa-green {
+  background: rgba(73, 209, 125, 0.15);
+  border: 1px solid #49d17d;
+  color: #1b7e3a;
+}
+
+.varroa-yellow {
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid #ffeb3b;
+  color: #c69a00;
+}
+
+.varroa-orange {
+  background: rgba(255, 152, 0, 0.16);
+  border: 1px solid #ff9800;
+  color: #f57c00;
+}
+
+.varroa-red {
+  background: rgba(244, 67, 54, 0.18);
+  border: 1px solid #f44336;
+  color: #ff7961;
+}
+
+.varroa-red-strong {
+  background: radial-gradient(circle at 20% 0, rgba(255, 0, 0, 0.25), transparent 55%);
+  border: 1px solid #ff1744;
+  color: #ff8a80;
+}
+
+.varroa-warning {
+  margin-left: .35rem;
+  font-size: .9rem;
+  color: #ff9800;
+  cursor: help;
+}
 
   /* ================== Reina ================== */
 
@@ -2037,106 +2284,168 @@
           <button type="button" id="tabCalendario" data-mode="calendario">Calendario</button>
           <button type="button" id="tabNotas" data-mode="notas">Anotaciones</button>
         </div>
-
-        <!-- SANIDAD -->
+        <!-- ===================== SANIDAD ===================== -->
         <section id="metaSanidad" class="meta-section">
-          <h3>Manejo sanitario</h3>
-          <p class="muted" style="margin-top:0">
-            Registrar qué se aplicó, en qué colmena, fecha, dosis, período de retiro y si fue efectivo.
-          </p>
+          <h3 class="meta-subtitle">Manejo sanitario</h3>
 
-          <div class="meta-filter-row">
-            <select id="sanidadFilterDevice">
-              <option value="">Todas las colmenas</option>
-            </select>
+          <div class="sanidad-layout">
+            <!-- Alta de tratamiento -->
+            <div class="sanidad-panel">
+              <h4>Nuevo tratamiento</h4>
+              <form id="sanidadForm" class="sanidad-form">
+                <div class="field-row">
+                  <label>
+                    <span>Colmena</span>
+                    <select id="sanidadDevice"></select>
+                  </label>
+                </div>
 
-            <div class="date-chip">
-              <input type="date" id="sanidadFrom">
-              <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('sanidadFrom')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                </svg>
-              </button>
+                <div class="field-row">
+                  <label>
+                    <span>Fecha de inicio</span>
+                    <input type="date" id="sanidadDate">
+                  </label>
+                </div>
+
+                <div class="field-row">
+                  <label>
+                    <span>Producto</span>
+                    <input type="text" id="sanidadProduct" list="sanidadProductList" autocomplete="off" placeholder="Ej. Amitraz, Timol…">
+                    <datalist id="sanidadProductList"></datalist>
+                  </label>
+                </div>
+
+                <div class="field-row">
+                  <label>
+                    <span>Fecha estimada de retiro</span>
+                    <input type="date" id="sanidadEstimated">
+                  </label>
+                </div>
+
+                <div class="field-row">
+                  <button type="button" id="btnSanidadSave" class="btn primary">Guardar tratamiento</button>
+                </div>
+              </form>
             </div>
 
-            <div class="date-chip">
-              <input type="date" id="sanidadTo">
-              <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('sanidadTo')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                </svg>
-              </button>
-            </div>
-
-            <button id="btnSanidadReload" class="btn small" type="button">Actualizar</button>
-          </div>
-
-          <div class="meta-form-grid">
-            <div>
-              <label for="sanidadDevice" class="muted">Colmena</label>
-              <select id="sanidadDevice" style="width:100%">
-                <option value="">Seleccionar colmena…</option>
-              </select>
-            </div>
-            <div>
-              <label for="sanidadProduct" class="muted">Producto</label>
-              <input id="sanidadProduct" type="text" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-            </div>
-            <div>
-              <label for="sanidadDate" class="muted">Fecha de aplicación</label>
-              <input id="sanidadDate" type="date" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-            </div>
-            <div>
-              <label class="muted">Dosis</label>
-              <div style="display:flex;gap:6px">
-                <input id="sanidadDose" type="number" step="0.01" min="0" placeholder="Cantidad" style="flex:1;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-                <input id="sanidadUnit" type="text" placeholder="Unidad" style="width:90px;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
+            <!-- Tratamientos en curso -->
+            <div class="sanidad-panel">
+              <h4>Tratamientos en curso</h4>
+              <div id="sanidadPendingCards" class="sanidad-cards">
+                <p class="muted">No hay tratamientos pendientes.</p>
               </div>
             </div>
-            <div>
-              <label for="sanidadWithdrawDays" class="muted">Días de retiro</label>
-              <input id="sanidadWithdrawDays" type="number" min="0" step="1" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-            </div>
-            <div>
-              <label for="sanidadWithdrawDate" class="muted">Fecha de retiro estimada</label>
-              <input id="sanidadWithdrawDate" type="date" readonly style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px;opacity:.8">
-            </div>
-            <div style="grid-column:1/-1">
-              <label for="sanidadNotes" class="muted">Notas</label>
-              <textarea id="sanidadNotes" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px"></textarea>
-            </div>
-            <div>
-              <label class="muted">
-                <input id="sanidadEffective" type="checkbox" style="margin-right:6px">
-                Tratamiento efectivo
+          </div>
+
+          <hr class="meta-separator">
+
+          <!-- Historial de tratamientos (tabla) -->
+          <div class="sanidad-historial">
+            <div class="sanidad-hist-filters">
+              <label>
+                <span>Colmena</span>
+                <select id="sanidadFilterDevice"></select>
               </label>
+              <label>
+                <span>Desde</span>
+                <input type="date" id="sanidadFrom">
+              </label>
+              <label>
+                <span>Hasta</span>
+                <input type="date" id="sanidadTo">
+              </label>
+              <button type="button" id="btnSanidadReload" class="btn subtle">Actualizar</button>
             </div>
-            <div style="display:flex;align-items:flex-end;justify-content:flex-end">
-              <button id="btnSanidadSave" class="btn yellow small" type="button">Guardar tratamiento</button>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Fecha inicio</th>
+                    <th>Colmena</th>
+                    <th>Producto</th>
+                    <th>Retiro estimado</th>
+                    <th>Retiro efectivo</th>
+                    <th>Efectivo</th>
+                  </tr>
+                </thead>
+                <tbody id="sanidadTbody">
+                  <tr><td colspan="6" class="muted">Sin registros</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div class="nice-table" style="max-height:260px;overflow:auto">
-            <table style="width:100%">
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Colmena</th>
-                  <th>Producto</th>
-                  <th>Dosis</th>
-                  <th>Retiro</th>
-                  <th>Efectivo</th>
-                </tr>
-              </thead>
-              <tbody id="sanidadTbody">
-                <tr><td class="muted" colspan="6">Sin registros</td></tr>
-              </tbody>
-            </table>
+          <hr class="meta-separator">
+
+          <!-- ===================== BARROA ===================== -->
+          <h3 class="meta-subtitle">Conteo de barroa</h3>
+
+          <div class="varroa-layout">
+            <!-- Alta conteo de barroa -->
+            <div class="varroa-panel">
+              <h4>Nuevo conteo</h4>
+              <form id="varroaForm" class="varroa-form">
+                <div class="field-row">
+                  <label>
+                    <span>Colmena</span>
+                    <select id="varroaDevice"></select>
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Fecha</span>
+                    <input type="date" id="varroaDate">
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>% de barroa</span>
+                    <input type="number" id="varroaPct" step="0.1" min="0" placeholder="Ej. 1.5">
+                  </label>
+                </div>
+                <div class="field-row">
+                  <button type="button" id="btnVarroaSave" class="btn primary">Guardar conteo</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Tabla histórica de barroa -->
+            <div class="varroa-panel">
+              <h4>Historial de conteos</h4>
+              <div class="varroa-filters">
+                <label>
+                  <span>Colmena</span>
+                  <select id="varroaDeviceFilter"></select>
+                </label>
+                <label>
+                  <span>Desde</span>
+                  <input type="date" id="varroaFrom">
+                </label>
+                <label>
+                  <span>Hasta</span>
+                  <input type="date" id="varroaTo">
+                </label>
+                <button type="button" id="btnVarroaReload" class="btn subtle">Actualizar</button>
+              </div>
+
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Colmena</th>
+                      <th>% Barroa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="varroaTbody">
+                    <tr><td colspan="3" class="muted">Sin conteos registrados.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
-
         <!-- CALENDARIO -->
         <section id="metaCalendario" class="meta-section">
           <h3>Calendario</h3>
@@ -3985,7 +4294,38 @@
     if (!res.ok) throw new Error(await res.text());
     return res.json(); // { items: [...] }
   }
+    // === Update de manejo sanitario (PATCH /health/:id) ===
+  async function healthUpdate(id, payload) {
+    if (!id) throw new Error('Falta id de tratamiento');
+    return callWorker(`/health/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: payload
+    });
+  }
 
+  // === Worker Barroa ===
+  async function varroaInsert(payload) {
+    // payload: { device_id, fecha, porcentaje }
+    return callWorker('/varroa', {
+      method: 'POST',
+      body: payload
+    });
+  }
+
+  async function varroaList(params) {
+    const url = new URL(BASE + '/varroa');
+    if (params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if (params?.fromISO) url.searchParams.set('from', params.fromISO);
+    if (params?.toISO) url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser;
+    if (!u) throw new Error('No auth');
+    const t = await u.getIdToken();
+    const res = await fetch(url.toString(), {
+      headers: { 'Authorization': `Bearer ${t}` }
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json(); // { items: [...] }
+  }
   // CALENDARIO
   async function eventsInsert(payload) {
     // payload: { device_id, fecha, titulo, tipo, notas }
@@ -4248,7 +4588,7 @@
   /* =========================================================
    *  META OVERLAY: TABS (Sanidad / Calendario / Notas)
    * =======================================================*/
-  function setMetaTabs(mode) {
+    function setMetaTabs(mode) {
     metaCurrentMode = mode;
     const tabs = [
       { id: 'tabSanidad', mode: 'sanidad', section: 'metaSanidad', title: 'Manejo sanitario' },
@@ -4265,12 +4605,14 @@
       if (active) setText('metaTitle', t.title);
     });
 
-    if (mode === 'sanidad') refreshSanidad();
+    if (mode === 'sanidad') {
+      refreshSanidad();
+      refreshVarroa();
+    }
     if (mode === 'calendario') refreshCalendario();
     if (mode === 'notas') refreshNotas();
   }
-
-  function openMetaOverlay(mode, deviceId) {
+    function openMetaOverlay(mode, deviceId) {
     metaDeviceContext = deviceId || null;
     const ov = $('metaOverlay');
     if (!ov) return;
@@ -4285,6 +4627,8 @@
     const calFilter = $('calDeviceFilter');
     const noteDevSel = $('noteDevice');
     const notesFilter = $('notesDeviceFilter');
+    const varDevSel = $('varroaDevice');
+    const varFilter = $('varroaDeviceFilter');
 
     const optionsHtml = devices
       .map(id => `<option value="${id}">Colmena ${id}</option>`)
@@ -4296,6 +4640,8 @@
     if (calFilter) calFilter.innerHTML = '<option value="">Todas las colmenas</option>' + optionsHtml;
     if (noteDevSel) noteDevSel.innerHTML = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
     if (notesFilter) notesFilter.innerHTML = '<option value="">Todas las colmenas</option>' + optionsHtml;
+    if (varDevSel) varDevSel.innerHTML = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
+    if (varFilter) varFilter.innerHTML = '<option value="">Todas las colmenas</option>' + optionsHtml;
 
     if (deviceId) {
       if (sanDevSel) sanDevSel.value = deviceId;
@@ -4304,6 +4650,8 @@
       if (calFilter) calFilter.value = deviceId;
       if (noteDevSel) noteDevSel.value = deviceId;
       if (notesFilter) notesFilter.value = deviceId;
+      if (varDevSel) varDevSel.value = deviceId;
+      if (varFilter) varFilter.value = deviceId;
     }
 
     const hoy = ymd(new Date());
@@ -4318,9 +4666,12 @@
     }
     if ($('calDate') && !$('calDate').value) $('calDate').value = hoy;
 
+    if ($('varroaFrom') && !$('varroaFrom').value) $('varroaFrom').value = hoy;
+    if ($('varroaTo') && !$('varroaTo').value) $('varroaTo').value = hoy;
+    if ($('varroaDate') && !$('varroaDate').value) $('varroaDate').value = hoy;
+
     setMetaTabs(mode || 'sanidad');
   }
-
   function closeMetaOverlay() {
     const ov = $('metaOverlay');
     if (!ov) return;
@@ -4329,29 +4680,153 @@
     metaCurrentMode = null;
     metaDeviceContext = null;
   }
-
-  /* =========================================================
-   *  SANIDAD: LISTADO + ALTA
+    /* =========================================================
+   *  SANIDAD + BARROA: LISTADO + ALTA
    * =======================================================*/
-  function computeWithdrawDate() {
-    const dateStr = $('sanidadDate')?.value;
-    const days = Number($('sanidadWithdrawDays')?.value || 0);
-    const out = $('sanidadWithdrawDate');
-    if (!dateStr || !out) return;
-    if (!(days > 0)) {
-      out.value = '';
-      return;
+
+  // Sugerencias de producto (datalist) según historial
+  function buildSanidadProductSuggestions(items) {
+    const dl = $('sanidadProductList');
+    if (!dl) return;
+    const set = new Set();
+    for (const r of (items || [])) {
+      const prod = r.producto || r.product || '';
+      if (prod) set.add(prod);
     }
-    const d = new Date(dateStr + 'T00:00:00');
-    d.setDate(d.getDate() + days);
-    out.value = ymd(d);
+    const opts = Array.from(set).sort().map(p =>
+      `<option value="${escapeHtml(p)}"></option>`
+    ).join('');
+    dl.innerHTML = opts;
   }
 
+  // Tarjetas de tratamientos pendientes (“lista de espera”)
+  function buildSanidadPendingCards(items) {
+    const wrap = $('sanidadPendingCards');
+    if (!wrap) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const pending = (items || []).filter(r => {
+      const estim = String(r.fecha_retiro || r.fecha_estimada || '').slice(0, 10);
+      const eff = r.efectivo === true || r.effective === true;
+      return estim && !eff;
+    });
+
+    if (!pending.length) {
+      wrap.innerHTML = '<p class="muted">No hay tratamientos pendientes.</p>';
+      return;
+    }
+
+    wrap.innerHTML = pending.map(r => {
+      const id = r.id || r._id || `${r.device_id}-${r.fecha}-${r.producto}`;
+      const col = escapeHtml(r.device_id || '');
+      const prod = escapeHtml(r.producto || r.product || '');
+      const inicio = String(r.fecha || r.fecha_aplicacion || '').slice(0, 10);
+      const estim = String(r.fecha_retiro || r.fecha_estimada || '').slice(0, 10);
+
+      let colorClass = 'san-card-ok';
+      let statusText = 'En curso';
+      if (estim) {
+        const dEst = new Date(estim + 'T00:00:00');
+        if (dEst < today) {
+          colorClass = 'san-card-late';
+          statusText = 'Vencido';
+        }
+      }
+
+      return `
+        <article class="san-card ${colorClass}" data-id="${escapeHtml(id)}">
+          <header class="san-card-header">
+            <h4>Colmena ${col || '—'}</h4>
+            <span class="san-card-status">${statusText}</span>
+          </header>
+          <div class="san-card-body">
+            <div class="san-card-product">${prod || '(sin producto)'}</div>
+            <div class="san-card-dates">
+              <div><span class="label">Inicio:</span> ${inicio || '—'}</div>
+              <div><span class="label">Retiro estimado:</span> ${estim || '—'}</div>
+            </div>
+          </div>
+          <footer class="san-card-footer">
+            <label class="field-inline">
+              <span>Fecha efectiva de retiro</span>
+              <input type="date" class="san-card-ret-date">
+            </label>
+            <label class="field-inline check">
+              <input type="checkbox" class="san-card-effective">
+              <span>Tratamiento efectivo</span>
+            </label>
+            <button type="button" class="btn btn-small san-card-save">Guardar retiro</button>
+          </footer>
+        </article>`;
+    }).join('');
+
+    // Wiring de botones “Guardar retiro”
+    wrap.querySelectorAll('.san-card-save').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const card = btn.closest('.san-card');
+        if (!card) return;
+        const id = card.dataset.id;
+        const dateInput = card.querySelector('.san-card-ret-date');
+        const cb = card.querySelector('.san-card-effective');
+        const fechaReal = dateInput?.value || '';
+        const eff = cb?.checked || false;
+
+        if (!fechaReal || !eff) {
+          alert('Seleccioná la fecha efectiva y marcá “Tratamiento efectivo”.');
+          return;
+        }
+
+        try {
+          await healthUpdate(id, {
+            fecha_retiro_efectiva: fechaReal,
+            efectivo: true
+          });
+          await refreshSanidad();
+        } catch (e) {
+          alert('Error actualizando tratamiento: ' + (e.message || e));
+        }
+      });
+    });
+  }
+
+  // Historial de tratamientos en tabla
+  function renderSanidadHistorial(items) {
+    const tb = $('sanidadTbody');
+    if (!tb) return;
+
+    if (!items || !items.length) {
+      tb.innerHTML = '<tr><td colspan="6" class="muted">Sin registros</td></tr>';
+      return;
+    }
+
+    tb.innerHTML = items.map(r => {
+      const inicio = String(r.fecha || r.fecha_aplicacion || '').slice(0, 10);
+      const col = escapeHtml(r.device_id || '');
+      const prod = escapeHtml(r.producto || r.product || '');
+      const est = String(r.fecha_retiro || r.fecha_estimada || '').slice(0, 10);
+      const effDate = String(r.fecha_retiro_efectiva || r.fecha_efectiva || '').slice(0, 10);
+      const eff = r.efectivo === true || r.effective === true ? 'Sí' : 'No';
+
+      return `<tr>
+        <td>${inicio || '—'}</td>
+        <td>${col || '—'}</td>
+        <td>${prod || '—'}</td>
+        <td>${est || '—'}</td>
+        <td>${effDate || '—'}</td>
+        <td>${eff}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Refresco completo de pestaña Sanidad
   async function refreshSanidad() {
     try {
       const dev = $('sanidadFilterDevice')?.value || '';
       const df = $('sanidadFrom')?.value || '';
       const dt = $('sanidadTo')?.value || '';
+
       let fromISO, toISO;
       if (df) fromISO = new Date(df + 'T00:00:00').toISOString();
       if (dt) toISO = new Date(dt + 'T23:59:59.999').toISOString();
@@ -4362,70 +4837,131 @@
         toISO
       });
 
-      const tb = $('sanidadTbody');
-      if (!tb) return;
-      if (!items.length) {
-        tb.innerHTML = '<tr><td class="muted" colspan="6">Sin registros</td></tr>';
-        return;
-      }
-
-      tb.innerHTML = items.map(r => {
-        const fAplic = escapeHtml(r.fecha_aplicacion || r.fecha || '');
-        const col = escapeHtml(r.device_id || '');
-        const prod = escapeHtml(r.producto || r.product || '');
-        const dosis = (r.dosis != null ? String(r.dosis) : '');
-        const unidad = (r.unidad || '');
-        const retiro = escapeHtml(r.fecha_retiro || '');
-        const eff = r.efectivo ? 'Sí' : 'No';
-        return `<tr>
-          <td>${fAplic}</td>
-          <td>${col}</td>
-          <td>${prod}</td>
-          <td>${escapeHtml(dosis + (unidad ? ' ' + unidad : ''))}</td>
-          <td>${retiro}</td>
-          <td>${eff}</td>
-        </tr>`;
-      }).join('');
+      buildSanidadProductSuggestions(items);
+      buildSanidadPendingCards(items);
+      renderSanidadHistorial(items);
     } catch (e) {
       console.error(e);
     }
   }
 
+  // Alta de tratamiento
   async function saveSanidad() {
     const dev = $('sanidadDevice')?.value || '';
-    const fecha = $('sanidadDate')?.value || '';
+    const fechaInicio = $('sanidadDate')?.value || '';
     const prod = $('sanidadProduct')?.value || '';
-    const dosis = Number($('sanidadDose')?.value || 0);
-    const unidad = $('sanidadUnit')?.value || '';
-    const dias = Number($('sanidadWithdrawDays')?.value || 0);
-    const fRet = $('sanidadWithdrawDate')?.value || '';
-    const notas = $('sanidadNotes')?.value || '';
-    const eff = $('sanidadEffective')?.checked || false;
+    const fechaEstim = $('sanidadEstimated')?.value || '';
 
-    if (!dev || !fecha || !prod) {
-      alert('Completá al menos colmena, fecha y producto.');
+    if (!dev || !fechaInicio || !prod || !fechaEstim) {
+      alert('Completá colmena, fecha de inicio, producto y fecha estimada de retiro.');
       return;
     }
 
     try {
       await healthInsert({
         device_id: dev,
-        fecha,
+        fecha: fechaInicio,
         producto: prod,
-        dosis,
-        unidad,
-        dias_retiro: dias,
-        fecha_retiro: fRet || null,
-        efectivo: eff,
-        notas
+        fecha_retiro: fechaEstim,
+        efectivo: false
       });
-      $('sanidadNotes').value = '';
-      refreshSanidad();
+
+      $('sanidadProduct').value = '';
+      $('sanidadEstimated').value = '';
+      await refreshSanidad();
     } catch (e) {
-      alert('Error guardando manejo sanitario: ' + (e.message || e));
+      alert('Error guardando tratamiento: ' + (e.message || e));
     }
   }
 
+  // ================= BARROA =================
+
+  function varroaColorClass(pct) {
+    const v = Number(pct);
+    if (!(v >= 0)) return 'varroa-green';
+    if (v <= 1) return 'varroa-green';
+    if (v <= 2) return 'varroa-yellow';
+    if (v <= 3) return 'varroa-orange';
+    if (v <= 5) return 'varroa-red';
+    return 'varroa-red-strong';
+  }
+
+  function varroaNeedsWarning(pct) {
+    const v = Number(pct);
+    return v > 2; // naranja / rojo / rojo fuerte
+  }
+
+  function renderVarroaTable(items) {
+    const tb = $('varroaTbody');
+    if (!tb) return;
+
+    if (!items || !items.length) {
+      tb.innerHTML = '<tr><td colspan="3" class="muted">Sin conteos registrados.</td></tr>';
+      return;
+    }
+
+    tb.innerHTML = items.map(r => {
+      const fecha = String(r.fecha || '').slice(0, 10);
+      const col = escapeHtml(r.device_id || '');
+      const p = Number(r.porcentaje || r.porcentaje_barroa || 0);
+      const cls = varroaColorClass(p);
+      const warn = varroaNeedsWarning(p);
+
+      return `<tr>
+        <td>${fecha || '—'}</td>
+        <td>${col || '—'}</td>
+        <td>
+          <span class="varroa-pill ${cls}">${p.toFixed(1)}%</span>
+          ${warn ? '<span class="varroa-warning" title="Requieren tratamiento">⚠️</span>' : ''}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function refreshVarroa() {
+    try {
+      const dev = $('varroaDeviceFilter')?.value || '';
+      const df = $('varroaFrom')?.value || '';
+      const dt = $('varroaTo')?.value || '';
+
+      let fromISO, toISO;
+      if (df) fromISO = new Date(df + 'T00:00:00').toISOString();
+      if (dt) toISO = new Date(dt + 'T23:59:59.999').toISOString();
+
+      const { items = [] } = await varroaList({
+        device_id: dev || undefined,
+        fromISO,
+        toISO
+      });
+
+      renderVarroaTable(items);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function saveVarroa() {
+    const dev = $('varroaDevice')?.value || '';
+    const fecha = $('varroaDate')?.value || '';
+    const pct = Number($('varroaPct')?.value || 0);
+
+    if (!dev || !fecha || !(pct >= 0)) {
+      alert('Completá colmena, fecha y porcentaje de barroa.');
+      return;
+    }
+
+    try {
+      await varroaInsert({
+        device_id: dev,
+        fecha,
+        porcentaje: pct
+      });
+      $('varroaPct').value = '';
+      await refreshVarroa();
+    } catch (e) {
+      alert('Error guardando conteo de barroa: ' + (e.message || e));
+    }
+  }
   /* =========================================================
    *  CALENDARIO: LISTADO + ALTA
    * =======================================================*/
@@ -5115,14 +5651,7 @@
     if (btnMetaBack) {
       btnMetaBack.onclick = () => closeMetaOverlay();
     }
-
-    // SANIDAD
-    if ($('sanidadWithdrawDays')) {
-      $('sanidadWithdrawDays').addEventListener('input', computeWithdrawDate);
-    }
-    if ($('sanidadDate')) {
-      $('sanidadDate').addEventListener('change', computeWithdrawDate);
-    }
+        // SANIDAD
     if ($('btnSanidadReload')) {
       $('btnSanidadReload').onclick = () => refreshSanidad();
     }
@@ -5130,6 +5659,13 @@
       $('btnSanidadSave').onclick = () => saveSanidad();
     }
 
+    // BARROA
+    if ($('btnVarroaReload')) {
+      $('btnVarroaReload').onclick = () => refreshVarroa();
+    }
+    if ($('btnVarroaSave')) {
+      $('btnVarroaSave').onclick = () => saveVarroa();
+    }
     // CALENDARIO
     if ($('btnCalReload')) {
       $('btnCalReload').onclick = () => refreshCalendario();
