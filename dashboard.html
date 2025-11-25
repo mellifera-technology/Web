@@ -12,425 +12,975 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
-    :root{
-      --bg:#0e0f12;--bg-soft:#13151a;--card:#171a21;--card-2:#1b1f27;
-      --text:#eef0f3;--muted:#b8bec7;--border:#262b35;--zebra:#141820;
-      --accent:#ffd54f;--accent-600:#f0c12c;--focus:#7fb3ff;
-      --blue-ln:rgba(77,163,255,.45);--blue-pt:#4da3ff;
-      --amber-ln:rgba(255,183,77,.55);--amber-pt:#ff7043;
-      --ok:#49d17d;--warn:#ffb74d;--bad:#ff6b6b;--idle:#9aa3ad;
-      --chip-bg:#10141a;
+  /* =========================================================
+   *  VARIABLES Y BASE
+   * =======================================================*/
+  :root {
+    /* Colores base */
+    --bg: #0e0f12;
+    --bg-soft: #13151a;
+    --card: #171a21;
+    --card-2: #1b1f27;
+
+    /* Texto / bordes */
+    --text: #eef0f3;
+    --muted: #b8bec7;
+    --border: #262b35;
+    --zebra: #141820;
+
+    /* Acentos / estados */
+    --accent: #ffd54f;
+    --accent-600: #f0c12c;
+    --focus: #7fb3ff;
+    --blue-ln: rgba(77, 163, 255, .45);
+    --blue-pt: #4da3ff;
+    --amber-ln: rgba(255, 183, 77, .55);
+    --amber-pt: #ff7043;
+    --ok: #49d17d;
+    --warn: #ffb74d;
+    --bad: #ff6b6b;
+    --idle: #9aa3ad;
+
+    /* Chips / fondos intermedios */
+    --chip-bg: #10141a;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, Arial;
+    font-size: 16.5px;
+    line-height: 1.6;
+  }
+
+  /* Contenedor general del contenido */
+  .site {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* =========================================================
+   *  HEADER / NAVBAR
+   * =======================================================*/
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(14, 15, 18, .9);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(6px);
+  }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 16px;
+  }
+
+  .brand {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 800;
+  }
+
+  .nav-center a {
+    color: #d6dae0;
+    text-decoration: none;
+    margin: 0 10px;
+  }
+
+  .cta {
+    background: var(--accent);
+    color: #111;
+    border: 0;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* =========================================================
+   *  SECCIONES PRINCIPALES (panel, historial, etc.)
+   * =======================================================*/
+  .section {
+    margin: 28px auto;
+  }
+
+  /* Caja del panel principal */
+  .section.alt {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* Layout de 2 columnas: izquierda (cuenta/clima), derecha (KPI/gráficas) */
+  .split {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 18px;
+  }
+
+  @media (max-width: 980px) {
+    .split {
+      grid-template-columns: 1fr;
     }
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial;font-size:16.5px;line-height:1.6}
-    .site{padding:24px;max-width:1200px;margin:0 auto}
-    .header{position:sticky;top:0;background:rgba(14,15,18,.9);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid var(--border)}
-    .nav-grid{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:12px 16px}
-    .brand{color:var(--accent);text-decoration:none;font-weight:800}
-    .nav-center a{color:#d6dae0;text-decoration:none;margin:0 10px}
-    .cta{background:var(--accent);color:#111;border:0;padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer}
-
-    .section{margin:28px auto}
-    .section.alt{background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;padding:16px}
-    .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
-    .split{display:grid;grid-template-columns:420px 1fr;gap:18px}
-    @media(max-width:980px){.split{grid-template-columns:1fr}}
-
-    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
-    .side-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media(max-width:860px){.side-cards{grid-template-columns:1fr}}
-
-    .pill{background:var(--accent);color:#111;border:2px solid var(--accent);border-radius:999px;font-weight:800;padding:8px 14px;white-space:nowrap}
-    .btn{background:var(--card-2);color:var(--text);border:1px solid var(--border);padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer}
-    .btn.yellow{background:var(--accent);border-color:var(--accent);color:#111}
-    .btn.small{padding:6px 10px;font-size:.9rem}
-    .center{display:flex;justify-content:center;align-items:center}
-    .muted{color:var(--muted)}
-
-    .cards-head{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px}
-    .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    @media(max-width:860px){.cards-grid{grid-template-columns:1fr}}
-
-      /* Cartas extra bajo la gráfica: Sanidad / Calendario / Anotaciones */
-.meta-cards{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:16px;
-  margin-top:18px;
-}
-
-@media(max-width:980px){
-  .meta-cards{
-    grid-template-columns:1fr;
   }
-}
 
-.meta-card-title{
-  font-weight:700;
-  margin:0 0 4px;
-}
-
-.meta-card-text{
-  margin:0;
-  color:var(--muted);
-  font-size:.9rem;
-}
-
-/* Overlay meta (Sanidad, Calendario, Notas) */
-#metaOverlay{
-  position:fixed;
-  inset:0;
-  display:none;
-  z-index:1000;
-  background:rgba(8,10,14,.95);
-  backdrop-filter:blur(4px);
-}
-
-#metaPanel{
-  position:absolute;
-  inset:0;
-  display:grid;
-  grid-template-rows:auto 1fr;
-  max-width:1200px;
-  margin:0 auto;
-}
-
-.meta-tabs{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:10px;
-}
-
-.meta-tabs button{
-  background:#10141a;
-  border:1px solid var(--border);
-  color:#fff;
-  border-radius:999px;
-  padding:6px 12px;
-  cursor:pointer;
-  font-weight:600;
-  font-size:.9rem;
-}
-
-.meta-tabs button.active{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#111;
-}
-
-.meta-section{
-  display:none;
-}
-
-.meta-section.active{
-  display:block;
-}
-
-/* filas de filtros/formularios dentro del overlay meta */
-.meta-filter-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:10px;
-}
-
-.meta-filter-row select,
-.meta-filter-row input[type="date"],
-.meta-filter-row input[type="month"]{
-  background:#10141a;
-  border:1px solid var(--border);
-  color:#fff;
-  padding:6px 10px;
-  border-radius:10px;
-  font-size:.9rem;
-}
-
-.meta-form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-  margin-bottom:12px;
-}
-
-@media(max-width:760px){
-  .meta-form-grid{
-    grid-template-columns:1fr;
+  /* =========================================================
+   *  TARJETAS / CARDS GENERALES
+   * =======================================================*/
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
   }
-}
 
-.meta-form-grid textarea{
-  min-height:80px;
-  resize:vertical;
-}
-
-/* lista tipo calendario */
-.calendar-list-day{
-  margin-bottom:12px;
-}
-
-.calendar-list-day h4{
-  margin:0 0 4px;
-  font-size:.95rem;
-  color:var(--muted);
-}
-
-.calendar-event{
-  border-radius:10px;
-  padding:8px 10px;
-  margin-bottom:4px;
-  background:var(--card);
-  border:1px solid var(--border);
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:8px;
-}
-
-.calendar-event-main{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-
-.calendar-event-title{
-  font-weight:600;
-}
-
-.calendar-event-meta{
-  font-size:.85rem;
-  color:var(--muted);
-}
-
-/* notas */
-.note-item{
-  border-radius:10px;
-  padding:8px 10px;
-  margin-bottom:6px;
-  background:var(--card);
-  border:1px solid var(--border);
-}
-
-.note-item-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-}
-
-.note-item-meta{
-  font-size:.85rem;
-  color:var(--muted);
-}
-
-
-
-
-
-
-    table{border-collapse:separate;border-spacing:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-    thead th{position:sticky;top:0;background:var(--accent);color:#111;font-weight:800;padding:10px;border-bottom:2px solid #caa332}
-    tbody td{padding:10px;border-bottom:1px solid var(--border)}
-    tbody tr:nth-child(odd){background:var(--zebra)}
-    #tableWrap{box-shadow:0 1px 0 rgba(0,0,0,.2) inset}
-
-    .reveal-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .eye-btn{background:#1d212a;border:1px solid var(--border);color:#cfd6df;border-radius:8px;cursor:pointer;padding:4px 8px;display:inline-flex;align-items:center;gap:6px}
-    .eye-btn svg{width:18px;height:18px}
-
-    /* Overlay */
-    #deviceOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
-    #devicePanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
-    .overlay-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#0f1218}
-    .overlay-content{padding:16px;overflow:auto}
-    .overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
-    @media(max-width:1100px){.overlay-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
-
-    .editing .device-card{cursor:grab;animation:shake .9s ease-in-out infinite}
-    @keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(1px,-1px)}50%{transform:translate(-1px,1px)}75%{transform:translate(1px,0)}100%{transform:translate(0,0)}}
-
-    .metric{display:flex;align-items:baseline;gap:10px;margin-top:6px}
-    .metric .val{font-size:2.4rem;font-weight:800;letter-spacing:.3px}
-    .metric .unit{font-size:1.05rem;font-weight:800;color:#111;background:var(--accent);border-radius:8px;padding:2px 8px;border:2px solid var(--accent)}
-
-    #chartsWrap{display:none;margin-top:14px}
-    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
-    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media(max-width:860px){.charts-grid{grid-template-columns:1fr}}
-    .chart-box{position:relative;height:240px}
-    .chart-box canvas{position:absolute;inset:0;width:100% !important;height:100% !important}
-    .hist-controls{display:none;gap:10px;align-items:end;margin-top:10px;flex-wrap:wrap}
-    .hist-actions{display:flex;gap:8px}
-
-    /* Date-chip */
-.date-chip{display:inline-flex;align-items:center;gap:0;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.date-chip input[type="date"]{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#fff;font-weight:600;padding:8px 10px;cursor:pointer;min-width:140px;line-height:1.2}
-.date-chip input[type="date"]::-webkit-calendar-picker-indicator{display:none}
-.cal-btn{background:var(--accent);border:2px solid var(--accent);color:#111;border-radius:0 10px 10px 0;padding:8px 10px;display:inline-flex;align-items:center;cursor:pointer}
-.cal-btn svg{width:18px;height:18px;color:#111}
-.cal-btn:focus{outline:2px solid var(--focus)}
-/* Filtros de producción: que no engorden las date-chip */
-.prod-filters-grid{
-  display:grid;
-  grid-template-columns:repeat(3, minmax(0,1fr));
-  gap:12px;
-  align-items:flex-start;          /* evita que las date-chip se estiren en altura */
-}
-
-/* Limitar el ancho de las date-chip solo en producción */
-.prod-filters-grid .date-chip{
-  max-width:230px;
-}
-
-/* En pantallas chicas, que apilen todo prolijo */
-@media(max-width:900px){
-  .prod-filters-grid{
-    grid-template-columns:1fr;
+  /* Tarjetas de temperatura/humedad del panel principal */
+  .side-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
-}
-/* Mantener inputs prolijos sin deformar la date-chip */
-.prod-inputs{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-}
 
-.prod-inputs .date-chip{
-  max-width:230px;       /* Igual que en otros date-chip del sistema */
-}
+  @media (max-width: 860px) {
+    .side-cards {
+      grid-template-columns: 1fr;
+    }
+  }
 
-.prod-inputs .prod-kilos{
-  background:#10141a;
-  border:1px solid var(--border);
-  color:#fff;
-  padding:8px;
-  border-radius:10px;
-  width:160px;
-}
+  /* Grid de tarjetas de colmenas (autoCards) */
+  .cards-head {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 12px 0 6px;
+  }
 
-/* Input-chip: para Kilos */
-.input-chip{display:flex;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.input-chip input{width:100%;background:transparent;border:0;color:#fff;padding:8px 10px;line-height:1.2}
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
 
-/* Grids overlay: mantener Producción al costado */
-.overlay-grid{display:grid;grid-template-columns:1fr 1fr 320px;gap:16px;margin-bottom:12px}
-@media(max-width:900px){.overlay-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:760px){.overlay-grid{grid-template-columns:1fr}}
+  @media (max-width: 860px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 
+  /* =========================================================
+   *  BOTONES / PASTILLAS / ESTILOS GENERALES
+   * =======================================================*/
+  .pill {
+    background: var(--accent);
+    color: #111;
+    border: 2px solid var(--accent);
+    border-radius: 999px;
+    font-weight: 800;
+    padding: 8px 14px;
+    white-space: nowrap;
+  }
 
-    /* Producción “nice” */
-    .nice-table{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
-    .nice-table thead th{background:var(--accent);color:#111;border-bottom:1px solid #caa332}
-    .nice-table tbody tr:nth-child(odd){background:var(--zebra)}
-    .nice-table td,.nice-table th{padding:10px}
-    .nice-table td.num{text-align:right;font-variant-numeric:tabular-nums}
-    .badge{display:inline-block;background:#222;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-weight:700}
+  .btn {
+    background: var(--card-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+  }
 
-    
-        /* Status dot */
-.status-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:var(--muted);
-  margin:.25rem 0 0;
-}
+  .btn.yellow {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #111;
+  }
 
-.status-dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:var(--idle);
-  box-shadow:0 0 0 2px rgba(0,0,0,.2) inset;
-}
+  .btn.small {
+    padding: 6px 10px;
+    font-size: .9rem;
+  }
 
-/* Alerta: colmena abierta */
-.status-dot.alert{
-  background:var(--bad);
-  animation:status-blink .8s ease-in-out infinite alternate;
-}
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-@keyframes status-blink{
-  from{opacity:1;}
-  to{opacity:.25;}
-}
+  .muted {
+    color: var(--muted);
+  }
 
+  /* =========================================================
+   *  CARTAS “META” (Sanidad, Calendario, Notas) EN EL PANEL
+   * =======================================================*/
+  /* Cartas bajo la gráfica principal en el dashboard */
+  .meta-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+  }
 
-      /* Centrar títulos y métricas de las tarjetas de Temp/Hum en el overlay */
-.overlay-grid .card h3{
-  text-align:center;
-}
-.overlay-grid .card .metric{
-  justify-content:center;
-}
+  @media (max-width: 980px) {
+    .meta-cards {
+      grid-template-columns: 1fr;
+    }
+  }
 
-/* Botonera de modos (Trabajo / Aire / Movimiento) */
-.mode-toggle{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:4px;
-}
+  .meta-card-title {
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
 
-.mode-toggle button{
-  background:#10141a;
-  border:1px solid var(--border);
-  color:#fff;
-  border-radius:999px;
-  padding:6px 12px;
-  cursor:pointer;
-  font-weight:600;
-}
+  .meta-card-text {
+    margin: 0;
+    color: var(--muted);
+    font-size: .9rem;
+  }
 
-/* Centrado absoluto de las tarjetas de Temp/Hum del overlay */
-.overlay-grid .card{
-  text-align:center;
-}
+  /* =========================================================
+   *  OVERLAY META (Sanidad / Calendario / Notas)
+   * =======================================================*/
+  #metaOverlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 1000;
+    background: rgba(8, 10, 14, .95);
+    backdrop-filter: blur(4px);
+  }
 
-.overlay-grid .card h3{
-  text-align:center;
-  width:100%;
-}
+  #metaPanel {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 
-.overlay-grid .card .metric{
-  justify-content:center;
-}
+  /* Tabs superiores del overlay meta */
+  .meta-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
 
-.overlay-grid .card .muted{
-  text-align:center;
-}
+  .meta-tabs button {
+    background: #10141a;
+    border: 1px solid var(--border);
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .9rem;
+  }
 
-.mode-toggle button.selected{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#111;
-  box-shadow:0 0 0 1px rgba(0,0,0,.3);
-}
+  .meta-tabs button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #111;
+  }
 
+  /* Secciones de contenido por tab (sanidad / calendario / notas) */
+  .meta-section {
+    display: none;
+  }
 
+  .meta-section.active {
+    display: block;
+  }
 
-    /* Clima */
-    .wx-card{background:linear-gradient(140deg,#0b0d12,#141926);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:12px;position:relative;overflow:hidden}
-    .wx-blur{filter:blur(3px);opacity:.6;pointer-events:none}
-    .wx-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
-    .wx-title{font-weight:800}
-    .wx-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .wx-tile{background:#10141a;border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center}
-    .wx-big{font-size:1.6rem;font-weight:800}
-    .wx-small{color:var(--muted);font-size:.9rem}
-    .wx-loc{color:var(--muted);font-size:.9rem}
-    .wx-today{display:flex;justify-content:space-between;align-items:center;background:#10141a;border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
-    .loc-chip{display:flex;gap:8px;align-items:center;background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;padding:6px 6px}
-    .loc-chip input{background:transparent;border:0;color:#fff;padding:6px;font-weight:600;min-width:220px}
-    .loc-chip input::placeholder{color:#8fa1b3}
+  /* Fila de filtros superiores en cada sección meta */
+  .meta-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
 
-    /* Overlay Producción global */
-    #prodOverlay{position:fixed;inset:0;display:none;z-index:1000;background:rgba(8,10,14,.95);backdrop-filter:blur(4px)}
-    #prodPanel{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr;max-width:1200px;margin:0 auto}
-  </style>
+  .meta-filter-row select,
+  .meta-filter-row input[type="date"],
+  .meta-filter-row input[type="month"] {
+    background: #10141a;
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: .9rem;
+  }
+
+  /* Grilla de formulario dentro del overlay meta */
+  .meta-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 760px) {
+    .meta-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .meta-form-grid textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  /* Lista tipo calendario dentro del overlay */
+  .calendar-list-day {
+    margin-bottom: 12px;
+  }
+
+  .calendar-list-day h4 {
+    margin: 0 0 4px;
+    font-size: .95rem;
+    color: var(--muted);
+  }
+
+  .calendar-event {
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .calendar-event-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .calendar-event-title {
+    font-weight: 600;
+  }
+
+  .calendar-event-meta {
+    font-size: .85rem;
+    color: var(--muted);
+  }
+
+  /* Notas en el overlay meta */
+  .note-item {
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+
+  .note-item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .note-item-meta {
+    font-size: .85rem;
+    color: var(--muted);
+  }
+
+  /* =========================================================
+   *  TABLA HISTORIAL (panel principal)
+   * =======================================================*/
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--accent);
+    color: #111;
+    font-weight: 800;
+    padding: 10px;
+    border-bottom: 2px solid #caa332;
+  }
+
+  tbody td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr:nth-child(odd) {
+    background: var(--zebra);
+  }
+
+  #tableWrap {
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .2) inset;
+  }
+
+  /* =========================================================
+   *  CAMPOS OCULTAR / MOSTRAR (email / código)
+   * =======================================================*/
+  .reveal-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .eye-btn {
+    background: #1d212a;
+    border: 1px solid var(--border);
+    color: #cfd6df;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .eye-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* =========================================================
+   *  OVERLAY COLMENA (detalle de una colmena)
+   * =======================================================*/
+  #deviceOverlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 1000;
+    background: rgba(8, 10, 14, .95);
+    backdrop-filter: blur(4px);
+  }
+
+  #devicePanel {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .overlay-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: #0f1218;
+  }
+
+  .overlay-content {
+    padding: 16px;
+    overflow: auto;
+  }
+
+  /* Grid superior en overlay de colmena (Temp / Hum / Producción por colmena) */
+  .overlay-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 320px;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 1100px) {
+    .overlay-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .overlay-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Estado “edición” para tarjetas drag & drop (si aplica) */
+  .editing .device-card {
+    cursor: grab;
+    animation: shake .9s ease-in-out infinite;
+  }
+
+  @keyframes shake {
+    0% {
+      transform: translate(0, 0);
+    }
+
+    25% {
+      transform: translate(1px, -1px);
+    }
+
+    50% {
+      transform: translate(-1px, 1px);
+    }
+
+    75% {
+      transform: translate(1px, 0);
+    }
+
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  /* Métricas grandes (valor + unidad) */
+  .metric {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .metric .val {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: .3px;
+  }
+
+  .metric .unit {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #111;
+    background: var(--accent);
+    border-radius: 8px;
+    padding: 2px 8px;
+    border: 2px solid var(--accent);
+  }
+
+  /* Centrar tarjetas de Temp/Hum dentro del overlay de colmena */
+  .overlay-grid .card {
+    text-align: center;
+  }
+
+  .overlay-grid .card h3 {
+    text-align: center;
+    width: 100%;
+  }
+
+  .overlay-grid .card .metric {
+    justify-content: center;
+  }
+
+  .overlay-grid .card .muted {
+    text-align: center;
+  }
+
+  /* Botonera de modos: Trabajo / Aire / Movimiento */
+  .mode-toggle {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .mode-toggle button {
+    background: #10141a;
+    border: 1px solid var(--border);
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .mode-toggle button.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #111;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .3);
+  }
+
+  /* =========================================================
+   *  GRÁFICAS (panel principal y overlay colmena)
+   * =======================================================*/
+  #chartsWrap {
+    display: none;
+    margin-top: 14px;
+  }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 860px) {
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .chart-box {
+    position: relative;
+    height: 240px;
+  }
+
+  .chart-box canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Controles de historial para gráficas (rango de fechas, botones) */
+  .hist-controls {
+    display: none;
+    gap: 10px;
+    align-items: end;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .hist-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* =========================================================
+   *  DATE-CHIP (inputs de fecha con botón de calendario)
+   * =======================================================*/
+  .date-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .date-chip input[type="date"] {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-weight: 600;
+    padding: 8px 10px;
+    cursor: pointer;
+    min-width: 140px;
+    line-height: 1.2;
+  }
+
+  .date-chip input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+  }
+
+  .cal-btn {
+    background: var(--accent);
+    border: 2px solid var(--accent);
+    color: #111;
+    border-radius: 0 10px 10px 0;
+    padding: 8px 10px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .cal-btn svg {
+    width: 18px;
+    height: 18px;
+    color: #111;
+  }
+
+  .cal-btn:focus {
+    outline: 2px solid var(--focus);
+  }
+
+  /* =========================================================
+   *  PRODUCCIÓN: FILTROS / INPUTS
+   * =======================================================*/
+  /* Filtros de producción en el overlay global */
+  .prod-filters-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: flex-start; /* evita que las date-chip se estiren en altura */
+  }
+
+  /* Limitar ancho de las date-chip solo en sección producción */
+  .prod-filters-grid .date-chip {
+    max-width: 230px;
+  }
+
+  @media (max-width: 900px) {
+    .prod-filters-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Inputs de producción por colmena (Fecha + Kilos) */
+  .prod-inputs {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .prod-inputs .date-chip {
+    max-width: 230px;
+  }
+
+  .prod-inputs .prod-kilos {
+    background: #10141a;
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 8px;
+    border-radius: 10px;
+    width: 160px;
+  }
+
+  /* Input-chip genérico (actualmente para Kilos si se usa en otro contexto) */
+  .input-chip {
+    display: flex;
+    align-items: center;
+    background: #10141a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .input-chip input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    padding: 8px 10px;
+    line-height: 1.2;
+  }
+
+  /* =========================================================
+   *  TABLAS “NICE” (producción, sanidad, etc.)
+   * =======================================================*/
+  .nice-table {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card);
+  }
+
+  .nice-table thead th {
+    background: var(--accent);
+    color: #111;
+    border-bottom: 1px solid #caa332;
+  }
+
+  .nice-table tbody tr:nth-child(odd) {
+    background: var(--zebra);
+  }
+
+  .nice-table td,
+  .nice-table th {
+    padding: 10px;
+  }
+
+  .nice-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .badge {
+    display: inline-block;
+    background: #222;
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  /* =========================================================
+   *  STATUS DOT / INDICADORES DE ESTADO
+   * =======================================================*/
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    margin: .25rem 0 0;
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--idle);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, .2) inset;
+  }
+
+  /* Alerta: por ejemplo “colmena abierta” */
+  .status-dot.alert {
+    background: var(--bad);
+    animation: status-blink .8s ease-in-out infinite alternate;
+  }
+
+  @keyframes status-blink {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: .25;
+    }
+  }
+
+  /* =========================================================
+   *  CLIMA (tarjeta de pronóstico)
+   * =======================================================*/
+  .wx-card {
+    background: linear-gradient(140deg, #0b0d12, #141926);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Estado “desenfocado” cuando falta ubicación */
+  .wx-blur {
+    filter: blur(3px);
+    opacity: .6;
+    pointer-events: none;
+  }
+
+  .wx-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .wx-title {
+    font-weight: 800;
+  }
+
+  .wx-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .wx-tile {
+    background: #10141a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .wx-big {
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+
+  .wx-small {
+    color: var(--muted);
+    font-size: .9rem;
+  }
+
+  .wx-loc {
+    color: var(--muted);
+    font-size: .9rem;
+  }
+
+  .wx-today {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #10141a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+
+  .loc-chip {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 6px;
+  }
+
+  .loc-chip input {
+    background: transparent;
+    border: 0;
+    color: #fff;
+    padding: 6px;
+    font-weight: 600;
+    min-width: 220px;
+  }
+
+  .loc-chip input::placeholder {
+    color: #8fa1b3;
+  }
+
+  /* =========================================================
+   *  OVERLAY PRODUCCIÓN GLOBAL
+   * =======================================================*/
+  #prodOverlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 1000;
+    background: rgba(8, 10, 14, .95);
+    backdrop-filter: blur(4px);
+  }
+
+  #prodPanel {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+</style>
 </head>
-
 <body>
   <header class="header">
     <div class="nav-grid">
@@ -1124,13 +1674,15 @@
       </div>
     </div>
   </div>
-
-
 <script>
-  // Año
+  /* =========================================================
+   *  AÑO EN FOOTER
+   * =======================================================*/
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Firebase
+  /* =========================================================
+   *  FIREBASE AUTH
+   * =======================================================*/
   const firebaseConfig = {
     apiKey: "AIzaSyBH93vOKldh-IufVCZB1qyI6cRPoOr7iqw",
     authDomain: "mellifera-technology.firebaseapp.com",
@@ -1140,35 +1692,66 @@
     appId: "1:68043353319:web:20a1aafde7b37d3457c642",
     measurementId: "G-FCW1E604DG"
   };
+
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // Worker
+  /* =========================================================
+   *  WORKER + HELPERS BÁSICOS
+   * =======================================================*/
   const WORKER_BASE = "https://mellifera-worker.mellifera-tech.workers.dev";
   const BASE = WORKER_BASE.replace(/\/+$/, '');
+
   const $ = id => document.getElementById(id);
-  const setText = (id,t)=>{ const el=$(id); if(el) el.textContent=t; };
+  const setText = (id, t) => {
+    const el = $(id);
+    if (el) el.textContent = t;
+  };
 
-  // Estado
-  let currentUID=null, editing=false;
-  let chartTemp=null, chartHum=null, chartsVisible=false, lastItemsCache=null;
-  let historyMode=false;
-  let currentOverlayDevice=null, ovChartsVisible=false, ovChartTemp=null, ovChartHum=null;
-  let wxChart=null; // gráfico clima
-  let prodMainChart=null;        // gráfico principal de producción
-  let prodSecondaryChart=null;   // gráfico secundario (torta anual)
-  let prodLastItems=[];          // últimos registros de producción cargados
-  // Configuración de las tarjetas de colmena (afecta a TODAS)
-    // Overlay meta (sanidad / calendario / notas)
-  let metaCurrentMode = null;          // 'sanidad' | 'calendario' | 'notas'
-  let metaDeviceContext = null;        // por ej. colmena desde la que abrimos notas
+  /* =========================================================
+   *  ESTADO GLOBAL JS
+   * =======================================================*/
+  let currentUID = null;
+  let editing = false;
 
-  // Colores aleatorios por colmena para el calendario
-  const META_COLORS = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
+  // Gráficos “madre”
+  let chartTemp = null;
+  let chartHum = null;
+  let chartsVisible = false;
+
+  let lastItemsCache = null;
+  let historyMode = false;
+
+  // Overlay por colmena
+  let currentOverlayDevice = null;
+  let ovChartsVisible = false;
+  let ovChartTemp = null;
+  let ovChartHum = null;
+
+  // Clima
+  let wxChart = null;
+
+  // Producción global
+  let prodMainChart = null;      // gráfico principal
+  let prodSecondaryChart = null; // gráfico secundario (torta)
+  let prodLastItems = [];        // últimos registros de producción cargados
+
+  // Meta overlay (Sanidad / Calendario / Notas)
+  let metaCurrentMode = null;    // 'sanidad' | 'calendario' | 'notas'
+  let metaDeviceContext = null;  // colmena desde la que abrimos notas (opcional)
+
+  /* =========================================================
+   *  COLORES POR COLMENA (para calendario)
+   * =======================================================*/
+  const META_COLORS = [
+    '#ffb74d', '#4da3ff', '#49d17d', '#ff6b6b',
+    '#7fb3ff', '#ce93d8', '#fff176', '#80cbc4'
+  ];
   const DEVICE_COLOR_CACHE = {};
-  function getDeviceColor(id){
-    if(!id) return '#9aa3ad';
-    if(!DEVICE_COLOR_CACHE[id]){
+
+  function getDeviceColor(id) {
+    if (!id) return '#9aa3ad';
+    if (!DEVICE_COLOR_CACHE[id]) {
       const keys = Object.keys(DEVICE_COLOR_CACHE);
       const idx = keys.length % META_COLORS.length;
       DEVICE_COLOR_CACHE[id] = META_COLORS[idx];
@@ -1176,1064 +1759,1425 @@
     return DEVICE_COLOR_CACHE[id];
   }
 
-  function getKnownDevices(){
+  function getKnownDevices() {
     const set = new Set();
-    for(const d of lastItemsCache || []){
-      const id = String(d.device_id||'').trim();
-      if(!id || /mother/i.test(id) || !isNumericId(id)) continue;
+    for (const d of lastItemsCache || []) {
+      const id = String(d.device_id || '').trim();
+      if (!id || /mother/i.test(id) || !isNumericId(id)) continue;
       set.add(id);
     }
-    return Array.from(set).sort((a,b)=>Number(a||0)-Number(b||0));
+    return Array.from(set).sort((a, b) => Number(a || 0) - Number(b || 0));
   }
 
-const CARD_CFG_KEY = 'miellifera.cardCfg';
-let cardCfg = loadCardCfg();
+  /* =========================================================
+   *  CONFIG TARJETAS COLMENA (mes / año, sem / mes / año)
+   * =======================================================*/
+  const CARD_CFG_KEY = 'miellifera.cardCfg';
+  let cardCfg = loadCardCfg();
 
-function loadCardCfg(){
-  try{
-    const raw = localStorage.getItem(CARD_CFG_KEY);
-    if(!raw) return { kilos:'mes', trabajo:'semana' };
-    const c = JSON.parse(raw);
-    return {
-      kilos: ['mes','anio'].includes(c.kilos) ? c.kilos : 'mes',
-      trabajo: ['semana','mes','anio'].includes(c.trabajo) ? c.trabajo : 'semana'
-    };
-  }catch{
-    return { kilos:'mes', trabajo:'semana' };
+  function loadCardCfg() {
+    try {
+      const raw = localStorage.getItem(CARD_CFG_KEY);
+      if (!raw) return { kilos: 'mes', trabajo: 'semana' };
+      const c = JSON.parse(raw);
+      return {
+        kilos: ['mes', 'anio'].includes(c.kilos) ? c.kilos : 'mes',
+        trabajo: ['semana', 'mes', 'anio'].includes(c.trabajo) ? c.trabajo : 'semana'
+      };
+    } catch {
+      return { kilos: 'mes', trabajo: 'semana' };
+    }
   }
-}
 
-function saveCardCfg(){
-  try{ localStorage.setItem(CARD_CFG_KEY, JSON.stringify(cardCfg)); }catch{}
-}
+  function saveCardCfg() {
+    try {
+      localStorage.setItem(CARD_CFG_KEY, JSON.stringify(cardCfg));
+    } catch { }
+  }
 
-// Etiquetas que se muestran en las tarjetas
-function getKilosLabel(){
-  return cardCfg.kilos === 'anio' ? 'Kilos año' : 'Kilos mes';
-}
-function getTrabajoLabel(){
-  if(cardCfg.trabajo === 'mes') return 'Trabajo mensual';
-  if(cardCfg.trabajo === 'anio') return 'Trabajo anual';
-  return 'Trabajo semanal';
-}
+  // Etiquetas visibles en tarjetas
+  function getKilosLabel() {
+    return cardCfg.kilos === 'anio' ? 'Kilos año' : 'Kilos mes';
+  }
 
-// Sincroniza las etiquetas del "modelo" con la config actual
-function syncCardModelLabels(){
-  setText('cardModelKilosLabel', getKilosLabel());
-  setText('cardModelTrabajoLabel', getTrabajoLabel());
-}
+  function getTrabajoLabel() {
+    if (cardCfg.trabajo === 'mes') return 'Trabajo mensual';
+    if (cardCfg.trabajo === 'anio') return 'Trabajo anual';
+    return 'Trabajo semanal';
+  }
 
+  // Sincroniza las etiquetas del “modelo” con la config actual
+  function syncCardModelLabels() {
+    setText('cardModelKilosLabel', getKilosLabel());
+    setText('cardModelTrabajoLabel', getTrabajoLabel());
+  }
 
-  // ======= NUEVO: Estado clima por almacenamiento local =======
+  /* =========================================================
+   *  CLIMA: ESTADO EN LOCALSTORAGE
+   * =======================================================*/
   const WX_KEY = 'miellifera.wxPlace'; // {lat,lon,label}
-  function saveWxPlace(p){ try{ localStorage.setItem(WX_KEY, JSON.stringify(p||null)); }catch{} }
-  function loadWxPlace(){ try{ const x = localStorage.getItem(WX_KEY); return x? JSON.parse(x): null; }catch{ return null; } }
-  function clearWxPlace(){ try{ localStorage.removeItem(WX_KEY); }catch{} }
 
-  // Auth
-  auth.onAuthStateChanged(async (u)=>{
-    if(!u){ location.href = 'login.html'; return; }
+  function saveWxPlace(p) {
+    try { localStorage.setItem(WX_KEY, JSON.stringify(p || null)); } catch { }
+  }
+
+  function loadWxPlace() {
+    try {
+      const x = localStorage.getItem(WX_KEY);
+      return x ? JSON.parse(x) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function clearWxPlace() {
+    try { localStorage.removeItem(WX_KEY); } catch { }
+  }
+
+  /* =========================================================
+   *  AUTH: LOGIN / LOGOUT / ARRANQUE
+   * =======================================================*/
+  auth.onAuthStateChanged(async (u) => {
+    if (!u) {
+      location.href = 'login.html';
+      return;
+    }
     currentUID = u.uid;
-    const ue=$('uEmail'); ue.dataset.real = u.email || '(sin email)'; ue.textContent = ue.dataset.real;
-    try{
-      const { code } = await callWorker('/ensure_user', { method:'POST' });
-      const uc=$('uCode'); uc.dataset.real = code || '—'; uc.textContent = uc.dataset.real;
+
+    const ue = $('uEmail');
+    ue.dataset.real = u.email || '(sin email)';
+    ue.textContent = ue.dataset.real;
+
+    try {
+      const { code } = await callWorker('/ensure_user', { method: 'POST' });
+
+      const uc = $('uCode');
+      uc.dataset.real = code || '—';
+      uc.textContent = uc.dataset.real;
+
       await loadDatapoints();
       initDateDefaults();
       initProdDefaults();
 
-      // Clima: si hay ubicación guardada, cargar y fijar estado
+      // Clima: si hay ubicación guardada la usamos
       const saved = loadWxPlace();
-      if(saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)){
-        await renderWeather(saved.lat, saved.lon, saved.label||(`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`));
+      if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)) {
+        await renderWeather(
+          saved.lat,
+          saved.lon,
+          saved.label || (`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`)
+        );
         setWxButtonsState('fixed');
       } else {
-        setWxButtonsState('ready'); // mostrar "Ingresar ubicación"
+        setWxButtonsState('ready');
       }
-    }catch(e){ const m=$('msg'); if(m) m.textContent="Error cargando datos: "+(e.message||e); }
+    } catch (e) {
+      const m = $('msg');
+      if (m) m.textContent = "Error cargando datos: " + (e.message || e);
+    }
   });
-  $('btnLogout').onclick = ()=> auth.signOut().then(()=>location.href='login.html');
-  $('btnTutorials').onclick = ()=> location.href='tutoriales.html';
 
-  // Toggle email/código
-  function maskVal(s){
-  if(!s) return '••••';
-  if(/@/.test(s)){
-    const [local, dom] = s.split('@');
-    const l = String(local || '');
-    const d = String(dom   || '');
-    const lFirst = l.charAt(0) || '';
-    const lLast  = l.slice(-1) || '';
-    const dFirst = d.charAt(0) || '';
-    const dLast  = d.slice(-1) || '';
-    return `${lFirst}***${lLast}@${dFirst}***${dLast}`;
+  $('btnLogout').onclick = () => auth.signOut().then(() => location.href = 'login.html');
+  $('btnTutorials').onclick = () => location.href = 'tutoriales.html';
+
+  /* =========================================================
+   *  TOGGLE EMAIL / CÓDIGO (mascar)
+   * =======================================================*/
+  function maskVal(s) {
+    if (!s) return '••••';
+    if (/@/.test(s)) {
+      const [local, dom] = s.split('@');
+      const l = String(local || '');
+      const d = String(dom || '');
+      const lFirst = l.charAt(0) || '';
+      const lLast = l.slice(-1) || '';
+      const dFirst = d.charAt(0) || '';
+      const dLast = d.slice(-1) || '';
+      return `${lFirst}***${lLast}@${dFirst}***${dLast}`;
+    }
+    return '•'.repeat(Math.min(4, String(s).length));
   }
-  return '•'.repeat(Math.min(4, String(s).length));
-}
 
-  function toggleReveal(targetId, btnId){
-    const el=$(targetId), btn=$(btnId);
+  function toggleReveal(targetId, btnId) {
+    const el = $(targetId), btn = $(btnId);
     const hidden = el.dataset.shown !== '1';
-    if(hidden){ el.dataset.prev = el.textContent; el.textContent = maskVal(el.dataset.real||el.textContent); el.dataset.shown='1'; btn.setAttribute('aria-pressed','true'); btn.querySelector('span').textContent='Mostrar'; }
-    else{ el.textContent = el.dataset.real || el.dataset.prev || el.textContent; el.dataset.shown='0'; btn.setAttribute('aria-pressed','false'); btn.querySelector('span').textContent='Ocultar'; }
+    if (hidden) {
+      el.dataset.prev = el.textContent;
+      el.textContent = maskVal(el.dataset.real || el.textContent);
+      el.dataset.shown = '1';
+      btn.setAttribute('aria-pressed', 'true');
+      btn.querySelector('span').textContent = 'Mostrar';
+    } else {
+      el.textContent = el.dataset.real || el.dataset.prev || el.textContent;
+      el.dataset.shown = '0';
+      btn.setAttribute('aria-pressed', 'false');
+      btn.querySelector('span').textContent = 'Ocultar';
+    }
   }
-  $('toggleEmail').onclick = ()=> toggleReveal('uEmail','toggleEmail');
-  $('toggleCode').onclick  = ()=> toggleReveal('uCode','toggleCode');
 
-  // Worker call
-  async function callWorker(path, opts={}){
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
+  $('toggleEmail').onclick = () => toggleReveal('uEmail', 'toggleEmail');
+  $('toggleCode').onclick = () => toggleReveal('uCode', 'toggleCode');
+
+  /* =========================================================
+   *  CALL WORKER (API principal)
+   * =======================================================*/
+  async function callWorker(path, opts = {}) {
+    const u = auth.currentUser;
+    if (!u) throw new Error('No auth');
     const t = await u.getIdToken();
     const p = path.startsWith('/') ? path : `/${path}`;
     const res = await fetch(`${BASE}${p}`, {
       method: opts.method || 'GET',
-      headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${t}`,
+        'Content-Type': 'application/json'
+      },
       body: opts.body ? JSON.stringify(opts.body) : undefined
     });
-    if(!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
 
-  // Utils
-  const fmt = v => (v==null||Number.isNaN(+v)) ? null : Number(v).toFixed(2);
+  /* =========================================================
+   *  UTILIDADES VARIAS
+   * =======================================================*/
+  const fmt = v => (v == null || Number.isNaN(+v)) ? null : Number(v).toFixed(2);
   const dtAR = ts => new Date(ts).toLocaleString('es-AR');
   const isNumericId = id => /^\d+$/.test(id);
-  function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-  function ymd(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${dd}`;}
-  function toLocalDayStart(dateInput){ return new Date(dateInput+"T00:00:00").getTime(); }
-  function toLocalDayEnd(dateInput){ return new Date(dateInput+"T23:59:59.999").getTime(); }
-  function tryOpenPicker(id){ const el=$(id); if(el?.showPicker) el.showPicker(); else el?.focus(); }
 
-  // KPIs madre
-  function updateLastReading(items){
-    const el=$('lastReading');
-    if(!items?.length){ el.textContent='Última medición: —'; return; }
-    const latest = items.reduce((a,b)=> new Date(a.ts)>new Date(b.ts)?a:b);
-    el.textContent = 'Última medición: '+ dtAR(latest.ts);
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
-  function latestBySensor(items, key){
-    let best=null, bt=0, KEY=String(key).toUpperCase();
-    for(const d of items||[]){ if(String(d.sensor_key||'').toUpperCase()!==KEY) continue;
-      const t=new Date(d.ts).getTime(); if(t>bt){ best=d; bt=t; } }
+
+  function ymd(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  }
+
+  function toLocalDayStart(dateInput) {
+    return new Date(dateInput + "T00:00:00").getTime();
+  }
+
+  function toLocalDayEnd(dateInput) {
+    return new Date(dateInput + "T23:59:59.999").getTime();
+  }
+
+  function tryOpenPicker(id) {
+    const el = $(id);
+    if (el?.showPicker) el.showPicker();
+    else el?.focus();
+  }
+
+  /* =========================================================
+   *  KPIs MADRE (TEM / HUM)
+   * =======================================================*/
+  function updateLastReading(items) {
+    const el = $('lastReading');
+    if (!items?.length) {
+      el.textContent = 'Última medición: —';
+      return;
+    }
+    const latest = items.reduce((a, b) =>
+      new Date(a.ts) > new Date(b.ts) ? a : b
+    );
+    el.textContent = 'Última medición: ' + dtAR(latest.ts);
+  }
+
+  function latestBySensor(items, key) {
+    let best = null, bt = 0;
+    const KEY = String(key).toUpperCase();
+    for (const d of items || []) {
+      if (String(d.sensor_key || '').toUpperCase() !== KEY) continue;
+      const t = new Date(d.ts).getTime();
+      if (t > bt) {
+        best = d;
+        bt = t;
+      }
+    }
     return best;
   }
-  function updateMotherKPIs(items){
-    const tem=latestBySensor(items,'MOTHER.TEM');
-    setText('temVal', tem?.value!=null? fmt(tem.value):'—');
-    setText('temWhen', tem? dtAR(tem.ts):'—');
-    const hum=latestBySensor(items,'MOTHER.HUM');
-    setText('humVal', hum?.value!=null? fmt(hum.value):'—');
-    setText('humWhen', hum? dtAR(hum.ts):'—');
+
+  function updateMotherKPIs(items) {
+    const tem = latestBySensor(items, 'MOTHER.TEM');
+    setText('temVal', tem?.value != null ? fmt(tem.value) : '—');
+    setText('temWhen', tem ? dtAR(tem.ts) : '—');
+
+    const hum = latestBySensor(items, 'MOTHER.HUM');
+    setText('humVal', hum?.value != null ? fmt(hum.value) : '—');
+    setText('humWhen', hum ? dtAR(hum.ts) : '—');
   }
 
-  // Tabla general
-  function renderTable(items){
-    const tbody=document.querySelector('#tbl tbody');
-    tbody.innerHTML=(items||[]).map(d=>{
-      const val = String(d.sensor_key||'').startsWith('EVENT.')
-        ? (d.meta?.info||d.meta?.type||JSON.stringify(d.meta||{}))
-        : (d.value==null?'':fmt(d.value));
-      return `<tr><td>${dtAR(d.ts)}</td><td>${escapeHtml(d.device_id||'')}</td><td>${escapeHtml(d.sensor_key||'')}</td><td>${escapeHtml(val)}</td></tr>`;
+  /* =========================================================
+   *  TABLA GENERAL (lecturas crudas)
+   * =======================================================*/
+  function renderTable(items) {
+    const tbody = document.querySelector('#tbl tbody');
+    tbody.innerHTML = (items || []).map(d => {
+      const val = String(d.sensor_key || '').startsWith('EVENT.')
+        ? (d.meta?.info || d.meta?.type || JSON.stringify(d.meta || {}))
+        : (d.value == null ? '' : fmt(d.value));
+      return `<tr>
+        <td>${dtAR(d.ts)}</td>
+        <td>${escapeHtml(d.device_id || '')}</td>
+        <td>${escapeHtml(d.sensor_key || '')}</td>
+        <td>${escapeHtml(val)}</td>
+      </tr>`;
     }).join('');
   }
 
-
-function formatMinutes(mins){
-  const h = Math.floor(mins/60);
-  const m = Math.round(mins%60);
-  return h>0 ? `${h}h ${m}m` : `${m}m`;
-}
-
-// Simulación o carga real desde Worker de producción
-// Rangos para producción (mes / semana / año)
-function getProdRange(period){
-  const now = new Date();
-  let from;
-  if(period === 'anio'){
-    from = new Date(now.getFullYear(), 0, 1, 0,0,0,0);
-  }else if(period === 'semana'){
-    const d = (now.getDay()+6)%7; // lunes
-    from = new Date(now);
-    from.setDate(now.getDate()-d);
-    from.setHours(0,0,0,0);
-  }else{ // 'mes' por defecto
-    from = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0,0);
+  /* =========================================================
+   *  UTILIDAD TIEMPO (minutos / horas)
+   * =======================================================*/
+  function formatMinutes(mins) {
+    const h = Math.floor(mins / 60);
+    const m = Math.round(mins % 60);
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
   }
-  const to = new Date();
-  return { fromISO: from.toISOString(), toISO: to.toISOString() };
-}
 
-// Suma kilos y trabajoMin por colmena para el período indicado
-async function getProductionSummary(period){
-  const { fromISO, toISO } = getProdRange(period);
-  try{
-    const { items } = await prodList({ fromISO, toISO });
-    const map = {};
-    for(const it of items||[]){
-      const id = String(it.device_id||'').trim();
-      if(!id) continue;
-      if(!map[id]) map[id] = { kilos:0, trabajoMin:0 };
-      map[id].kilos      += Number(it.kilos||0);
-      map[id].trabajoMin += Number(it.trabajoMin||0);
+  /* =========================================================
+   *  PRODUCCIÓN: RANGOS (mes / semana / año)
+   * =======================================================*/
+  function getProdRange(period) {
+    const now = new Date();
+    let from;
+    if (period === 'anio') {
+      from = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+    } else if (period === 'semana') {
+      const d = (now.getDay() + 6) % 7; // lunes
+      from = new Date(now);
+      from.setDate(now.getDate() - d);
+      from.setHours(0, 0, 0, 0);
+    } else { // mes por defecto
+      from = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
     }
-    return map;
-  }catch{
-    return {};
+    const to = new Date();
+    return { fromISO: from.toISOString(), toISO: to.toISOString() };
   }
-}
 
-
-  
-  
-  // Tarjetas colmena + estado extendido
-  // Tarjetas colmena + estado extendido
-async function renderDeviceCards(items){
-  const wrap = $('autoCards');
-  if(!wrap) return;
-
-  // Último timestamp por colmena
-  const lastById = new Map();
-  // Estado por colmena: último OPN / último MS
-  const statusById = new Map();
-
-  for(const d of items || []){
-    const rawId = String(d.device_id || '').trim();
-    if(!rawId || /mother/i.test(rawId) || !isNumericId(rawId)) continue;
-
-    const t = new Date(d.ts).getTime();
-    const prev = lastById.get(rawId) || 0;
-    if(t > prev) lastById.set(rawId, t);
-
-    const key = String(d.sensor_key || '').toUpperCase().trim();
-    if(!statusById.has(rawId)){
-      statusById.set(rawId, { lastOpen:0, lastClose:0 });
-    }
-    const st = statusById.get(rawId);
-
-    // OPN = colmena abierta
-    if(key === 'OPN' || key.endsWith('.OPN') || key.includes('OPN')){
-      if(t > st.lastOpen) st.lastOpen = t;
-    }
-    // MS = “cierra” alerta
-    if(key === 'MS' || key.endsWith('.MS')){
-      if(t > st.lastClose) st.lastClose = t;
+  async function getProductionSummary(period) {
+    const { fromISO, toISO } = getProdRange(period);
+    try {
+      const { items } = await prodList({ fromISO, toISO });
+      const map = {};
+      for (const it of items || []) {
+        const id = String(it.device_id || '').trim();
+        if (!id) continue;
+        if (!map[id]) map[id] = { kilos: 0, trabajoMin: 0 };
+        map[id].kilos += Number(it.kilos || 0);
+        map[id].trabajoMin += Number(it.trabajoMin || 0);
+      }
+      return map;
+    } catch {
+      return {};
     }
   }
 
-  const devices = [...lastById.entries()]
-    .sort((a,b) => b[1] - a[1])
-    .map(([id, ts]) => ({ id, ts }));
+  /* =========================================================
+   *  TARJETAS DE COLMENAS (panel principal)
+   * =======================================================*/
+  async function renderDeviceCards(items) {
+    const wrap = $('autoCards');
+    if (!wrap) return;
 
-  if(!devices.length){
-    wrap.innerHTML = '<div class="muted">Sin colmenas detectadas.</div>';
-    return;
-  }
+    // Último timestamp por colmena
+    const lastById = new Map();
+    // Estado OPN / MS por colmena
+    const statusById = new Map();
 
-  const now = Date.now();
+    for (const d of items || []) {
+      const rawId = String(d.device_id || '').trim();
+      if (!rawId || /mother/i.test(rawId) || !isNumericId(rawId)) continue;
 
-  // Pedir datos según configuración global de tarjetas
-  const prodKilos   = await getProductionSummary(cardCfg.kilos);    // mes / año
-  const prodTrabajo = await getProductionSummary(cardCfg.trabajo);  // semana / mes / año
+      const t = new Date(d.ts).getTime();
+      const prev = lastById.get(rawId) || 0;
+      if (t > prev) lastById.set(rawId, t);
 
-  const labelKilos   = getKilosLabel();
-  const labelTrabajo = getTrabajoLabel();
+      const key = String(d.sensor_key || '').toUpperCase().trim();
+      if (!statusById.has(rawId)) {
+        statusById.set(rawId, { lastOpen: 0, lastClose: 0 });
+      }
+      const st = statusById.get(rawId);
 
-  wrap.innerHTML = devices.map(({id, ts})=>{
-    const diffMin    = (now - ts) / 60000;
-    const conectado  = diffMin <= 15;
-    const colorConn  = conectado ? 'var(--ok)' : 'var(--bad)';
-
-    const st = statusById.get(id) || { lastOpen:0, lastClose:0 };
-
-    // Por defecto: sin eventos → punto gris
-    let estadoLabel   = 'Estado';
-    let estadoDotCls  = 'status-dot';
-    let estadoDotStyle = 'background:var(--idle);';
-
-    if(st.lastOpen || st.lastClose){
-      if(st.lastOpen > st.lastClose){
-        // Último evento fue OPN → alerta activa
-        estadoLabel    = 'ABIERTO';
-        estadoDotCls   = 'status-dot alert';  // rojo titilando desde el CSS
-        estadoDotStyle = '';                  // sin style inline, manda la clase
-      }else{
-        // Último evento fue MS → todo OK
-        estadoLabel    = 'Estado';
-        estadoDotCls   = 'status-dot';
-        estadoDotStyle = 'background:var(--ok);'; // verde
+      // OPN = colmena abierta
+      if (key === 'OPN' || key.endsWith('.OPN') || key.includes('OPN')) {
+        if (t > st.lastOpen) st.lastOpen = t;
+      }
+      // MS = “cierra” alerta
+      if (key === 'MS' || key.endsWith('.MS')) {
+        if (t > st.lastClose) st.lastClose = t;
       }
     }
 
-    const kilosVal    = (prodKilos[id]?.kilos || 0).toFixed(1);
-    const trabajoMin  = prodTrabajo[id]?.trabajoMin || 0;
-    const trabajoText = formatMinutes(trabajoMin);
+    const devices = [...lastById.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([id, ts]) => ({ id, ts }));
 
-    return `
-      <div class="card device-card" data-device="${id}" tabindex="0" role="button" aria-label="Abrir Colmena ${id}">
-        <h3 style="margin:0">Colmena ${id}</h3>
-        <div class="status-row">
-          <span>Conectado</span>
-          <span class="status-dot" style="background:${colorConn}"></span>
-        </div>
-        <div class="status-row">
-          <span>${estadoLabel}</span>
-          <span class="${estadoDotCls}"${estadoDotStyle ? ` style="${estadoDotStyle}"` : ''}></span>
-        </div>
-        <div class="status-row">
-          <span>${labelKilos}</span>
-          <span style="font-weight:800;color:var(--accent)">${kilosVal}</span>
-        </div>
-        <div class="status-row">
-          <span>${labelTrabajo}</span>
-          <span style="font-weight:800;color:var(--focus)">${trabajoText}</span>
-        </div>
-      </div>`;
-  }).join('');
+    if (!devices.length) {
+      wrap.innerHTML = '<div class="muted">Sin colmenas detectadas.</div>';
+      return;
+    }
 
-  if(editing) enableDnD();
+    const now = Date.now();
 
-  // Mantener el select del overlay de producción
-  const sel = $('prodDevice');
-  if(sel){
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">Todas</option>' +
-      devices.map(d => `<option value="${d.id}">${d.id}</option>`).join('');
-    if(cur) sel.value = cur;
-  }
-}
+    // Sumar producción según configuración global
+    const prodKilos = await getProductionSummary(cardCfg.kilos);     // mes / año
+    const prodTrabajo = await getProductionSummary(cardCfg.trabajo); // semana / mes / año
 
+    const labelKilos = getKilosLabel();
+    const labelTrabajo = getTrabajoLabel();
 
+    wrap.innerHTML = devices.map(({ id, ts }) => {
+      const diffMin = (now - ts) / 60000;
+      const conectado = diffMin <= 15;
+      const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
 
-  
-  // DnD + modo configuración de tarjetas
-$('btnEdit').onclick = ()=>{
-  editing = !editing;
-  $('btnEdit').textContent = editing ? 'Terminar edición' : 'Editar orden';
-  $('autoCards').classList.toggle('editing', editing);
+      const st = statusById.get(id) || { lastOpen: 0, lastClose: 0 };
 
-  const model = $('cardModel');
-  if(model){
-    model.style.display = editing ? 'block' : 'none';
-    if(editing){
-      // Sincronizar selects con la config actual
-      const kSel = $('cardCfgKilos');
-      const wSel = $('cardCfgTrabajo');
-      if(kSel) kSel.value = cardCfg.kilos;
-      if(wSel) wSel.value = cardCfg.trabajo;
-      syncCardModelLabels();
+      let estadoLabel = 'Estado';
+      let estadoDotCls = 'status-dot';
+      let estadoDotStyle = 'background:var(--idle);';
+
+      if (st.lastOpen || st.lastClose) {
+        if (st.lastOpen > st.lastClose) {
+          // Último evento fue OPN → alerta activa
+          estadoLabel = 'ABIERTO';
+          estadoDotCls = 'status-dot alert';
+          estadoDotStyle = '';
+        } else {
+          // Último evento fue MS → OK
+          estadoLabel = 'Estado';
+          estadoDotCls = 'status-dot';
+          estadoDotStyle = 'background:var(--ok);';
+        }
+      }
+
+      const kilosVal = (prodKilos[id]?.kilos || 0).toFixed(1);
+      const trabajoMin = prodTrabajo[id]?.trabajoMin || 0;
+      const trabajoText = formatMinutes(trabajoMin);
+
+      return `
+        <div class="card device-card"
+             data-device="${id}"
+             tabindex="0"
+             role="button"
+             aria-label="Abrir Colmena ${id}">
+          <h3 style="margin:0">Colmena ${id}</h3>
+          <div class="status-row">
+            <span>Conectado</span>
+            <span class="status-dot" style="background:${colorConn}"></span>
+          </div>
+          <div class="status-row">
+            <span>${estadoLabel}</span>
+            <span class="${estadoDotCls}"${estadoDotStyle ? ` style="${estadoDotStyle}"` : ''}></span>
+          </div>
+          <div class="status-row">
+            <span>${labelKilos}</span>
+            <span style="font-weight:800;color:var(--accent)">${kilosVal}</span>
+          </div>
+          <div class="status-row">
+            <span>${labelTrabajo}</span>
+            <span style="font-weight:800;color:var(--focus)">${trabajoText}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    if (editing) enableDnD();
+
+    // Mantener select del overlay de producción sincronizado
+    const sel = $('prodDevice');
+    if (sel) {
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Todas</option>' +
+        devices.map(d => `<option value="${d.id}">${d.id}</option>`).join('');
+      if (cur) sel.value = cur;
     }
   }
 
-  if(editing) enableDnD(); else disableDnD();
-};
+  /* =========================================================
+   *  MODO EDICIÓN TARJETAS + DnD
+   * =======================================================*/
+  $('btnEdit').onclick = () => {
+    editing = !editing;
+    $('btnEdit').textContent = editing ? 'Terminar edición' : 'Editar orden';
+    $('autoCards').classList.toggle('editing', editing);
 
-// Cambios en los selects del modelo → solo actualizan la previa visual
-const cfgKilosSel   = $('cardCfgKilos');
-const cfgTrabajoSel = $('cardCfgTrabajo');
+    const model = $('cardModel');
+    if (model) {
+      model.style.display = editing ? 'block' : 'none';
+      if (editing) {
+        const kSel = $('cardCfgKilos');
+        const wSel = $('cardCfgTrabajo');
+        if (kSel) kSel.value = cardCfg.kilos;
+        if (wSel) wSel.value = cardCfg.trabajo;
+        syncCardModelLabels();
+      }
+    }
 
-if(cfgKilosSel){
-  cfgKilosSel.onchange = ()=>{
-    const v = cfgKilosSel.value || 'mes';
-    const tmp = { kilos:v, trabajo:cardCfg.trabajo };
-    // Actualizar solo texto de previa
-    setText('cardModelKilosLabel', v === 'anio' ? 'Kilos año' : 'Kilos mes');
+    if (editing) enableDnD();
+    else disableDnD();
   };
-}
-if(cfgTrabajoSel){
-  cfgTrabajoSel.onchange = ()=>{
-    const v = cfgTrabajoSel.value || 'semana';
-    const tmp = { kilos:cardCfg.kilos, trabajo:v };
-    let txt;
-    if(v==='mes') txt = 'Trabajo mensual';
-    else if(v==='anio') txt = 'Trabajo anual';
-    else txt = 'Trabajo semanal';
-    setText('cardModelTrabajoLabel', txt);
+
+  const cfgKilosSel = $('cardCfgKilos');
+  const cfgTrabajoSel = $('cardCfgTrabajo');
+
+  // Cambio en select de kilos → preview
+  if (cfgKilosSel) {
+    cfgKilosSel.onchange = () => {
+      const v = cfgKilosSel.value || 'mes';
+      setText('cardModelKilosLabel', v === 'anio' ? 'Kilos año' : 'Kilos mes');
+    };
+  }
+
+  // Cambio en select de trabajo → preview
+  if (cfgTrabajoSel) {
+    cfgTrabajoSel.onchange = () => {
+      const v = cfgTrabajoSel.value || 'semana';
+      let txt;
+      if (v === 'mes') txt = 'Trabajo mensual';
+      else if (v === 'anio') txt = 'Trabajo anual';
+      else txt = 'Trabajo semanal';
+      setText('cardModelTrabajoLabel', txt);
+    };
+  }
+
+  // Confirmar configuración de tarjetas
+  $('cardCfgConfirm').onclick = () => {
+    const kSel = $('cardCfgKilos');
+    const wSel = $('cardCfgTrabajo');
+
+    const k = kSel?.value || 'mes';
+    const w = wSel?.value || 'semana';
+
+    cardCfg = {
+      kilos: ['mes', 'anio'].includes(k) ? k : 'mes',
+      trabajo: ['semana', 'mes', 'anio'].includes(w) ? w : 'semana'
+    };
+    saveCardCfg();
+    syncCardModelLabels();
+
+    // Re-render de todas las tarjetas
+    renderDeviceCards(lastItemsCache || []);
+
+    // Salir de modo edición
+    editing = false;
+    const btnEdit = $('btnEdit');
+    if (btnEdit) btnEdit.textContent = 'Editar orden';
+    const cardsWrap = $('autoCards');
+    if (cardsWrap) cardsWrap.classList.remove('editing');
+    const model = $('cardModel');
+    if (model) model.style.display = 'none';
+    disableDnD();
   };
-}
 
-// Confirmar → guarda config y vuelve a renderizar todas las tarjetas
-$('cardCfgConfirm').onclick = ()=>{
-  const kSel = $('cardCfgKilos');
-  const wSel = $('cardCfgTrabajo');
+  // Reset configuración a valores por defecto
+  $('cardCfgReset').onclick = () => {
+    cardCfg = { kilos: 'mes', trabajo: 'semana' };
+    saveCardCfg();
 
-  const k = kSel?.value || 'mes';
-  const w = wSel?.value || 'semana';
+    const kSel = $('cardCfgKilos');
+    const wSel = $('cardCfgTrabajo');
+    if (kSel) kSel.value = cardCfg.kilos;
+    if (wSel) wSel.value = cardCfg.trabajo;
 
-  // Guardar configuración global
-  cardCfg = {
-    kilos: ['mes','anio'].includes(k) ? k : 'mes',
-    trabajo: ['semana','mes','anio'].includes(w) ? w : 'semana'
+    syncCardModelLabels();
+    renderDeviceCards(lastItemsCache || []);
   };
-  saveCardCfg();
-  syncCardModelLabels();
 
-  // Re-render de TODAS las colmenas con la nueva vista
-  renderDeviceCards(lastItemsCache || []);
-
-  // Salir de modo edición como si apretáramos "Terminar edición"
-  editing = false;
-  const btnEdit = $('btnEdit');
-  if(btnEdit){
-    btnEdit.textContent = 'Editar orden';
-  }
-  const cardsWrap = $('autoCards');
-  if(cardsWrap){
-    cardsWrap.classList.remove('editing');
-  }
-  const model = $('cardModel');
-  if(model){
-    model.style.display = 'none';
-  }
-  // Desactivar drag & drop
-  disableDnD();
-};
-
-
-// Resetear → vuelve a Kilos mes / Trabajo semanal
-$('cardCfgReset').onclick = ()=>{
-  cardCfg = { kilos:'mes', trabajo:'semana' };
-  saveCardCfg();
-
-  const kSel = $('cardCfgKilos');
-  const wSel = $('cardCfgTrabajo');
-  if(kSel) kSel.value = cardCfg.kilos;
-  if(wSel) wSel.value = cardCfg.trabajo;
-
-  syncCardModelLabels();
-  renderDeviceCards(lastItemsCache || []);
-};
-
-
-  function enableDnD(){
-    document.querySelectorAll('.device-card').forEach(c=>{
-      c.draggable=true;
-      c.addEventListener('dragstart',onDragStart);
-      c.addEventListener('dragover',onDragOver);
-      c.addEventListener('drop',onDrop);
-      c.addEventListener('dragend',onDragEnd);
+  function enableDnD() {
+    document.querySelectorAll('.device-card').forEach(c => {
+      c.draggable = true;
+      c.addEventListener('dragstart', onDragStart);
+      c.addEventListener('dragover', onDragOver);
+      c.addEventListener('drop', onDrop);
+      c.addEventListener('dragend', onDragEnd);
     });
   }
-  function disableDnD(){
-    document.querySelectorAll('.device-card').forEach(c=>{
-      c.draggable=false;
-      c.removeEventListener('dragstart',onDragStart);
-      c.removeEventListener('dragover',onDragOver);
-      c.removeEventListener('drop',onDrop);
-      c.removeEventListener('dragend',onDragEnd);
+
+  function disableDnD() {
+    document.querySelectorAll('.device-card').forEach(c => {
+      c.draggable = false;
+      c.removeEventListener('dragstart', onDragStart);
+      c.removeEventListener('dragover', onDragOver);
+      c.removeEventListener('drop', onDrop);
+      c.removeEventListener('dragend', onDragEnd);
     });
   }
-  let dragId=null;
-  function onDragStart(e){ dragId=this.dataset.device; e.dataTransfer.effectAllowed='move'; this.classList.add('dragging'); }
-  function onDragOver(e){ e.preventDefault(); e.dataTransfer.dropEffect='move'; }
-  function onDrop(e){
+
+  let dragId = null;
+
+  function onDragStart(e) {
+    dragId = this.dataset.device;
+    e.dataTransfer.effectAllowed = 'move';
+    this.classList.add('dragging');
+  }
+
+  function onDragOver(e) {
     e.preventDefault();
-    const target=this.dataset.device;
-    if(!dragId || dragId===target) return;
-    const wrap=$('autoCards');
-    const a=wrap.querySelector(`.device-card[data-device="${CSS.escape(dragId)}"]`);
-    const b=wrap.querySelector(`.device-card[data-device="${CSS.escape(target)}"]`);
-    const aNext=a.nextSibling, bNext=b.nextSibling;
-    if(aNext===b) wrap.insertBefore(b,a);
-    else if(bNext===a) wrap.insertBefore(a,b);
-    else { wrap.insertBefore(a,bNext); wrap.insertBefore(b,aNext); }
+    e.dataTransfer.dropEffect = 'move';
   }
-  function onDragEnd(){ this.classList.remove('dragging'); }
 
-  // Overlay por colmena
-  document.addEventListener('click',(e)=>{
-    const card=e.target.closest('.device-card');
-    if(card && !editing){ openOverlay(card.dataset.device); }
+  function onDrop(e) {
+    e.preventDefault();
+    const target = this.dataset.device;
+    if (!dragId || dragId === target) return;
+    const wrap = $('autoCards');
+    const a = wrap.querySelector(`.device-card[data-device="${CSS.escape(dragId)}"]`);
+    const b = wrap.querySelector(`.device-card[data-device="${CSS.escape(target)}"]`);
+    const aNext = a.nextSibling, bNext = b.nextSibling;
+    if (aNext === b) wrap.insertBefore(b, a);
+    else if (bNext === a) wrap.insertBefore(a, b);
+    else {
+      wrap.insertBefore(a, bNext);
+      wrap.insertBefore(b, aNext);
+    }
+  }
+
+  function onDragEnd() {
+    this.classList.remove('dragging');
+  }
+
+  /* =========================================================
+   *  OVERLAY POR COLMENA (detalle)
+   * =======================================================*/
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.device-card');
+    if (card && !editing) {
+      openOverlay(card.dataset.device);
+    }
   });
-  $('btnOverlayBack').onclick=closeOverlay;
 
-  function openOverlay(id){
+  $('btnOverlayBack').onclick = closeOverlay;
+
+  function openOverlay(id) {
     currentOverlayDevice = String(id);
-    setText('overlayTitle','Colmena '+id);
-    const ov=$('deviceOverlay'); ov.style.display='block'; ov.setAttribute('aria-hidden','false');
-    $('devicePanel').scrollTo({top:0,behavior:'instant'});
+    setText('overlayTitle', 'Colmena ' + id);
+
+    const ov = $('deviceOverlay');
+    ov.style.display = 'block';
+    ov.setAttribute('aria-hidden', 'false');
+    $('devicePanel').scrollTo({ top: 0, behavior: 'instant' });
+
     updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+
     $('ovProdDate').value = ymd(new Date());
     $('ovProdKilos').value = '';
-    $('ovProdTbody').innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>';
-    $('ovProdHistWrap').style.display='none';
-    $('ovBtnToggleHist').textContent='Ver historial';
-    ovChartsVisible=false; $('ovChartsWrap').style.display='none';
-    if(ovChartTemp){ ovChartTemp.destroy(); ovChartTemp=null; }
-    if(ovChartHum){ ovChartHum.destroy(); ovChartHum=null; }
+    $('ovProdTbody').innerHTML = '<tr><td class="muted" colspan="2">Sin datos</td></tr>';
+    $('ovProdHistWrap').style.display = 'none';
+    $('ovBtnToggleHist').textContent = 'Ver historial';
+
+    ovChartsVisible = false;
+    $('ovChartsWrap').style.display = 'none';
+    if (ovChartTemp) { ovChartTemp.destroy(); ovChartTemp = null; }
+    if (ovChartHum) { ovChartHum.destroy(); ovChartHum = null; }
+
     $('ovDateFrom').value = ymd(new Date());
     $('ovDateTo').value = ymd(new Date());
-        // Al abrir una colmena, cerrar modos de análisis
+
+    // Al abrir, modo “Trabajo / Aire / Movimiento” apagado
     setModeSelection(null);
-
-  }
-  function closeOverlay(){
-    const ov=$('deviceOverlay'); ov.style.display='none'; ov.setAttribute('aria-hidden','true');
-    currentOverlayDevice=null;
   }
 
-  // KPIs colmena
-  function keyIsTemp(k){ const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.TEM')||K==='TEM'||K.includes('TEMP'); }
-  function keyIsHum(k){  const K=String(k||'').toUpperCase(); if(K.startsWith('MOTHER.')) return false; return K.endsWith('.HUM')||K==='HUM'||K.includes('HUM'); }
-  function latestByDevice(items, deviceId, kind){
-    let best=null, bt=0;
-    for(const d of items||[]){
-      if(String(d.device_id||'')!==String(deviceId)) continue;
-      const ok = kind==='TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
-      if(!ok) continue;
-      const t=new Date(d.ts).getTime();
-      if(t>bt){ best=d; bt=t; }
+  function closeOverlay() {
+    const ov = $('deviceOverlay');
+    ov.style.display = 'none';
+    ov.setAttribute('aria-hidden', 'true');
+    currentOverlayDevice = null;
+  }
+
+  // Detección de TEM/HUM por colmena
+  function keyIsTemp(k) {
+    const K = String(k || '').toUpperCase();
+    if (K.startsWith('MOTHER.')) return false;
+    return K.endsWith('.TEM') || K === 'TEM' || K.includes('TEMP');
+  }
+
+  function keyIsHum(k) {
+    const K = String(k || '').toUpperCase();
+    if (K.startsWith('MOTHER.')) return false;
+    return K.endsWith('.HUM') || K === 'HUM' || K.includes('HUM');
+  }
+
+  function latestByDevice(items, deviceId, kind) {
+    let best = null, bt = 0;
+    for (const d of items || []) {
+      if (String(d.device_id || '') !== String(deviceId)) continue;
+      const ok = kind === 'TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
+      if (!ok) continue;
+      const t = new Date(d.ts).getTime();
+      if (t > bt) {
+        best = d;
+        bt = t;
+      }
     }
     return best;
   }
-  function updateOverlayKPIs(items, deviceId){
+
+  function updateOverlayKPIs(items, deviceId) {
     const t = latestByDevice(items, deviceId, 'TEM');
     const h = latestByDevice(items, deviceId, 'HUM');
-    setText('ovTemVal', t?.value!=null ? fmt(t.value) : '—');
+    setText('ovTemVal', t?.value != null ? fmt(t.value) : '—');
     setText('ovTemWhen', t ? dtAR(t.ts) : '—');
-    setText('ovHumVal', h?.value!=null ? fmt(h.value) : '—');
+    setText('ovHumVal', h?.value != null ? fmt(h.value) : '—');
     setText('ovHumWhen', h ? dtAR(h.ts) : '—');
   }
 
-
-  // AGREGADO: bounds en ms + ISO según período
-function periodBounds(period, ref=new Date()){
-  const r = new Date(ref);
-  let from = new Date(r), to = new Date(r);
-  if(period==='dia'){
-    from.setHours(0,0,0,0); to.setHours(23,59,59,999);
-  }else if(period==='semana'){
-    const d=(r.getDay()+6)%7; // lunes
-    from.setHours(0,0,0,0); from.setDate(from.getDate()-d);
-    to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
-  }else{ // mes
-    from = new Date(r.getFullYear(), r.getMonth(), 1, 0,0,0,0);
-    to   = new Date(r.getFullYear(), r.getMonth()+1, 0, 23,59,59,999);
+  /* =========================================================
+   *  BOUNDS (día / semana / mes) PARA TRABAJO
+   * =======================================================*/
+  function periodBounds(period, ref = new Date()) {
+    const r = new Date(ref);
+    let from = new Date(r), to = new Date(r);
+    if (period === 'dia') {
+      from.setHours(0, 0, 0, 0);
+      to.setHours(23, 59, 59, 999);
+    } else if (period === 'semana') {
+      const d = (r.getDay() + 6) % 7; // lunes
+      from.setHours(0, 0, 0, 0);
+      from.setDate(from.getDate() - d);
+      to = new Date(from);
+      to.setDate(from.getDate() + 6);
+      to.setHours(23, 59, 59, 999);
+    } else { // mes
+      from = new Date(r.getFullYear(), r.getMonth(), 1, 0, 0, 0, 0);
+      to = new Date(r.getFullYear(), r.getMonth() + 1, 0, 23, 59, 59, 999);
+    }
+    return {
+      fromT: +from,
+      toT: +to,
+      fromISO: from.toISOString(),
+      toISO: to.toISOString()
+    };
   }
-  return { fromT:+from, toT:+to,
-           fromISO: from.toISOString(), toISO: to.toISOString() };
-}
 
-// AGREGADO: obtiene datos según período
-async function getWorkDataFor(period, deviceId){
-  if(period==='dia') return lastItemsCache || [];
-  const { fromISO, toISO } = periodBounds(period);
-  return await workFetchRange(fromISO, toISO, deviceId);
-}
+  async function getWorkDataFor(period, deviceId) {
+    if (period === 'dia') return lastItemsCache || [];
+    const { fromISO, toISO } = periodBounds(period);
+    return await workFetchRange(fromISO, toISO, deviceId);
+  }
 
-  
-
-  // Gráficos madre
-  $('btnChart').onclick=()=>{
-    chartsVisible=!chartsVisible;
-    $('chartsWrap').style.display=chartsVisible?'block':'none';
-    $('btnChart').textContent=chartsVisible?'Ocultar gráfica':'Mostrar gráfica';
-    if(chartsVisible){
-      if(historyMode){ /* noop */ }
-      else if(lastItemsCache) renderChartsDaily(lastItemsCache);
+  /* =========================================================
+   *  GRÁFICOS MADRE: TEM / HUM
+   * =======================================================*/
+  $('btnChart').onclick = () => {
+    chartsVisible = !chartsVisible;
+    $('chartsWrap').style.display = chartsVisible ? 'block' : 'none';
+    $('btnChart').textContent = chartsVisible ? 'Ocultar gráfica' : 'Mostrar gráfica';
+    if (chartsVisible) {
+      if (!historyMode && lastItemsCache) {
+        renderChartsDaily(lastItemsCache);
+      }
     }
     $('histControls').style.display = chartsVisible ? 'flex' : 'none';
   };
 
-  function buildLineChart(canvas, labels, values, lineColor, pointColor){
-  const ctx=canvas.getContext('2d');
-  return new Chart(ctx,{
-    type:'line',
-    data:{ labels, datasets:[{
-      data: values,
-      borderColor: lineColor,
-      backgroundColor: 'transparent',
-      borderWidth: 2.5,
-      tension:.25,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-      pointBackgroundColor: lineColor,
-      pointBorderColor: lineColor
-    }]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      interaction:{mode:'nearest',intersect:false},
-      plugins:{legend:{display:false},tooltip:{callbacks:{
-        title:(it)=>it[0]?.label||'', label:(it)=>` ${it.raw} `
-      }}},
-      scales:{x:{title:{display:true,text:'Hora'}},y:{title:{display:false},ticks:{precision:0}}}
-    }
-  });
-}
-
-  function sameLocalDay(tsA, tsB){
-    const a=new Date(tsA), b=new Date(tsB);
-    return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  function buildLineChart(canvas, labels, values, lineColor, pointColor) {
+    const ctx = canvas.getContext('2d');
+    return new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          borderColor: lineColor,
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          tension: .25,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointBackgroundColor: lineColor,
+          pointBorderColor: lineColor
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'nearest', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (it) => it[0]?.label || '',
+              label: (it) => ` ${it.raw} `
+            }
+          }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Hora' } },
+          y: {
+            title: { display: false },
+            ticks: { precision: 0 }
+          }
+        }
+      }
+    });
   }
-  function seriesOfDay(items, key){
-    const now=new Date(); const arr=[];
-    for(const d of items||[]){
-      if(String(d.sensor_key||'').toUpperCase()!==key) continue;
-      if(!sameLocalDay(d.ts, now)) continue;
-      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
-      if(v==null) continue;
-      const t=new Date(d.ts); const hh=String(t.getHours()).padStart(2,'0'); const mm=String(t.getMinutes()).padStart(2,'0');
-      arr.push({label:`${hh}:${mm}`, x:t.getTime(), y:v});
+
+  function sameLocalDay(tsA, tsB) {
+    const a = new Date(tsA), b = new Date(tsB);
+    return a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+  }
+
+  function seriesOfDay(items, key) {
+    const now = new Date();
+    const arr = [];
+    for (const d of items || []) {
+      if (String(d.sensor_key || '').toUpperCase() !== key) continue;
+      if (!sameLocalDay(d.ts, now)) continue;
+      const v = d.value == null || Number.isNaN(+d.value) ? null : Number(d.value);
+      if (v == null) continue;
+      const t = new Date(d.ts);
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      arr.push({ label: `${hh}:${mm}`, x: t.getTime(), y: v });
     }
-    arr.sort((a,b)=>a.x-b.x);
+    arr.sort((a, b) => a.x - b.x);
     return arr;
   }
-  function renderChartsDaily(items){
-    const tem=seriesOfDay(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
-    const hum=seriesOfDay(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
-    if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
 
-    setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
+  function renderChartsDaily(items) {
+    const tem = seriesOfDay(items, 'MOTHER.TEM');
+    const labelsT = tem.map(d => d.label);
+    const valsT = tem.map(d => d.y);
+
+    const hum = seriesOfDay(items, 'MOTHER.HUM');
+    const labelsH = hum.map(d => d.label);
+    const valsH = hum.map(d => d.y);
+
+    if (chartTemp) chartTemp.destroy();
+    if (chartHum) chartHum.destroy();
+
+    chartTemp = buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum = buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+
+    setText('titleTemp', 'Temperatura de hoy');
+    setText('titleHum', 'Humedad de hoy');
   }
 
-  // Gráficos por colmena + historial por colmena
-  $('overlayBtnChart').onclick = ()=>{
-  if(!currentOverlayDevice) return;
-  ovChartsVisible = !ovChartsVisible;
-  $('overlayBtnChart').textContent = ovChartsVisible ? 'Ocultar gráfica' : 'Mostrar gráfica';
-  $('ovChartsWrap').style.display = ovChartsVisible ? 'block' : 'none';
-  $('ovHistControls').style.display = ovChartsVisible ? 'flex' : 'none';
-  if(ovChartsVisible){
-    renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
-  }
-};
-
-  function seriesOfDayForDevice(items, deviceId, pickKind){
-    const now=new Date(); const arr=[];
-    for(const d of items||[]){
-      if(String(d.device_id||'')!==String(deviceId)) continue;
-      const ok = pickKind==='TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
-      if(!ok) continue;
-      if(!sameLocalDay(d.ts, now)) continue;
-      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
-      if(v==null) continue;
-      const t=new Date(d.ts); const hh=String(t.getHours()).padStart(2,'0'); const mm=String(t.getMinutes()).padStart(2,'0');
-      arr.push({label:`${hh}:${mm}`, x:t.getTime(), y:v});
+  /* =========================================================
+   *  GRÁFICOS OVERLAY COLMENA: TEM / HUM
+   * =======================================================*/
+  $('overlayBtnChart').onclick = () => {
+    if (!currentOverlayDevice) return;
+    ovChartsVisible = !ovChartsVisible;
+    $('overlayBtnChart').textContent = ovChartsVisible ? 'Ocultar gráfica' : 'Mostrar gráfica';
+    $('ovChartsWrap').style.display = ovChartsVisible ? 'block' : 'none';
+    $('ovHistControls').style.display = ovChartsVisible ? 'flex' : 'none';
+    if (ovChartsVisible) {
+      renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
     }
-    arr.sort((a,b)=>a.x-b.x);
+  };
+
+  function seriesOfDayForDevice(items, deviceId, pickKind) {
+    const now = new Date();
+    const arr = [];
+    for (const d of items || []) {
+      if (String(d.device_id || '') !== String(deviceId)) continue;
+      const ok = pickKind === 'TEM' ? keyIsTemp(d.sensor_key) : keyIsHum(d.sensor_key);
+      if (!ok) continue;
+      if (!sameLocalDay(d.ts, now)) continue;
+      const v = d.value == null || Number.isNaN(+d.value) ? null : Number(d.value);
+      if (v == null) continue;
+      const t = new Date(d.ts);
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      arr.push({ label: `${hh}:${mm}`, x: t.getTime(), y: v });
+    }
+    arr.sort((a, b) => a.x - b.x);
     return arr;
   }
-  function renderOverlayChartsDaily(items, deviceId){
-    const tem=seriesOfDayForDevice(items, deviceId, 'TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
-    const hum=seriesOfDayForDevice(items, deviceId, 'HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
-    if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), labelsT, valsT, '#ff4d4f');
-    ovChartHum =buildLineChart($('ovChartHum'), labelsH, valsH, '#4da3ff');
 
-    setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
+  function renderOverlayChartsDaily(items, deviceId) {
+    const tem = seriesOfDayForDevice(items, deviceId, 'TEM');
+    const labelsT = tem.map(d => d.label);
+    const valsT = tem.map(d => d.y);
+
+    const hum = seriesOfDayForDevice(items, deviceId, 'HUM');
+    const labelsH = hum.map(d => d.label);
+    const valsH = hum.map(d => d.y);
+
+    if (ovChartTemp) ovChartTemp.destroy();
+    if (ovChartHum) ovChartHum.destroy();
+
+    ovChartTemp = buildLineChart($('ovChartTemp'), labelsT, valsT, '#ff4d4f');
+    ovChartHum = buildLineChart($('ovChartHum'), labelsH, valsH, '#4da3ff');
+
+    setText('ovTitleTemp', 'Temperatura de hoy');
+    setText('ovTitleHum', 'Humedad de hoy');
   }
-  $('ovBtnShowRange').onclick=()=>{
-    const df=$('ovDateFrom').value, dt=$('ovDateTo').value; if(!df || !dt || !currentOverlayDevice) return;
-    const fromT=toLocalDayStart(df), toT=toLocalDayEnd(dt);
-    const items=(lastItemsCache||[]).filter(d=>String(d.device_id||'')===String(currentOverlayDevice)
-      && new Date(d.ts).getTime()>=fromT && new Date(d.ts).getTime()<=toT);
-    const tem=items.filter(d=>keyIsTemp(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
-      const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
-    const hum=items.filter(d=>keyIsHum(d.sensor_key)).sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(d=>{
-      const t=new Date(d.ts), lab=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`; return {label:lab,y:Number(d.value)};});
-    if(ovChartTemp) ovChartTemp.destroy(); if(ovChartHum) ovChartHum.destroy();
-    ovChartTemp=buildLineChart($('ovChartTemp'), tem.map(x=>x.label), tem.map(x=>x.y), '#ff4d4f');
-    ovChartHum =buildLineChart($('ovChartHum'), hum.map(x=>x.label), hum.map(x=>x.y), '#4da3ff');
+
+  $('ovBtnShowRange').onclick = () => {
+    const df = $('ovDateFrom').value;
+    const dt = $('ovDateTo').value;
+    if (!df || !dt || !currentOverlayDevice) return;
+
+    const fromT = toLocalDayStart(df);
+    const toT = toLocalDayEnd(dt);
+
+    const items = (lastItemsCache || []).filter(d =>
+      String(d.device_id || '') === String(currentOverlayDevice) &&
+      new Date(d.ts).getTime() >= fromT &&
+      new Date(d.ts).getTime() <= toT
+    );
+
+    const tem = items
+      .filter(d => keyIsTemp(d.sensor_key))
+      .sort((a, b) => new Date(a.ts) - new Date(b.ts))
+      .map(d => {
+        const t = new Date(d.ts);
+        const lab = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+        return { label: lab, y: Number(d.value) };
+      });
+
+    const hum = items
+      .filter(d => keyIsHum(d.sensor_key))
+      .sort((a, b) => new Date(a.ts) - new Date(b.ts))
+      .map(d => {
+        const t = new Date(d.ts);
+        const lab = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+        return { label: lab, y: Number(d.value) };
+      });
+
+    if (ovChartTemp) ovChartTemp.destroy();
+    if (ovChartHum) ovChartHum.destroy();
+
+    ovChartTemp = buildLineChart(
+      $('ovChartTemp'),
+      tem.map(x => x.label),
+      tem.map(x => x.y),
+      '#ff4d4f'
+    );
+    ovChartHum = buildLineChart(
+      $('ovChartHum'),
+      hum.map(x => x.label),
+      hum.map(x => x.y),
+      '#4da3ff'
+    );
 
     setText('ovTitleTemp', `Temperatura ${df} → ${dt}`);
-    setText('ovTitleHum',  `Humedad ${df} → ${dt}`);
-  };
-  $('ovBtnExitHistory').onclick=()=>{
-    if(ovChartsVisible) renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
-    $('ovDateFrom').value = ymd(new Date()); $('ovDateTo').value = ymd(new Date());
-    setText('ovTitleTemp','Temperatura de hoy'); setText('ovTitleHum','Humedad de hoy');
+    setText('ovTitleHum', `Humedad ${df} → ${dt}`);
   };
 
-  // Historial madre UI
-  function initDateDefaults(){
+  $('ovBtnExitHistory').onclick = () => {
+    if (ovChartsVisible) {
+      renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
+    }
+    $('ovDateFrom').value = ymd(new Date());
+    $('ovDateTo').value = ymd(new Date());
+    setText('ovTitleTemp', 'Temperatura de hoy');
+    setText('ovTitleHum', 'Humedad de hoy');
+  };
+
+  /* =========================================================
+   *  HISTORIAL MADRE (rango fechas + CSV)
+   * =======================================================*/
+  function initDateDefaults() {
     const val = ymd(new Date());
     $('dateFrom').value = val;
-    $('dateTo').value   = val;
+    $('dateTo').value = val;
   }
-  $('btnShowRange').onclick=()=>showRange();
-  $('btnDownloadCSV').onclick=()=>downloadCSV();
-  $('btnClearHistory').onclick=()=>{
-    $('dateFrom').value=''; $('dateTo').value='';
-    historyMode=false;
-    if(chartsVisible && lastItemsCache) renderChartsDaily(lastItemsCache);
-    setText('titleTemp','Temperatura de hoy'); setText('titleHum','Humedad de hoy');
+
+  $('btnShowRange').onclick = () => showRange();
+  $('btnDownloadCSV').onclick = () => downloadCSV();
+  $('btnClearHistory').onclick = () => {
+    $('dateFrom').value = '';
+    $('dateTo').value = '';
+    historyMode = false;
+    if (chartsVisible && lastItemsCache) renderChartsDaily(lastItemsCache);
+    setText('titleTemp', 'Temperatura de hoy');
+    setText('titleHum', 'Humedad de hoy');
   };
 
-  async function fetchRange(fromISO, toISO){
-    try{
+  async function fetchRange(fromISO, toISO) {
+    try {
       const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
       const { items } = await callWorker(q);
-      return items||[];
-    }catch(e){ return lastItemsCache||[]; }
+      return items || [];
+    } catch (e) {
+      return lastItemsCache || [];
+    }
   }
-  function normalizeDateRangeInputs(){
-    let df=$('dateFrom').value, dt=$('dateTo').value;
-    if(!df || !dt) return null;
-    const a=toLocalDayStart(df), b=toLocalDayStart(dt); if(a>b){ const tmp=df; df=dt; dt=tmp; }
-    return { df, dt, fromISO: new Date(df+'T00:00:00').toISOString(), toISO: new Date(dt+'T23:59:59.999').toISOString() };
+
+  function normalizeDateRangeInputs() {
+    let df = $('dateFrom').value;
+    let dt = $('dateTo').value;
+    if (!df || !dt) return null;
+    const a = toLocalDayStart(df), b = toLocalDayStart(dt);
+    if (a > b) {
+      const tmp = df;
+      df = dt;
+      dt = tmp;
+    }
+    return {
+      df,
+      dt,
+      fromISO: new Date(df + 'T00:00:00').toISOString(),
+      toISO: new Date(dt + 'T23:59:59.999').toISOString()
+    };
   }
-  async function showRange(){
-    const r = normalizeDateRangeInputs(); if(!r) return;
+
+  async function showRange() {
+    const r = normalizeDateRangeInputs();
+    if (!r) return;
+
     historyMode = true;
     const itemsSrv = await fetchRange(r.fromISO, r.toISO);
-    const fromT = toLocalDayStart(r.df), toT = toLocalDayEnd(r.dt);
-    const items = (itemsSrv||[]).filter(d=>{ const t=new Date(d.ts).getTime(); return t>=fromT && t<=toT; });
+    const fromT = toLocalDayStart(r.df);
+    const toT = toLocalDayEnd(r.dt);
 
-    const tem=seriesByRange(items,'MOTHER.TEM'); const labelsT=tem.map(d=>d.label); const valsT=tem.map(d=>d.y);
-    const hum=seriesByRange(items,'MOTHER.HUM'); const labelsH=hum.map(d=>d.label); const valsH=hum.map(d=>d.y);
-    if(chartTemp) chartTemp.destroy(); if(chartHum) chartHum.destroy();
-    chartTemp=buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
-    chartHum =buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
+    const items = (itemsSrv || []).filter(d => {
+      const t = new Date(d.ts).getTime();
+      return t >= fromT && t <= toT;
+    });
+
+    const tem = seriesByRange(items, 'MOTHER.TEM');
+    const labelsT = tem.map(d => d.label);
+    const valsT = tem.map(d => d.y);
+
+    const hum = seriesByRange(items, 'MOTHER.HUM');
+    const labelsH = hum.map(d => d.label);
+    const valsH = hum.map(d => d.y);
+
+    if (chartTemp) chartTemp.destroy();
+    if (chartHum) chartHum.destroy();
+
+    chartTemp = buildLineChart($('chartTemp'), labelsT, valsT, '#ff4d4f');
+    chartHum = buildLineChart($('chartHum'), labelsH, valsH, '#4da3ff');
 
     setText('titleTemp', `Temperatura ${r.df} → ${r.dt}`);
-    setText('titleHum',  `Humedad ${r.df} → ${r.dt}`);
+    setText('titleHum', `Humedad ${r.df} → ${r.dt}`);
   }
-  function seriesByRange(items, key){
-    const arr=[];
-    for(const d of items||[]){
-      if(String(d.sensor_key||'').toUpperCase()!==key) continue;
-      const v = d.value==null || Number.isNaN(+d.value) ? null : Number(d.value);
-      if(v==null) continue;
-      const t=new Date(d.ts);
-      const lab = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-      arr.push({label:lab, x:t.getTime(), y:v});
+
+  function seriesByRange(items, key) {
+    const arr = [];
+    for (const d of items || []) {
+      if (String(d.sensor_key || '').toUpperCase() !== key) continue;
+      const v = d.value == null || Number.isNaN(+d.value) ? null : Number(d.value);
+      if (v == null) continue;
+      const t = new Date(d.ts);
+      const lab = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')} ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+      arr.push({ label: lab, x: t.getTime(), y: v });
     }
-    arr.sort((a,b)=>a.x-b.x);
+    arr.sort((a, b) => a.x - b.x);
     return arr;
   }
-  function toCSV(items, df=null, dt=null){
-    const fromT = df? toLocalDayStart(df): -Infinity, toT = dt? toLocalDayEnd(dt): Infinity;
-    const base = (items||[]).filter(d=>{const t=new Date(d.ts).getTime(); return t>=fromT && t<=toT;});
-    const rows = [['timestamp_iso','fecha_local','hora_local','dispositivo','sensor','valor']];
-    for(const d of base){
-      if(!/^MOTHER\.(TEM|HUM)$/i.test(String(d.sensor_key||''))) continue;
-      const ts=new Date(d.ts);
-      const fecha=ts.toLocaleDateString('es-AR'); const hora=ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      rows.push([ts.toISOString(), fecha, hora, d.device_id||'', d.sensor_key||'', d.value==null?'':String(d.value)]);
+
+  function toCSV(items, df = null, dt = null) {
+    const fromT = df ? toLocalDayStart(df) : -Infinity;
+    const toT = dt ? toLocalDayEnd(dt) : Infinity;
+    const base = (items || []).filter(d => {
+      const t = new Date(d.ts).getTime();
+      return t >= fromT && t <= toT;
+    });
+    const rows = [['timestamp_iso', 'fecha_local', 'hora_local', 'dispositivo', 'sensor', 'valor']];
+    for (const d of base) {
+      if (!/^MOTHER\.(TEM|HUM)$/i.test(String(d.sensor_key || ''))) continue;
+      const ts = new Date(d.ts);
+      const fecha = ts.toLocaleDateString('es-AR');
+      const hora = ts.toLocaleTimeString('es-AR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      rows.push([
+        ts.toISOString(),
+        fecha,
+        hora,
+        d.device_id || '',
+        d.sensor_key || '',
+        d.value == null ? '' : String(d.value)
+      ]);
     }
-    return rows.map(r=>r.map(cell=>/[,;\n"]/.test(cell)? `"${String(cell).replace(/"/g,'""')}"` : cell).join(',')).join('\n');
+    return rows.map(r => r.map(cell =>
+      /[,;\n"]/.test(cell)
+        ? `"${String(cell).replace(/"/g, '""')}"`
+        : cell
+    ).join(',')).join('\n');
   }
-  async function downloadCSV(){
-    const df=$('dateFrom').value, dt=$('dateTo').value;
-    const csv = toCSV(lastItemsCache, df||null, dt||null);
-    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+
+  async function downloadCSV() {
+    const df = $('dateFrom').value;
+    const dt = $('dateTo').value;
+    const csv = toCSV(lastItemsCache, df || null, dt || null);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = (df&&dt)? `miellifera_${df}_a_${dt}.csv` : 'miellifera_hoy.csv';
-    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    a.href = url;
+    a.download = (df && dt) ? `miellifera_${df}_a_${dt}.csv` : 'miellifera_hoy.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
-  // Agregado
-async function workFetchRange(fromISO, toISO, deviceId){
-  try{
-    const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
-    const { items } = await callWorker(q);
-    const keys = ['C2R','NHR','NXR','ALR','SMR','MS','OPN'];
-    return (items||[]).filter(d =>
-      String(d.device_id)===String(deviceId) &&
-      keys.includes(String(d.sensor_key||'').toUpperCase().trim())
-    );
-  }catch(e){ return lastItemsCache||[]; }
-}
-
-  
-
-  // ===== Producción Worker =====
-  async function prodInsert(device_id, fecha, kilos){
-    if(!(Number(kilos)>0)) throw new Error('kilos debe ser > 0');
-    return callWorker('/production', { method:'POST', body:{ device_id, fecha, kilos }});
+  /* =========================================================
+   *  WORKER: DATOS DE TRABAJO (C2R, NHR, etc.)
+   * =======================================================*/
+  async function workFetchRange(fromISO, toISO, deviceId) {
+    try {
+      const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=5000`;
+      const { items } = await callWorker(q);
+      const keys = ['C2R', 'NHR', 'NXR', 'ALR', 'SMR', 'MS', 'OPN'];
+      return (items || []).filter(d =>
+        String(d.device_id) === String(deviceId) &&
+        keys.includes(String(d.sensor_key || '').toUpperCase().trim())
+      );
+    } catch (e) {
+      return lastItemsCache || [];
+    }
   }
-  async function prodList(params){
+
+  /* =========================================================
+   *  PRODUCCIÓN (API Worker)
+   * =======================================================*/
+  async function prodInsert(device_id, fecha, kilos) {
+    if (!(Number(kilos) > 0)) throw new Error('kilos debe ser > 0');
+    return callWorker('/production', { method: 'POST', body: { device_id, fecha, kilos } });
+  }
+
+  async function prodList(params) {
     const url = new URL(BASE + '/production');
-    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
-    if(params?.fromISO)    url.searchParams.set('from', params.fromISO);
-    if(params?.toISO)      url.searchParams.set('to', params.toISO);
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    if (params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if (params?.fromISO) url.searchParams.set('from', params.fromISO);
+    if (params?.toISO) url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser;
+    if (!u) throw new Error('No auth');
     const t = await u.getIdToken();
-    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` }});
-    if(!res.ok) throw new Error(await res.text());
+    const res = await fetch(url.toString(), { headers: { 'Authorization': `Bearer ${t}` } });
+    if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
 
-    // ===== Worker: Manejo sanitario / Calendario / Notas =====
-
+  /* =========================================================
+   *  WORKER META: SANIDAD / CALENDARIO / NOTAS
+   * =======================================================*/
   // SANIDAD
-  async function healthInsert(payload){
+  async function healthInsert(payload) {
     // payload: { device_id, fecha, producto, dosis, unidad, dias_retiro, fecha_retiro, efectivo, notas }
-    return callWorker('/health', { method:'POST', body:payload });
+    return callWorker('/health', { method: 'POST', body: payload });
   }
 
-  async function healthList(params){
+  async function healthList(params) {
     const url = new URL(BASE + '/health');
-    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
-    if(params?.fromISO)  url.searchParams.set('from', params.fromISO);
-    if(params?.toISO)    url.searchParams.set('to', params.toISO);
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    if (params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if (params?.fromISO) url.searchParams.set('from', params.fromISO);
+    if (params?.toISO) url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser;
+    if (!u) throw new Error('No auth');
     const t = await u.getIdToken();
-    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` } });
-    if(!res.ok) throw new Error(await res.text());
+    const res = await fetch(url.toString(), { headers: { 'Authorization': `Bearer ${t}` } });
+    if (!res.ok) throw new Error(await res.text());
     return res.json(); // { items: [...] }
   }
 
   // CALENDARIO
-  async function eventsInsert(payload){
+  async function eventsInsert(payload) {
     // payload: { device_id, fecha, titulo, tipo, notas }
-    return callWorker('/events', { method:'POST', body:payload });
+    return callWorker('/events', { method: 'POST', body: payload });
   }
 
-  async function eventsList(params){
+  async function eventsList(params) {
     const url = new URL(BASE + '/events');
-    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
-    if(params?.fromISO)  url.searchParams.set('from', params.fromISO);
-    if(params?.toISO)    url.searchParams.set('to', params.toISO);
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    if (params?.device_id) url.searchParams.set('device_id', params.device_id);
+    if (params?.fromISO) url.searchParams.set('from', params.fromISO);
+    if (params?.toISO) url.searchParams.set('to', params.toISO);
+    const u = auth.currentUser;
+    if (!u) throw new Error('No auth');
     const t = await u.getIdToken();
-    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` } });
-    if(!res.ok) throw new Error(await res.text());
+    const res = await fetch(url.toString(), { headers: { 'Authorization': `Bearer ${t}` } });
+    if (!res.ok) throw new Error(await res.text());
     return res.json(); // { items: [...] }
   }
 
   // NOTAS
-  async function notesInsert(payload){
+  async function notesInsert(payload) {
     // payload: { device_id, texto }
-    return callWorker('/notes', { method:'POST', body:payload });
+    return callWorker('/notes', { method: 'POST', body: payload });
   }
 
-  async function notesList(params){
+  async function notesList(params) {
     const url = new URL(BASE + '/notes');
-    if(params?.device_id) url.searchParams.set('device_id', params.device_id);
-    const u = auth.currentUser; if(!u) throw new Error('No auth');
+    if (params?.device_id) url.searchParams.set('device_id', params.device_id);
+    const u = auth.currentUser;
+    if (!u) throw new Error('No auth');
     const t = await u.getIdToken();
-    const res = await fetch(url.toString(), { headers:{ 'Authorization':`Bearer ${t}` } });
-    if(!res.ok) throw new Error(await res.text());
+    const res = await fetch(url.toString(), { headers: { 'Authorization': `Bearer ${t}` } });
+    if (!res.ok) throw new Error(await res.text());
     return res.json(); // { items: [...] }
   }
 
-
-  // Producción mini-dashboard
-  $('ovBtnSaveProd').onclick = async ()=>{
-    if(!currentOverlayDevice) return;
+  /* =========================================================
+   *  PRODUCCIÓN: MINI DASHBOARD EN OVERLAY COLMENA
+   * =======================================================*/
+  $('ovBtnSaveProd').onclick = async () => {
+    if (!currentOverlayDevice) return;
     const fecha = $('ovProdDate').value;
     const kilos = Number($('ovProdKilos').value);
-    if(!fecha || !(kilos>0)) { alert('Completá fecha y kilos > 0'); return; }
-    try{
-      await prodInsert(currentOverlayDevice, fecha, kilos);
-      $('ovProdKilos').value='';
-      if($('ovProdHistWrap').style.display!=='none'){ await loadOvProdHistory(); }
-    }catch(e){ alert('Error guardando: ' + (e.message||e)); }
-  };
-  $('ovBtnToggleHist').onclick = async ()=>{
-    const wrap = $('ovProdHistWrap');
-    const show = wrap.style.display==='none';
-    wrap.style.display = show ? 'block' : 'none';
-    $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
-    if(show) await loadOvProdHistory();
-  };
-  async function loadOvProdHistory(){
-    if(!currentOverlayDevice) return;
-    const { items } = await prodList({ device_id: currentOverlayDevice });
-    const tb = $('ovProdTbody');
-    if(!items?.length){ tb.innerHTML='<tr><td class="muted" colspan="2">Sin datos</td></tr>'; return; }
-    tb.innerHTML = items.map(r=>`<tr><td>${escapeHtml(r.fecha)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`).join('');
-  }
-
-  // Producción global
-  $('btnProdMain').onclick = ()=>{ openProdOverlay(); };
-  $('btnProdBack').onclick = ()=>{ closeProdOverlay(); };
-  $('btnProdShow').onclick = async ()=>{
-  const df = $('prodFrom').value, dt = $('prodTo').value;
-  const dev = $('prodDevice').value || '';
-  const fromISO = df ? new Date(df+'T00:00:00').toISOString()       : undefined;
-  const toISO   = dt ? new Date(dt+'T23:59:59.999').toISOString()   : undefined;
-
-  try{
-    const { items } = await prodList({ device_id: dev || undefined, fromISO, toISO });
-    prodLastItems = items || [];
-
-    const tb = $('prodGlobalTbody');
-    if(!items?.length){
-      tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-      setText('prodGlobalTotal','0.00');
-      const csvBtn = $('btnProdCSV');
-      if(csvBtn) csvBtn.style.display = 'none';
-      renderProdCharts(); // limpia gráficos y texto
+    if (!fecha || !(kilos > 0)) {
+      alert('Completá fecha y kilos > 0');
       return;
     }
+    try {
+      await prodInsert(currentOverlayDevice, fecha, kilos);
+      $('ovProdKilos').value = '';
+      if ($('ovProdHistWrap').style.display !== 'none') {
+        await loadOvProdHistory();
+      }
+    } catch (e) {
+      alert('Error guardando: ' + (e.message || e));
+    }
+  };
 
-    tb.innerHTML = items.map(r=>
-      `<tr><td>${escapeHtml(r.fecha)}</td><td>${escapeHtml(r.device_id)}</td><td class="num">${Number(r.kilos).toFixed(2)}</td></tr>`
+  $('ovBtnToggleHist').onclick = async () => {
+    const wrap = $('ovProdHistWrap');
+    const show = wrap.style.display === 'none';
+    wrap.style.display = show ? 'block' : 'none';
+    $('ovBtnToggleHist').textContent = show ? 'Ocultar historial' : 'Ver historial';
+    if (show) await loadOvProdHistory();
+  };
+
+  async function loadOvProdHistory() {
+    if (!currentOverlayDevice) return;
+    const { items } = await prodList({ device_id: currentOverlayDevice });
+    const tb = $('ovProdTbody');
+    if (!items?.length) {
+      tb.innerHTML = '<tr><td class="muted" colspan="2">Sin datos</td></tr>';
+      return;
+    }
+    tb.innerHTML = items.map(r =>
+      `<tr>
+        <td>${escapeHtml(r.fecha)}</td>
+        <td class="num">${Number(r.kilos).toFixed(2)}</td>
+      </tr>`
     ).join('');
-
-    const total = items.reduce((a,b)=>a+Number(b.kilos||0),0);
-    setText('prodGlobalTotal', total.toFixed(2));
-
-    const csvBtn = $('btnProdCSV');
-    if(csvBtn) csvBtn.style.display = 'inline-flex';
-
-    // Actualizar gráficos según vista seleccionada
-    renderProdCharts();
-
-  }catch(e){
-    alert('Error consultando: '+(e.message||e));
   }
-};
 
-  // ===== Overlay Meta (Sanidad / Calendario / Notas) =====
+  /* =========================================================
+   *  PRODUCCIÓN GLOBAL: OVERLAY
+   * =======================================================*/
+  $('btnProdMain').onclick = () => { openProdOverlay(); };
+  $('btnProdBack').onclick = () => { closeProdOverlay(); };
 
-  function setMetaTabs(mode){
+  $('btnProdShow').onclick = async () => {
+    const df = $('prodFrom').value;
+    const dt = $('prodTo').value;
+    const dev = $('prodDevice').value || '';
+
+    const fromISO = df ? new Date(df + 'T00:00:00').toISOString() : undefined;
+    const toISO = dt ? new Date(dt + 'T23:59:59.999').toISOString() : undefined;
+
+    try {
+      const { items } = await prodList({
+        device_id: dev || undefined,
+        fromISO,
+        toISO
+      });
+      prodLastItems = items || [];
+
+      const tb = $('prodGlobalTbody');
+      if (!items?.length) {
+        tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+        setText('prodGlobalTotal', '0.00');
+        const csvBtn = $('btnProdCSV');
+        if (csvBtn) csvBtn.style.display = 'none';
+        renderProdCharts(); // limpia gráficos y texto
+        return;
+      }
+
+      tb.innerHTML = items.map(r =>
+        `<tr>
+          <td>${escapeHtml(r.fecha)}</td>
+          <td>${escapeHtml(r.device_id)}</td>
+          <td class="num">${Number(r.kilos).toFixed(2)}</td>
+        </tr>`
+      ).join('');
+
+      const total = items.reduce((a, b) => a + Number(b.kilos || 0), 0);
+      setText('prodGlobalTotal', total.toFixed(2));
+
+      const csvBtn = $('btnProdCSV');
+      if (csvBtn) csvBtn.style.display = 'inline-flex';
+
+      renderProdCharts();
+    } catch (e) {
+      alert('Error consultando: ' + (e.message || e));
+    }
+  };
+
+  /* =========================================================
+   *  META OVERLAY: TABS (Sanidad / Calendario / Notas)
+   * =======================================================*/
+  function setMetaTabs(mode) {
     metaCurrentMode = mode;
     const tabs = [
-      { id:'tabSanidad',   mode:'sanidad',   section:'metaSanidad',   title:'Manejo sanitario' },
-      { id:'tabCalendario',mode:'calendario',section:'metaCalendario',title:'Calendario' },
-      { id:'tabNotas',     mode:'notas',     section:'metaNotas',     title:'Anotaciones' }
+      { id: 'tabSanidad', mode: 'sanidad', section: 'metaSanidad', title: 'Manejo sanitario' },
+      { id: 'tabCalendario', mode: 'calendario', section: 'metaCalendario', title: 'Calendario' },
+      { id: 'tabNotas', mode: 'notas', section: 'metaNotas', title: 'Anotaciones' }
     ];
-    tabs.forEach(t=>{
+    tabs.forEach(t => {
       const btn = $(t.id);
       const sec = $(t.section);
-      if(!btn || !sec) return;
+      if (!btn || !sec) return;
       const active = (t.mode === mode);
       btn.classList.toggle('active', active);
       sec.classList.toggle('active', active);
-      if(active) setText('metaTitle', t.title);
+      if (active) setText('metaTitle', t.title);
     });
 
-    // Cargar contenido según modo
-    if(mode==='sanidad')  refreshSanidad();
-    if(mode==='calendario') refreshCalendario();
-    if(mode==='notas')    refreshNotas();
+    if (mode === 'sanidad') refreshSanidad();
+    if (mode === 'calendario') refreshCalendario();
+    if (mode === 'notas') refreshNotas();
   }
 
-  function openMetaOverlay(mode, deviceId){
+  function openMetaOverlay(mode, deviceId) {
     metaDeviceContext = deviceId || null;
     const ov = $('metaOverlay');
-    if(!ov) return;
+    if (!ov) return;
     ov.style.display = 'block';
-    ov.setAttribute('aria-hidden','false');
+    ov.setAttribute('aria-hidden', 'false');
 
-    // poblar selects de colmenas
     const devices = getKnownDevices();
-    const sanDevSel   = $('sanidadDevice');
-    const sanFilter   = $('sanidadFilterDevice');
-    const calDevSel   = $('calDevice');
-    const calFilter   = $('calDeviceFilter');
-    const noteDevSel  = $('noteDevice');
+
+    const sanDevSel = $('sanidadDevice');
+    const sanFilter = $('sanidadFilterDevice');
+    const calDevSel = $('calDevice');
+    const calFilter = $('calDeviceFilter');
+    const noteDevSel = $('noteDevice');
     const notesFilter = $('notesDeviceFilter');
 
-    const optionsHtml = devices.map(id=>`<option value="${id}">Colmena ${id}</option>`).join('');
+    const optionsHtml = devices
+      .map(id => `<option value="${id}">Colmena ${id}</option>`)
+      .join('');
 
-    if(sanDevSel)   sanDevSel.innerHTML   = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
-    if(sanFilter)   sanFilter.innerHTML   = '<option value="">Todas las colmenas</option>'   + optionsHtml;
-    if(calDevSel)   calDevSel.innerHTML   = '<option value="">General / apiario</option>'    + optionsHtml;
-    if(calFilter)   calFilter.innerHTML   = '<option value="">Todas las colmenas</option>'   + optionsHtml;
-    if(noteDevSel)  noteDevSel.innerHTML  = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
-    if(notesFilter) notesFilter.innerHTML = '<option value="">Todas las colmenas</option>'   + optionsHtml;
+    if (sanDevSel) sanDevSel.innerHTML = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
+    if (sanFilter) sanFilter.innerHTML = '<option value="">Todas las colmenas</option>' + optionsHtml;
+    if (calDevSel) calDevSel.innerHTML = '<option value="">General / apiario</option>' + optionsHtml;
+    if (calFilter) calFilter.innerHTML = '<option value="">Todas las colmenas</option>' + optionsHtml;
+    if (noteDevSel) noteDevSel.innerHTML = '<option value="">Seleccionar colmena…</option>' + optionsHtml;
+    if (notesFilter) notesFilter.innerHTML = '<option value="">Todas las colmenas</option>' + optionsHtml;
 
-    // Si venimos desde una colmena concreta (botón ANOTACIONES)
-    if(deviceId){
-      if(sanDevSel) sanDevSel.value = deviceId;
-      if(sanFilter) sanFilter.value = deviceId;
-      if(calDevSel) calDevSel.value = deviceId;
-      if(calFilter) calFilter.value = deviceId;
-      if(noteDevSel) noteDevSel.value = deviceId;
-      if(notesFilter) notesFilter.value = deviceId;
+    if (deviceId) {
+      if (sanDevSel) sanDevSel.value = deviceId;
+      if (sanFilter) sanFilter.value = deviceId;
+      if (calDevSel) calDevSel.value = deviceId;
+      if (calFilter) calFilter.value = deviceId;
+      if (noteDevSel) noteDevSel.value = deviceId;
+      if (notesFilter) notesFilter.value = deviceId;
     }
 
-    // defaults de fechas
     const hoy = ymd(new Date());
-    if($('sanidadFrom') && !$('sanidadFrom').value) $('sanidadFrom').value = hoy;
-    if($('sanidadTo')   && !$('sanidadTo').value)   $('sanidadTo').value   = hoy;
-    if($('sanidadDate') && !$('sanidadDate').value) $('sanidadDate').value = hoy;
+    if ($('sanidadFrom') && !$('sanidadFrom').value) $('sanidadFrom').value = hoy;
+    if ($('sanidadTo') && !$('sanidadTo').value) $('sanidadTo').value = hoy;
+    if ($('sanidadDate') && !$('sanidadDate').value) $('sanidadDate').value = hoy;
 
-    if($('calMonth') && !$('calMonth').value){
+    if ($('calMonth') && !$('calMonth').value) {
       const d = new Date();
-      const m = String(d.getMonth()+1).padStart(2,'0');
+      const m = String(d.getMonth() + 1).padStart(2, '0');
       $('calMonth').value = `${d.getFullYear()}-${m}`;
     }
-    if($('calDate') && !$('calDate').value) $('calDate').value = hoy;
+    if ($('calDate') && !$('calDate').value) $('calDate').value = hoy;
 
     setMetaTabs(mode || 'sanidad');
   }
 
-  function closeMetaOverlay(){
+  function closeMetaOverlay() {
     const ov = $('metaOverlay');
-    if(!ov) return;
+    if (!ov) return;
     ov.style.display = 'none';
-    ov.setAttribute('aria-hidden','true');
+    ov.setAttribute('aria-hidden', 'true');
     metaCurrentMode = null;
     metaDeviceContext = null;
   }
 
-  // ===== SANIDAD =====
-
-  function computeWithdrawDate(){
+  /* =========================================================
+   *  SANIDAD: LISTADO + ALTA
+   * =======================================================*/
+  function computeWithdrawDate() {
     const dateStr = $('sanidadDate')?.value;
     const days = Number($('sanidadWithdrawDays')?.value || 0);
     const out = $('sanidadWithdrawDate');
-    if(!dateStr || !out){ return; }
-    if(!(days>0)){ out.value=''; return; }
-    const d = new Date(dateStr+'T00:00:00');
+    if (!dateStr || !out) return;
+    if (!(days > 0)) {
+      out.value = '';
+      return;
+    }
+    const d = new Date(dateStr + 'T00:00:00');
     d.setDate(d.getDate() + days);
     out.value = ymd(d);
   }
 
-  async function refreshSanidad(){
-    try{
+  async function refreshSanidad() {
+    try {
       const dev = $('sanidadFilterDevice')?.value || '';
-      const df  = $('sanidadFrom')?.value || '';
-      const dt  = $('sanidadTo')?.value || '';
+      const df = $('sanidadFrom')?.value || '';
+      const dt = $('sanidadTo')?.value || '';
       let fromISO, toISO;
-      if(df) fromISO = new Date(df+'T00:00:00').toISOString();
-      if(dt) toISO   = new Date(dt+'T23:59:59.999').toISOString();
+      if (df) fromISO = new Date(df + 'T00:00:00').toISOString();
+      if (dt) toISO = new Date(dt + 'T23:59:59.999').toISOString();
 
-      const { items=[] } = await healthList({ device_id: dev || undefined, fromISO, toISO });
+      const { items = [] } = await healthList({
+        device_id: dev || undefined,
+        fromISO,
+        toISO
+      });
+
       const tb = $('sanidadTbody');
-      if(!tb) return;
-      if(!items.length){
+      if (!tb) return;
+      if (!items.length) {
         tb.innerHTML = '<tr><td class="muted" colspan="6">Sin registros</td></tr>';
         return;
       }
-      tb.innerHTML = items.map(r=>{
+
+      tb.innerHTML = items.map(r => {
         const fAplic = escapeHtml(r.fecha_aplicacion || r.fecha || '');
-        const col    = escapeHtml(r.device_id || '');
-        const prod   = escapeHtml(r.producto || r.product || '');
-        const dosis  = (r.dosis!=null ? String(r.dosis) : '');
+        const col = escapeHtml(r.device_id || '');
+        const prod = escapeHtml(r.producto || r.product || '');
+        const dosis = (r.dosis != null ? String(r.dosis) : '');
         const unidad = (r.unidad || '');
         const retiro = escapeHtml(r.fecha_retiro || '');
-        const eff    = r.efectivo ? 'Sí' : 'No';
+        const eff = r.efectivo ? 'Sí' : 'No';
         return `<tr>
           <td>${fAplic}</td>
           <td>${col}</td>
           <td>${prod}</td>
-          <td>${escapeHtml(dosis + (unidad ? ' '+unidad : ''))}</td>
+          <td>${escapeHtml(dosis + (unidad ? ' ' + unidad : ''))}</td>
           <td>${retiro}</td>
           <td>${eff}</td>
         </tr>`;
       }).join('');
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
 
-  async function saveSanidad(){
+  async function saveSanidad() {
     const dev = $('sanidadDevice')?.value || '';
     const fecha = $('sanidadDate')?.value || '';
-    const prod  = $('sanidadProduct')?.value || '';
+    const prod = $('sanidadProduct')?.value || '';
     const dosis = Number($('sanidadDose')?.value || 0);
-    const unidad= $('sanidadUnit')?.value || '';
-    const dias  = Number($('sanidadWithdrawDays')?.value || 0);
-    const fRet  = $('sanidadWithdrawDate')?.value || '';
+    const unidad = $('sanidadUnit')?.value || '';
+    const dias = Number($('sanidadWithdrawDays')?.value || 0);
+    const fRet = $('sanidadWithdrawDate')?.value || '';
     const notas = $('sanidadNotes')?.value || '';
-    const eff   = $('sanidadEffective')?.checked || false;
+    const eff = $('sanidadEffective')?.checked || false;
 
-    if(!dev || !fecha || !prod){
+    if (!dev || !fecha || !prod) {
       alert('Completá al menos colmena, fecha y producto.');
       return;
     }
-    try{
+
+    try {
       await healthInsert({
         device_id: dev,
-        fecha: fecha,
+        fecha,
         producto: prod,
         dosis,
         unidad,
@@ -2242,66 +3186,76 @@ async function workFetchRange(fromISO, toISO, deviceId){
         efectivo: eff,
         notas
       });
-      $('sanidadNotes').value='';
+      $('sanidadNotes').value = '';
       refreshSanidad();
-    }catch(e){
-      alert('Error guardando manejo sanitario: '+(e.message||e));
+    } catch (e) {
+      alert('Error guardando manejo sanitario: ' + (e.message || e));
     }
   }
 
-  // ===== CALENDARIO =====
-
-  function groupEventsByDay(items){
+  /* =========================================================
+   *  CALENDARIO: LISTADO + ALTA
+   * =======================================================*/
+  function groupEventsByDay(items) {
     const map = {};
-    for(const r of items || []){
-      const f = String(r.fecha || '').slice(0,10);
-      if(!f) continue;
-      if(!map[f]) map[f] = [];
+    for (const r of items || []) {
+      const f = String(r.fecha || '').slice(0, 10);
+      if (!f) continue;
+      if (!map[f]) map[f] = [];
       map[f].push(r);
     }
     const days = Object.keys(map).sort();
-    return days.map(d=>({ date:d, events:map[d] }));
+    return days.map(d => ({ date: d, events: map[d] }));
   }
 
-  async function refreshCalendario(){
-    try{
+  async function refreshCalendario() {
+    try {
       const dev = $('calDeviceFilter')?.value || '';
-      const month = $('calMonth')?.value || ''; // YYYY-MM
+      const month = $('calMonth')?.value || '';
       let fromISO, toISO;
-      if(month){
-        const [y,m] = month.split('-').map(n=>Number(n));
-        if(y && m){
-          const from = new Date(y, m-1, 1, 0,0,0,0);
-          const to   = new Date(y, m, 0, 23,59,59,999);
+
+      if (month) {
+        const [y, m] = month.split('-').map(n => Number(n));
+        if (y && m) {
+          const from = new Date(y, m - 1, 1, 0, 0, 0, 0);
+          const to = new Date(y, m, 0, 23, 59, 59, 999);
           fromISO = from.toISOString();
-          toISO   = to.toISOString();
+          toISO = to.toISOString();
         }
       }
-      const { items=[] } = await eventsList({ device_id: dev || undefined, fromISO, toISO });
+
+      const { items = [] } = await eventsList({
+        device_id: dev || undefined,
+        fromISO,
+        toISO
+      });
+
       const grouped = groupEventsByDay(items);
       const wrap = $('calList');
-      if(!wrap) return;
-      if(!grouped.length){
+      if (!wrap) return;
+
+      if (!grouped.length) {
         wrap.innerHTML = '<div class="muted">Sin eventos en el período seleccionado.</div>';
         return;
       }
-      wrap.innerHTML = grouped.map(day=>{
-        const eventosHtml = day.events.map(ev=>{
-          const colId = String(ev.device_id||'');
+
+      wrap.innerHTML = grouped.map(day => {
+        const eventosHtml = day.events.map(ev => {
+          const colId = String(ev.device_id || '');
           const color = getDeviceColor(colId);
           const title = escapeHtml(ev.titulo || ev.title || '');
-          const tipo  = escapeHtml(ev.tipo || ev.type || '');
+          const tipo = escapeHtml(ev.tipo || ev.type || '');
           const notes = escapeHtml(ev.notas || ev.notes || '');
           return `
             <div class="calendar-event">
               <div class="calendar-event-main">
                 <div class="calendar-event-title" style="color:${color}">
-                  ${ title || '(sin título)' }
+                  ${title || '(sin título)'}
                 </div>
                 <div class="calendar-event-meta">
-                  ${ colId ? `Colmena ${colId} · ` : ''}${ tipo || 'Evento' }
+                  ${colId ? `Colmena ${colId} · ` : ''}${tipo || 'Evento'}
                 </div>
-                ${ notes ? `<div class="calendar-event-meta">${notes}</div>` : '' }
+                ${notes ? `<div class="calendar-event-meta">${notes}</div>` : ''}
               </div>
             </div>`;
         }).join('');
@@ -2311,23 +3265,24 @@ async function workFetchRange(fromISO, toISO, deviceId){
             ${eventosHtml}
           </div>`;
       }).join('');
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
 
-  async function saveCalendario(){
-    const dev   = $('calDevice')?.value || '';
+  async function saveCalendario() {
+    const dev = $('calDevice')?.value || '';
     const fecha = $('calDate')?.value || '';
-    const titulo= $('calTitle')?.value || '';
-    const tipo  = $('calType')?.value || '';
+    const titulo = $('calTitle')?.value || '';
+    const tipo = $('calType')?.value || '';
     const notas = $('calNotes')?.value || '';
 
-    if(!fecha || !titulo){
+    if (!fecha || !titulo) {
       alert('Completá al menos fecha y título del evento.');
       return;
     }
-    try{
+
+    try {
       await eventsInsert({
         device_id: dev || null,
         fecha,
@@ -2335,949 +3290,1062 @@ async function workFetchRange(fromISO, toISO, deviceId){
         tipo,
         notas
       });
-      $('calNotes').value='';
+      $('calNotes').value = '';
       refreshCalendario();
-    }catch(e){
-      alert('Error guardando evento: '+(e.message||e));
+    } catch (e) {
+      alert('Error guardando evento: ' + (e.message || e));
     }
   }
 
-  // ===== NOTAS =====
-
-  async function refreshNotas(){
-    try{
+  /* =========================================================
+   *  NOTAS: LISTADO + ALTA
+   * =======================================================*/
+  async function refreshNotas() {
+    try {
       const dev = $('notesDeviceFilter')?.value || '';
-      const { items=[] } = await notesList({ device_id: dev || undefined });
+      const { items = [] } = await notesList({ device_id: dev || undefined });
       const wrap = $('notesList');
-      if(!wrap) return;
-      if(!items.length){
+      if (!wrap) return;
+
+      if (!items.length) {
         wrap.innerHTML = '<div class="muted">Sin anotaciones.</div>';
         return;
       }
+
       wrap.innerHTML = items
-        .sort((a,b)=> new Date(b.created_at||b.fecha||0) - new Date(a.created_at||a.fecha||0))
-        .map(n=>{
+        .sort((a, b) =>
+          new Date(b.created_at || b.fecha || 0) -
+          new Date(a.created_at || a.fecha || 0)
+        )
+        .map(n => {
           const col = escapeHtml(n.device_id || '');
           const text = escapeHtml(n.texto || n.text || '');
-          const ts   = n.created_at || n.fecha || '';
-          const d    = ts ? new Date(ts) : null;
+          const ts = n.created_at || n.fecha || '';
+          const d = ts ? new Date(ts) : null;
           const fecha = d ? d.toLocaleString('es-AR') : '';
           return `
             <div class="note-item">
               <div class="note-item-head">
                 <div class="note-item-meta">
-                  ${ col ? `Colmena ${col}` : 'General' }
+                  ${col ? `Colmena ${col}` : 'General'}
                 </div>
                 <div class="note-item-meta">${escapeHtml(fecha)}</div>
               </div>
               <div>${text}</div>
             </div>`;
         }).join('');
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
 
-  async function saveNota(){
-    const dev  = $('noteDevice')?.value || '';
+  async function saveNota() {
+    const dev = $('noteDevice')?.value || '';
     const text = $('noteText')?.value || '';
-    if(!dev || !text.trim()){
+    if (!dev || !text.trim()) {
       alert('Seleccioná una colmena y escribí la anotación.');
       return;
     }
-    try{
+    try {
       await notesInsert({ device_id: dev, texto: text });
-      $('noteText').value='';
+      $('noteText').value = '';
       refreshNotas();
-    }catch(e){
-      alert('Error guardando anotación: '+(e.message||e));
+    } catch (e) {
+      alert('Error guardando anotación: ' + (e.message || e));
     }
   }
 
-
-
-function prodDownloadCSV(){
-  const rows=[['fecha','colmena','kilos']];
-  const tb=document.querySelectorAll('#prodGlobalTbody tr');
-  tb.forEach(tr=>{
-    const c=tr.querySelectorAll('td');
-    if(c.length===3) rows.push([c[0].innerText,c[1].innerText,c[2].innerText]);
-  });
-  if(rows.length<=1){ alert('Sin datos para exportar'); return; }
-  const csv=rows.map(r=>r.join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='produccion.csv';
-  a.click();
-}
-
-// ===== Helpers de agregación para producción =====
-function summarizeProduction(items){
-  let total = 0;
-  const byHive = {};
-  for(const r of (items||[])){
-    const id = String(r.device_id||'').trim() || '—';
-    const k = Number(r.kilos||0);
-    total += k;
-    byHive[id] = (byHive[id]||0) + k;
-  }
-  let bestId = null, bestVal = 0;
-  for(const [id,val] of Object.entries(byHive)){
-    if(val > bestVal){ bestVal = val; bestId = id; }
-  }
-  return { total, byHive, bestId, bestVal, hives: Object.keys(byHive).length };
-}
-
-// Agrupar por fecha (día)
-function groupByDay(items){
-  const map = {};
-  for(const r of (items||[])){
-    const f = String(r.fecha||'').slice(0,10);
-    if(!f) continue;
-    map[f] = (map[f]||0) + Number(r.kilos||0);
-  }
-  const labels = Object.keys(map).sort();
-  const data   = labels.map(d=>map[d]);
-  return { labels, data };
-}
-
-// Agrupar por mes (YYYY-MM)
-function groupByMonth(items){
-  const map = {};
-  for(const r of (items||[])){
-    const f = String(r.fecha||'');
-    if(!f) continue;
-    const key = f.slice(0,7); // YYYY-MM
-    map[key] = (map[key]||0) + Number(r.kilos||0);
-  }
-  const labels = Object.keys(map).sort();
-  const data   = labels.map(d=>map[d]);
-  return { labels, data };
-}
-
-// Agrupar por año (YYYY)
-function groupByYear(items){
-  const map = {};
-  for(const r of (items||[])){
-    const f = String(r.fecha||'');
-    if(!f) continue;
-    const key = f.slice(0,4);
-    map[key] = (map[key]||0) + Number(r.kilos||0);
-  }
-  const labels = Object.keys(map).sort();
-  const data   = labels.map(d=>map[d]);
-  return { labels, data };
-}
-
-// Render de los gráficos de producción según vista seleccionada
-function renderProdCharts(){
-  const items = prodLastItems || [];
-  const viewSel = $('prodView');
-  const view    = viewSel ? viewSel.value : 'colmena';
-  const devSel  = $('prodDevice');
-  const dev     = devSel ? (devSel.value || '') : '';
-
-  const summaryEl = $('prodSummary');
-  const secCard   = $('prodSecondaryCard');
-  const mainTitle = $('prodMainTitle');
-  const secTitle  = $('prodSecondaryTitle');
-
-  // Reset gráficos previos
-  if(prodMainChart){ prodMainChart.destroy(); prodMainChart=null; }
-  if(prodSecondaryChart){ prodSecondaryChart.destroy(); prodSecondaryChart=null; }
-  if(secCard) secCard.style.display = 'none';
-
-  if(!items.length){
-    if(summaryEl) summaryEl.textContent = 'Sin datos en el rango seleccionado.';
-    if(mainTitle) mainTitle.textContent = 'Producción por colmena';
-    return;
-  }
-
-  const { total, byHive, bestId, bestVal, hives } = summarizeProduction(items);
-  let txt = `Total en el período: ${total.toFixed(2)} kg. `;
-  if(hives>0) txt += `Colmenas con producción: ${hives}. `;
-  if(bestId)  txt += `Colmena destacada: ${bestId} (${bestVal.toFixed(2)} kg).`;
-  if(dev)     txt += ` Filtro de colmena: ${dev}.`;
-  if(summaryEl) summaryEl.textContent = txt;
-
-  const ctxMain = $('prodMainChart')?.getContext('2d');
-  const ctxSec  = $('prodSecondaryChart')?.getContext('2d');
-  if(!ctxMain) return;
-
-  const palette = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
-
-  // Vista 1: por colmena (barras)
-  if(view === 'colmena'){
-    const labels = Object.keys(byHive);
-    const data   = labels.map(id=>byHive[id]);
-    if(mainTitle) mainTitle.textContent = 'Producción por colmena';
-
-    prodMainChart = new Chart(ctxMain,{
-      type:'bar',
-      data:{
-        labels,
-        datasets:[{
-          label:'Kilos en el período',
-          data,
-          backgroundColor: labels.map((_,i)=>palette[i%palette.length])
-        }]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}},
-        scales:{
-          x:{title:{display:true,text:'Colmena'}},
-          y:{title:{display:true,text:'Kilos'},beginAtZero:true}
-        }
+  /* =========================================================
+   *  PRODUCCIÓN: CSV SIMPLE (overlay global)
+   * =======================================================*/
+  function prodDownloadCSV() {
+    const rows = [['fecha', 'colmena', 'kilos']];
+    const tb = document.querySelectorAll('#prodGlobalTbody tr');
+    tb.forEach(tr => {
+      const c = tr.querySelectorAll('td');
+      if (c.length === 3) {
+        rows.push([c[0].innerText, c[1].innerText, c[2].innerText]);
       }
     });
-    return;
+    if (rows.length <= 1) {
+      alert('Sin datos para exportar');
+      return;
+    }
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'produccion.csv';
+    a.click();
   }
 
-  // Vista 2: por día (curva)
-  if(view === 'dia'){
-    const { labels, data } = groupByDay(items);
-    if(mainTitle) mainTitle.textContent = 'Producción diaria (todas las colmenas del rango)';
-
-    prodMainChart = new Chart(ctxMain,{
-      type:'line',
-      data:{
-        labels,
-        datasets:[{
-          label:'Kilos por día',
-          data,
-          borderColor:'#ffb74d',
-          backgroundColor:'transparent',
-          borderWidth:2,
-          tension:.25,
-          pointRadius:0
-        }]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}},
-        interaction:{mode:'index',intersect:false},
-        scales:{
-          x:{title:{display:true,text:'Fecha'}},
-          y:{title:{display:true,text:'Kilos'},beginAtZero:true}
-        }
+  /* =========================================================
+   *  PRODUCCIÓN: RESÚMENES Y AGRUPACIONES
+   * =======================================================*/
+  function summarizeProduction(items) {
+    let total = 0;
+    const byHive = {};
+    for (const r of (items || [])) {
+      const id = String(r.device_id || '').trim() || '—';
+      const k = Number(r.kilos || 0);
+      total += k;
+      byHive[id] = (byHive[id] || 0) + k;
+    }
+    let bestId = null, bestVal = 0;
+    for (const [id, val] of Object.entries(byHive)) {
+      if (val > bestVal) {
+        bestVal = val;
+        bestId = id;
       }
-    });
-    return;
+    }
+    return {
+      total,
+      byHive,
+      bestId,
+      bestVal,
+      hives: Object.keys(byHive).length
+    };
   }
 
-  // Vista 3: por mes (barras)
-  if(view === 'mes'){
-    const { labels, data } = groupByMonth(items);
-    if(mainTitle) mainTitle.textContent = 'Producción mensual en el rango';
-
-    prodMainChart = new Chart(ctxMain,{
-      type:'bar',
-      data:{
-        labels,
-        datasets:[{
-          label:'Kilos por mes',
-          data,
-          backgroundColor: labels.map((_,i)=>palette[i%palette.length])
-        }]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}},
-        scales:{
-          x:{title:{display:true,text:'Mes'}},
-          y:{title:{display:true,text:'Kilos'},beginAtZero:true}
-        }
-      }
-    });
-    return;
+  function groupByDay(items) {
+    const map = {};
+    for (const r of (items || [])) {
+      const f = String(r.fecha || '').slice(0, 10);
+      if (!f) continue;
+      map[f] = (map[f] || 0) + Number(r.kilos || 0);
+    }
+    const labels = Object.keys(map).sort();
+    const data = labels.map(d => map[d]);
+    return { labels, data };
   }
 
-  // Vista 4: anual (barras por año + torta por colmena)
-  if(view === 'anio'){
-    const { labels, data } = groupByYear(items);
-    if(mainTitle) mainTitle.textContent = 'Producción anual';
-    if(labels.length){
-      prodMainChart = new Chart(ctxMain,{
-        type:'bar',
-        data:{
+  function groupByMonth(items) {
+    const map = {};
+    for (const r of (items || [])) {
+      const f = String(r.fecha || '');
+      if (!f) continue;
+      const key = f.slice(0, 7);
+      map[key] = (map[key] || 0) + Number(r.kilos || 0);
+    }
+    const labels = Object.keys(map).sort();
+    const data = labels.map(d => map[d]);
+    return { labels, data };
+  }
+
+  function groupByYear(items) {
+    const map = {};
+    for (const r of (items || [])) {
+      const f = String(r.fecha || '');
+      if (!f) continue;
+      const key = f.slice(0, 4);
+      map[key] = (map[key] || 0) + Number(r.kilos || 0);
+    }
+    const labels = Object.keys(map).sort();
+    const data = labels.map(d => map[d]);
+    return { labels, data };
+  }
+
+  function renderProdCharts() {
+    const items = prodLastItems || [];
+    const viewSel = $('prodView');
+    const view = viewSel ? viewSel.value : 'colmena';
+    const devSel = $('prodDevice');
+    const dev = devSel ? (devSel.value || '') : '';
+
+    const summaryEl = $('prodSummary');
+    const secCard = $('prodSecondaryCard');
+    const mainTitle = $('prodMainTitle');
+    const secTitle = $('prodSecondaryTitle');
+
+    if (prodMainChart) { prodMainChart.destroy(); prodMainChart = null; }
+    if (prodSecondaryChart) { prodSecondaryChart.destroy(); prodSecondaryChart = null; }
+    if (secCard) secCard.style.display = 'none';
+
+    if (!items.length) {
+      if (summaryEl) summaryEl.textContent = 'Sin datos en el rango seleccionado.';
+      if (mainTitle) mainTitle.textContent = 'Producción por colmena';
+      return;
+    }
+
+    const { total, byHive, bestId, bestVal, hives } = summarizeProduction(items);
+    let txt = `Total en el período: ${total.toFixed(2)} kg. `;
+    if (hives > 0) txt += `Colmenas con producción: ${hives}. `;
+    if (bestId) txt += `Colmena destacada: ${bestId} (${bestVal.toFixed(2)} kg).`;
+    if (dev) txt += ` Filtro de colmena: ${dev}.`;
+    if (summaryEl) summaryEl.textContent = txt;
+
+    const ctxMain = $('prodMainChart')?.getContext('2d');
+    const ctxSec = $('prodSecondaryChart')?.getContext('2d');
+    if (!ctxMain) return;
+
+    const palette = [
+      '#ffb74d', '#4da3ff', '#49d17d', '#ff6b6b',
+      '#7fb3ff', '#ce93d8', '#fff176', '#80cbc4'
+    ];
+
+    // Vista: por colmena (barras)
+    if (view === 'colmena') {
+      const labels = Object.keys(byHive);
+      const data = labels.map(id => byHive[id]);
+      if (mainTitle) mainTitle.textContent = 'Producción por colmena';
+
+      prodMainChart = new Chart(ctxMain, {
+        type: 'bar',
+        data: {
           labels,
-          datasets:[{
-            label:'Kilos por año',
+          datasets: [{
+            label: 'Kilos en el período',
             data,
-            backgroundColor: labels.map((_,i)=>palette[i%palette.length])
+            backgroundColor: labels.map((_, i) => palette[i % palette.length])
           }]
         },
-        options:{
-          responsive:true, maintainAspectRatio:false,
-          plugins:{legend:{display:false}},
-          scales:{
-            x:{title:{display:true,text:'Año'}},
-            y:{title:{display:true,text:'Kilos'},beginAtZero:true}
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Colmena' } },
+            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
           }
         }
       });
+      return;
     }
 
-    // Torta de distribución por colmena (sobre todo el rango)
-    if(ctxSec && Object.keys(byHive).length>0 && secCard){
-      if(secTitle) secTitle.textContent = 'Distribución por colmena';
-      const pieLabels = Object.keys(byHive);
-      const pieData   = pieLabels.map(id=>byHive[id]);
-      prodSecondaryChart = new Chart(ctxSec,{
-        type:'pie',
-        data:{
-          labels: pieLabels,
-          datasets:[{
-            data: pieData,
-            backgroundColor: pieLabels.map((_,i)=>palette[i%palette.length])
+    // Vista: por día (línea)
+    if (view === 'dia') {
+      const { labels, data } = groupByDay(items);
+      if (mainTitle) mainTitle.textContent = 'Producción diaria (todas las colmenas del rango)';
+
+      prodMainChart = new Chart(ctxMain, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Kilos por día',
+            data,
+            borderColor: '#ffb74d',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: .25,
+            pointRadius: 0
           }]
         },
-        options:{
-          responsive:true, maintainAspectRatio:false,
-          plugins:{legend:{position:'right'}}
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { title: { display: true, text: 'Fecha' } },
+            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
+          }
         }
       });
-      secCard.style.display = 'block';
+      return;
+    }
+
+    // Vista: por mes (barras)
+    if (view === 'mes') {
+      const { labels, data } = groupByMonth(items);
+      if (mainTitle) mainTitle.textContent = 'Producción mensual en el rango';
+
+      prodMainChart = new Chart(ctxMain, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Kilos por mes',
+            data,
+            backgroundColor: labels.map((_, i) => palette[i % palette.length])
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Mes' } },
+            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
+          }
+        }
+      });
+      return;
+    }
+
+    // Vista: anual (barras año + torta por colmena)
+    if (view === 'anio') {
+      const { labels, data } = groupByYear(items);
+      if (mainTitle) mainTitle.textContent = 'Producción anual';
+
+      if (labels.length) {
+        prodMainChart = new Chart(ctxMain, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Kilos por año',
+              data,
+              backgroundColor: labels.map((_, i) => palette[i % palette.length])
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { title: { display: true, text: 'Año' } },
+              y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
+            }
+          }
+        });
+      }
+
+      if (ctxSec && Object.keys(byHive).length > 0 && secCard) {
+        if (secTitle) secTitle.textContent = 'Distribución por colmena';
+        const pieLabels = Object.keys(byHive);
+        const pieData = pieLabels.map(id => byHive[id]);
+        prodSecondaryChart = new Chart(ctxSec, {
+          type: 'pie',
+          data: {
+            labels: pieLabels,
+            datasets: [{
+              data: pieData,
+              backgroundColor: pieLabels.map((_, i) => palette[i % palette.length])
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+        secCard.style.display = 'block';
+      }
     }
   }
-}
 
+  function openProdOverlay() {
+    $('prodOverlay').style.display = 'block';
+    $('prodOverlay').setAttribute('aria-hidden', 'false');
 
-
-  
-  function openProdOverlay(){
-  $('prodOverlay').style.display='block';
-  $('prodOverlay').setAttribute('aria-hidden','false');
-
-  // Botones Borrar y CSV junto al botón Mostrar
-  const showBtn = $('btnProdShow');
-  if(showBtn){
-    const row = showBtn.parentElement;
-    if(row){
-      if(!$('btnProdReset')){
-        const btn = document.createElement('button');
-        btn.id = 'btnProdReset';
-        btn.type = 'button';
-        btn.className = 'btn small';
-        btn.textContent = 'Borrar';
-        btn.onclick = prodResetFilters;
-        row.appendChild(btn);
-      }
-      if(!$('btnProdCSV')){
-        const csv = document.createElement('button');
-        csv.id='btnProdCSV';
-        csv.type='button';
-        csv.className='btn small';
-        csv.textContent='Descargar CSV';
-        csv.style.display='none';
-        csv.onclick=prodDownloadCSV;
-        row.appendChild(csv);
+    const showBtn = $('btnProdShow');
+    if (showBtn) {
+      const row = showBtn.parentElement;
+      if (row) {
+        if (!$('btnProdReset')) {
+          const btn = document.createElement('button');
+          btn.id = 'btnProdReset';
+          btn.type = 'button';
+          btn.className = 'btn small';
+          btn.textContent = 'Borrar';
+          btn.onclick = prodResetFilters;
+          row.appendChild(btn);
+        }
+        if (!$('btnProdCSV')) {
+          const csv = document.createElement('button');
+          csv.id = 'btnProdCSV';
+          csv.type = 'button';
+          csv.className = 'btn small';
+          csv.textContent = 'Descargar CSV';
+          csv.style.display = 'none';
+          csv.onclick = prodDownloadCSV;
+          row.appendChild(csv);
+        }
       }
     }
+
+    const viewSel = $('prodView');
+    if (viewSel) viewSel.value = 'colmena';
   }
 
-  // Vista por defecto
-  const viewSel = $('prodView');
-  if(viewSel) viewSel.value = 'colmena';
-}
+  function prodResetFilters() {
+    const hoy = ymd(new Date());
+    $('prodFrom').value = hoy;
+    $('prodTo').value = hoy;
+    $('prodDevice').value = '';
 
+    const viewSel = $('prodView');
+    if (viewSel) viewSel.value = 'colmena';
 
+    const tb = $('prodGlobalTbody');
+    if (tb) tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+    setText('prodGlobalTotal', '0.00');
 
-  function prodResetFilters(){
-  const hoy = ymd(new Date());
-  $('prodFrom').value = hoy;
-  $('prodTo').value   = hoy;
-  $('prodDevice').value = '';
-  const viewSel = $('prodView');
-  if(viewSel) viewSel.value = 'colmena';
+    const csvBtn = $('btnProdCSV');
+    if (csvBtn) csvBtn.style.display = 'none';
 
-  const tb = $('prodGlobalTbody');
-  if(tb) tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-  setText('prodGlobalTotal','0.00');
+    prodLastItems = [];
+    if (prodMainChart) { prodMainChart.destroy(); prodMainChart = null; }
+    if (prodSecondaryChart) { prodSecondaryChart.destroy(); prodSecondaryChart = null; }
 
-  const csvBtn = $('btnProdCSV');
-  if(csvBtn) csvBtn.style.display = 'none';
+    const secCard = $('prodSecondaryCard');
+    if (secCard) secCard.style.display = 'none';
 
-  prodLastItems = [];
-  if(prodMainChart){ prodMainChart.destroy(); prodMainChart=null; }
-  if(prodSecondaryChart){ prodSecondaryChart.destroy(); prodSecondaryChart=null; }
-  const secCard = $('prodSecondaryCard');
-  if(secCard) secCard.style.display='none';
-  const summaryEl = $('prodSummary');
-  if(summaryEl) summaryEl.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
-  const mainTitle = $('prodMainTitle');
-  if(mainTitle) mainTitle.textContent = 'Producción por colmena';
-}
-
-
-
-  
-
-  function closeProdOverlay(){
-    $('prodOverlay').style.display='none';
-    $('prodOverlay').setAttribute('aria-hidden','true');
+    const summaryEl = $('prodSummary');
+    if (summaryEl) {
+      summaryEl.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
+    }
+    const mainTitle = $('prodMainTitle');
+    if (mainTitle) mainTitle.textContent = 'Producción por colmena';
   }
 
-  // Toggle tabla lecturas
-  $('toggleTbl').onclick=()=>{ const w=$('tableWrap'); w.style.display=w.style.display==='none'?'block':'none'; };
+  function closeProdOverlay() {
+    $('prodOverlay').style.display = 'none';
+    $('prodOverlay').setAttribute('aria-hidden', 'true');
+  }
 
-  // Polling
-  let polling=false;
-  async function loadDatapoints(){
-    if(polling) return;
-    polling=true;
-    try{
+  /* =========================================================
+   *  TOGGLE TABLA LECTURAS CRUDAS
+   * =======================================================*/
+  $('toggleTbl').onclick = () => {
+    const w = $('tableWrap');
+    w.style.display = w.style.display === 'none' ? 'block' : 'none';
+  };
+
+  /* =========================================================
+   *  POLLING PRINCIPAL: CADA 15s
+   * =======================================================*/
+  let polling = false;
+
+  async function loadDatapoints() {
+    if (polling) return;
+    polling = true;
+    try {
       const { items } = await callWorker('/datapoints?limit=200');
       lastItemsCache = items;
       renderTable(items);
       updateLastReading(items);
       updateMotherKPIs(items);
       renderDeviceCards(items);
-      if(chartsVisible && !historyMode) renderChartsDaily(items);
-      if(currentOverlayDevice){
-  updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
-  if(ovChartsVisible){ renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice); }
-  renderWorkSection(lastItemsCache, currentOverlayDevice); // ← NUEVO
-}
+      if (chartsVisible && !historyMode) renderChartsDaily(items);
 
-    }finally{
-      polling=false;
+      if (currentOverlayDevice) {
+        updateOverlayKPIs(lastItemsCache, currentOverlayDevice);
+        if (ovChartsVisible) {
+          renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
+        }
+        renderWorkSection(lastItemsCache, currentOverlayDevice);
+      }
+    } finally {
+      polling = false;
     }
   }
-  setInterval(()=>{ if(auth.currentUser) loadDatapoints().catch(()=>{}); }, 15000);
 
-  function initProdDefaults(){
+  setInterval(() => {
+    if (auth.currentUser) {
+      loadDatapoints().catch(() => { });
+    }
+  }, 15000);
+
+  function initProdDefaults() {
     const t = ymd(new Date());
-    const ovd = $('ovProdDate'); if(ovd) ovd.value = t;
-    const pf=$('prodFrom'), pt=$('prodTo'); if(pf) pf.value=t; if(pt) pt.value=t;
-  }
-  // ======== NUEVO BLOQUE: TRABAJO ========
-
-// Variables globales
-let workChart = null;
-
-// Detectar sensor OPN = trabajo detectado
-function extractWorkEvents(items, deviceId) {
-  return (items || []).filter(d =>
-    String(d.device_id) === String(deviceId) &&
-    String(d.sensor_key).toUpperCase().includes('OPN')
-  );
-}
-
-// Extraer valores MS (milisegundos de trabajo)
-function extractWorkTimes(items, deviceId) {
-  return (items || []).filter(d =>
-    String(d.device_id) === String(deviceId) &&
-    String(d.sensor_key).toUpperCase() === 'MS'
-  );
-}
-
-// Reemplazo
-function extractWorkTimes(items, deviceId) {
-  const devId = String(deviceId);
-  return (items || []).filter(d => {
-    if (String(d.device_id) !== devId) return false;
-    const k = String(d.sensor_key || '').toUpperCase().trim();
-    // Acepta "MS", "WORK.MS", "DEVICE.MS", etc.
-    return k === 'MS' || k.endsWith('.MS');
-  });
-}
-
-// Helper NUEVO
-function formatHM_fromMs(ms){
-  const totalMin = Math.round((Number(ms)||0) / 60000);
-  const h = Math.floor(totalMin/60);
-  const m = totalMin % 60;
-  return h>0 ? `${h}h ${m}m` : `${m}m`;
-}
-
-
-// Agregado
-function getPeriodBounds(period, refDate){
-  const ref = new Date(refDate);
-  let from = new Date(ref), to = new Date(ref);
-  if(period === 'dia'){
-    from.setHours(0,0,0,0);
-    to.setHours(23,59,59,999);
-  }else if(period === 'semana'){
-    const day = (ref.getDay()+6)%7; // ISO lunes
-    from.setHours(0,0,0,0); from.setDate(from.getDate()-day);
-    to = new Date(from); to.setDate(from.getDate()+6); to.setHours(23,59,59,999);
-  }else{ // mes
-    from = new Date(ref.getFullYear(), ref.getMonth(), 1, 0,0,0,0);
-    to   = new Date(ref.getFullYear(), ref.getMonth()+1, 0, 23,59,59,999);
-  }
-  return { fromT: +from, toT: +to };
-}
-
-function filterWorkSeries(items, deviceId, fromT, toT){
-  const KEYS = ['C2R','NHR','NXR','ALR','SMR'];
-  const byKey = Object.fromEntries(KEYS.map(k=>[k,[]]));
-  const labelSet = new Set();
-
-  for(const d of (items||[])){
-    if(String(d.device_id)!==String(deviceId)) continue;
-    const k = String(d.sensor_key||'').toUpperCase().trim();
-    if(!KEYS.includes(k)) continue;
-    const t = new Date(d.ts).getTime();
-    if(t<fromT || t>toT) continue;
-    const y = Number(d.value)||0;
-    // redondeo a minuto para alinear
-    const tMin = Math.floor(t/60000)*60000;
-    byKey[k].push({ t: tMin, y });
-    labelSet.add(tMin);
+    const ovd = $('ovProdDate');
+    if (ovd) ovd.value = t;
+    const pf = $('prodFrom'), pt = $('prodTo');
+    if (pf) pf.value = t;
+    if (pt) pt.value = t;
   }
 
-  const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
-  const labels = labelsTs.map(ts=>new Date(ts).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
+  /* =========================================================
+   *  BLOQUE: “TRABAJO” (modo avanzado por colmena)
+   * =======================================================*/
+  let workChart = null;
 
-  // map rápido por clave->timestamp->valor
-  const maps = {};
-  for(const k of Object.keys(byKey)){
-    const m = new Map();
-    byKey[k].sort((a,b)=>a.t-b.t);
-    for(const p of byKey[k]) m.set(p.t, p.y);
-    maps[k] = m;
+  // Eventos OPN (golpes)
+  function extractWorkEvents(items, deviceId) {
+    return (items || []).filter(d =>
+      String(d.device_id) === String(deviceId) &&
+      String(d.sensor_key).toUpperCase().includes('OPN')
+    );
   }
 
-  const palette = { C2R:'#ffb74d', NHR:'#4da3ff', NXR:'#ff6b6b', ALR:'#7fb3ff', SMR:'#49d17d' };
-  const datasets = Object.keys(byKey).map(k=>({
-    label:k,
-    data: labelsTs.map(ts=> maps[k].has(ts) ? maps[k].get(ts) : null),
-    borderColor: palette[k]||'#ccc',
-    backgroundColor: 'transparent',
-    borderWidth:2, tension:.25, pointRadius:0, spanGaps:true
-  }));
+  // MS bruta (primera implementación)
+  function extractWorkTimes(items, deviceId) {
+    return (items || []).filter(d =>
+      String(d.device_id) === String(deviceId) &&
+      String(d.sensor_key).toUpperCase() === 'MS'
+    );
+  }
 
-  return { labels, datasets };
-}
+  // Reemplazo: admite MS, WORK.MS, DEVICE.MS, etc.
+  // (esta segunda definición sobrescribe la anterior, se mantiene para no tocar lógica)
+  function extractWorkTimes(items, deviceId) {
+    const devId = String(deviceId);
+    return (items || []).filter(d => {
+      if (String(d.device_id) !== devId) return false;
+      const k = String(d.sensor_key || '').toUpperCase().trim();
+      return k === 'MS' || k.endsWith('.MS');
+    });
+  }
 
+  function formatHM_fromMs(ms) {
+    const totalMin = Math.round((Number(ms) || 0) / 60000);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  }
 
-  
-// Calcular total diario, semanal, mensual (en minutos)
-// Reemplazo
-function isSameISOWeek(d1, ref){
-  // Semana ISO: lunes 00:00 a lunes 00:00
-  const a = new Date(ref);
-  const day = (a.getDay() + 6) % 7; // 0=lunes
-  a.setHours(0,0,0,0);
-  a.setDate(a.getDate() - day);
-  const start = a;                 // lunes
-  const end = new Date(start);
-  end.setDate(end.getDate() + 7);  // próximo lunes
-  return d1 >= start && d1 < end;
-}
+  function getPeriodBounds(period, refDate) {
+    const ref = new Date(refDate);
+    let from = new Date(ref), to = new Date(ref);
+    if (period === 'dia') {
+      from.setHours(0, 0, 0, 0);
+      to.setHours(23, 59, 59, 999);
+    } else if (period === 'semana') {
+      const day = (ref.getDay() + 6) % 7; // lunes ISO
+      from.setHours(0, 0, 0, 0);
+      from.setDate(from.getDate() - day);
+      to = new Date(from);
+      to.setDate(from.getDate() + 6);
+      to.setHours(23, 59, 59, 999);
+    } else {
+      from = new Date(ref.getFullYear(), ref.getMonth(), 1, 0, 0, 0, 0);
+      to = new Date(ref.getFullYear(), ref.getMonth() + 1, 0, 23, 59, 59, 999);
+    }
+    return { fromT: +from, toT: +to };
+  }
 
-function calcWorkTotals(items, deviceId) {
-  const msData = extractWorkTimes(items, deviceId);
-  let todayMs = 0, weekMs = 0, monthMs = 0;
-  const now = new Date();
+  function filterWorkSeries(items, deviceId, fromT, toT) {
+    const KEYS = ['C2R', 'NHR', 'NXR', 'ALR', 'SMR'];
+    const byKey = Object.fromEntries(KEYS.map(k => [k, []]));
+    const labelSet = new Set();
 
-  for (const d of msData) {
-    const t = new Date(d.ts);
-    const valMs = Number(d.value) || 0;
-    if (t.getFullYear() === now.getFullYear() &&
+    for (const d of (items || [])) {
+      if (String(d.device_id) !== String(deviceId)) continue;
+      const k = String(d.sensor_key || '').toUpperCase().trim();
+      if (!KEYS.includes(k)) continue;
+      const t = new Date(d.ts).getTime();
+      if (t < fromT || t > toT) continue;
+      const y = Number(d.value) || 0;
+      const tMin = Math.floor(t / 60000) * 60000;
+      byKey[k].push({ t: tMin, y });
+      labelSet.add(tMin);
+    }
+
+    const labelsTs = Array.from(labelSet).sort((a, b) => a - b);
+    const labels = labelsTs.map(ts =>
+      new Date(ts).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+    );
+
+    const maps = {};
+    for (const k of Object.keys(byKey)) {
+      const m = new Map();
+      byKey[k].sort((a, b) => a.t - b.t);
+      for (const p of byKey[k]) m.set(p.t, p.y);
+      maps[k] = m;
+    }
+
+    const palette = {
+      C2R: '#ffb74d',
+      NHR: '#4da3ff',
+      NXR: '#ff6b6b',
+      ALR: '#7fb3ff',
+      SMR: '#49d17d'
+    };
+
+    const datasets = Object.keys(byKey).map(k => ({
+      label: k,
+      data: labelsTs.map(ts => maps[k].has(ts) ? maps[k].get(ts) : null),
+      borderColor: palette[k] || '#ccc',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      tension: .25,
+      pointRadius: 0,
+      spanGaps: true
+    }));
+
+    return { labels, datasets };
+  }
+
+  // Semana ISO (para totales)
+  function isSameISOWeek(d1, ref) {
+    const a = new Date(ref);
+    const day = (a.getDay() + 6) % 7;
+    a.setHours(0, 0, 0, 0);
+    a.setDate(a.getDate() - day);
+    const start = a;
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    return d1 >= start && d1 < end;
+  }
+
+  function calcWorkTotals(items, deviceId) {
+    const msData = extractWorkTimes(items, deviceId);
+    let todayMs = 0, weekMs = 0, monthMs = 0;
+    const now = new Date();
+
+    for (const d of msData) {
+      const t = new Date(d.ts);
+      const valMs = Number(d.value) || 0;
+      if (t.getFullYear() === now.getFullYear() &&
         t.getMonth() === now.getMonth() &&
         t.getDate() === now.getDate()) {
-      todayMs += valMs;
-    }
-    if (isSameISOWeek(t, now)) {
-      weekMs += valMs;
-    }
-    if (t.getFullYear() === now.getFullYear() &&
+        todayMs += valMs;
+      }
+      if (isSameISOWeek(t, now)) {
+        weekMs += valMs;
+      }
+      if (t.getFullYear() === now.getFullYear() &&
         t.getMonth() === now.getMonth()) {
-      monthMs += valMs;
-    }
-  }
-
-  return { todayMs, weekMs, monthMs };
-}
-
-
-function isSameWeek(d1, d2) {
-  const start = new Date(d2);
-  start.setDate(d2.getDate() - d2.getDay());
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 7);
-  return d1 >= start && d1 < end;
-}
-
-// Renderizar resumen y gráficos
-function renderWorkSection(items, deviceId) {
-  const { todayMs, weekMs, monthMs } = calcWorkTotals(items, deviceId);
-  setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
-  setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
-  setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
-}
-
-
-// Gráfico de variables C2R, NHR, NXR, ALR, SMR
-// Reemplazo
-function renderWorkCharts(items, deviceId, range){
-  if (!items || !deviceId) return;
-  const fromT = range?.fromT ?? 0;
-  const toT   = range?.toT   ?? Date.now();
-  const { labels, datasets } = filterWorkSeries(items, deviceId, fromT, toT);
-
-  if (workChart) workChart.destroy();
-  workChart = new Chart($('workChart').getContext('2d'), {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:true} },
-      interaction:{mode:'nearest',intersect:false},
-      scales:{
-        x:{ title:{display:true,text:'Hora'} },
-        y:{ beginAtZero:true }
+        monthMs += valMs;
       }
     }
-  });
-}
 
-// CSV de trabajo
-// Reemplazo
-async function downloadWorkCSV(deviceId, df=null, dt=null) {
-  let data = lastItemsCache || [];
-  if (df && dt){
-    const fromISO = new Date(df+'T00:00:00').toISOString();
-    const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-    data = await workFetchRange(fromISO, toISO, deviceId);
+    return { todayMs, weekMs, monthMs };
   }
-  const keys = ['OPN','MS','C2R','NHR','NXR','ALR','SMR'];
-  const relevant = data.filter(d =>
-    String(d.device_id) === String(deviceId) &&
-    keys.includes(String(d.sensor_key).toUpperCase())
-  );
-  if (!relevant.length) { alert('Sin datos de trabajo'); return; }
-  const rows = [['timestamp_iso','fecha_local','hora_local','device_id','sensor','valor']];
-  for (const d of relevant){
-    const ts = new Date(d.ts);
-    rows.push([
-      ts.toISOString(),
-      ts.toLocaleDateString('es-AR'),
-      ts.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-      d.device_id, d.sensor_key, d.value
-    ]);
+
+  function isSameWeek(d1, d2) {
+    const start = new Date(d2);
+    start.setDate(d2.getDate() - d2.getDay());
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    return d1 >= start && d1 < end;
   }
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = df && dt ? `trabajo_${deviceId}_${df}_a_${dt}.csv` : `trabajo_${deviceId}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-}
 
+  function renderWorkSection(items, deviceId) {
+    const { todayMs, weekMs, monthMs } = calcWorkTotals(items, deviceId);
+    setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
+    setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
+    setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
+  }
 
-// Botones de interfaz
-// Reemplazo
- // Reemplazo
-$('btnWorkChart').onclick = async ()=>{
-  const wrap = $('workChartWrap');
-  const visible = getComputedStyle(wrap).display !== 'none';
-  wrap.style.display = visible ? 'none' : 'block';
-  $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
-  if (visible) return; // se ocultó
+  function renderWorkCharts(items, deviceId, range) {
+    if (!items || !deviceId) return;
+    const fromT = range?.fromT ?? 0;
+    const toT = range?.toT ?? Date.now();
+    const { labels, datasets } = filterWorkSeries(items, deviceId, fromT, toT);
 
-  if (currentOverlayDevice){
-    const period = $('workRange')?.value || 'dia';
+    if (workChart) workChart.destroy();
+    workChart = new Chart($('workChart').getContext('2d'), {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true } },
+        interaction: { mode: 'nearest', intersect: false },
+        scales: {
+          x: { title: { display: true, text: 'Hora' } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  async function downloadWorkCSV(deviceId, df = null, dt = null) {
+    let data = lastItemsCache || [];
+    if (df && dt) {
+      const fromISO = new Date(df + 'T00:00:00').toISOString();
+      const toISO = new Date(dt + 'T23:59:59.999').toISOString();
+      data = await workFetchRange(fromISO, toISO, deviceId);
+    }
+    const keys = ['OPN', 'MS', 'C2R', 'NHR', 'NXR', 'ALR', 'SMR'];
+    const relevant = data.filter(d =>
+      String(d.device_id) === String(deviceId) &&
+      keys.includes(String(d.sensor_key).toUpperCase())
+    );
+    if (!relevant.length) {
+      alert('Sin datos de trabajo');
+      return;
+    }
+    const rows = [['timestamp_iso', 'fecha_local', 'hora_local', 'device_id', 'sensor', 'valor']];
+    for (const d of relevant) {
+      const ts = new Date(d.ts);
+      rows.push([
+        ts.toISOString(),
+        ts.toLocaleDateString('es-AR'),
+        ts.toLocaleTimeString('es-AR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        }),
+        d.device_id,
+        d.sensor_key,
+        d.value
+      ]);
+    }
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = df && dt
+      ? `trabajo_${deviceId}_${df}_a_${dt}.csv`
+      : `trabajo_${deviceId}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  $('btnWorkChart').onclick = async () => {
+    const wrap = $('workChartWrap');
+    const visible = getComputedStyle(wrap).display !== 'none';
+    wrap.style.display = visible ? 'none' : 'block';
+    $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
+    if (visible) return;
+
+    if (currentOverlayDevice) {
+      const period = $('workRange')?.value || 'dia';
+      const data = await getWorkDataFor(period, currentOverlayDevice);
+      const { fromT, toT } = periodBounds(period);
+      renderWorkCharts(data, currentOverlayDevice, { fromT, toT });
+    }
+  };
+
+  $('btnWorkCSV').onclick = () => {
+    if (!currentOverlayDevice) return;
+    downloadWorkCSV(currentOverlayDevice);
+  };
+
+  $('btnWorkHistCSV').onclick = async () => {
+    const df = $('workDateFrom').value;
+    const dt = $('workDateTo').value;
+    if (!df || !dt || !currentOverlayDevice) return;
+    await downloadWorkCSV(currentOverlayDevice, df, dt);
+  };
+
+  $('workRange').onchange = async () => {
+    const wrap = $('workChartWrap');
+    const visible = getComputedStyle(wrap).display !== 'none';
+    if (!visible || !currentOverlayDevice) return;
+    const period = $('workRange').value || 'dia';
     const data = await getWorkDataFor(period, currentOverlayDevice);
     const { fromT, toT } = periodBounds(period);
-    renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
+    renderWorkCharts(data, currentOverlayDevice, { fromT, toT });
+  };
+
+  $('btnWorkHistToggle').onclick = () => {
+    const c = $('workHistControls');
+    const show = c.style.display === 'none';
+    c.style.display = show ? 'flex' : 'none';
+    $('btnWorkHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
+    if (show) {
+      const t = ymd(new Date());
+      $('workDateFrom').value = t;
+      $('workDateTo').value = t;
+    }
+  };
+
+  $('btnWorkHistShow').onclick = async () => {
+    const df = $('workDateFrom').value;
+    const dt = $('workDateTo').value;
+    if (!df || !dt || !currentOverlayDevice) return;
+    const fromISO = new Date(df + 'T00:00:00').toISOString();
+    const toISO = new Date(dt + 'T23:59:59.999').toISOString();
+    const items = await workFetchRange(fromISO, toISO, currentOverlayDevice);
+    const fromT = new Date(df + 'T00:00:00').getTime();
+    const toT = new Date(dt + 'T23:59:59.999').getTime();
+    renderWorkCharts(items, currentOverlayDevice, { fromT, toT });
+  };
+
+  $('btnWorkHistCSV').onclick = async () => {
+    const df = $('workDateFrom').value;
+    const dt = $('workDateTo').value;
+    if (!df || !dt || !currentOverlayDevice) return;
+    await downloadWorkCSV(currentOverlayDevice, df, dt);
+  };
+
+  /* =========================================================
+   *  CLIMA: ESTADO + BOTONES
+   * =======================================================*/
+  const wxMap = {
+    0: 'Despejado',
+    1: 'Mayormente despejado',
+    2: 'Parcialmente nublado',
+    3: 'Nublado',
+    45: 'Niebla',
+    48: 'Niebla escarchada',
+    51: 'Llovizna',
+    61: 'Lluvia',
+    71: 'Nieve',
+    80: 'Chubascos'
+  };
+
+  function wxEmoji(code) {
+    if ([0].includes(code)) return '☀️';
+    if ([1, 2].includes(code)) return '🌤️';
+    if ([3].includes(code)) return '☁️';
+    if ([45, 48].includes(code)) return '🌫️';
+    if ([51, 53, 55].includes(code)) return '🌦️';
+    if ([61, 63, 65, 80, 81, 82].includes(code)) return '🌧️';
+    if ([71, 73, 75].includes(code)) return '❄️';
+    return '⛅';
   }
-};
 
-
-$('btnWorkCSV').onclick = ()=>{
-  if (!currentOverlayDevice) return;
-  // Sin rango de fechas: usa cache actual
-  downloadWorkCSV(currentOverlayDevice);
-};
-$('btnWorkHistCSV').onclick = async ()=>{
-  const df = $('workDateFrom').value, dt = $('workDateTo').value;
-  if(!df || !dt || !currentOverlayDevice) return;
-  await downloadWorkCSV(currentOverlayDevice, df, dt);
-};
-
-
-  // ===== Clima (nuevo flujo por texto) =====
-  const wxMap = {0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla escarchada',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos'};
-  function wxEmoji(code){ if([0].includes(code)) return '☀️'; if([1,2].includes(code)) return '🌤️'; if([3].includes(code)) return '☁️'; if([45,48].includes(code)) return '🌫️'; if([51,53,55].includes(code)) return '🌦️'; if([61,63,65,80,81,82].includes(code)) return '🌧️'; if([71,73,75].includes(code)) return '❄️'; return '⛅'; }
-
-  function setWxButtonsState(state){
+  function setWxButtonsState(state) {
     // state: 'ready' | 'input' | 'fixed'
-    const open=$('btnWxOpen'), reset=$('btnWxReset'), row=$('wxInputRow'), content=$('wxContent');
-    if(state==='ready'){ open.style.display='inline-flex'; reset.style.display='none'; row.style.display='none'; content.classList.add('wx-blur'); setText('wxWhere','Ubicación no establecida'); setText('wxNow','— °C'); setText('wxNowMeta','—'); setText('wxTodayMM','Máx —° · Mín —° · 💧 —mm'); $('wxTiles').innerHTML=''; }
-    if(state==='input'){ open.style.display='none'; reset.style.display='none'; row.style.display='flex'; }
-    if(state==='fixed'){ open.style.display='none'; reset.style.display='inline-flex'; row.style.display='none'; $('wxContent').classList.remove('wx-blur'); }
+    const open = $('btnWxOpen');
+    const reset = $('btnWxReset');
+    const row = $('wxInputRow');
+    const content = $('wxContent');
+
+    if (state === 'ready') {
+      open.style.display = 'inline-flex';
+      reset.style.display = 'none';
+      row.style.display = 'none';
+      content.classList.add('wx-blur');
+      setText('wxWhere', 'Ubicación no establecida');
+      setText('wxNow', '— °C');
+      setText('wxNowMeta', '—');
+      setText('wxTodayMM', 'Máx —° · Mín —° · 💧 —mm');
+      $('wxTiles').innerHTML = '';
+    }
+    if (state === 'input') {
+      open.style.display = 'none';
+      reset.style.display = 'none';
+      row.style.display = 'flex';
+    }
+    if (state === 'fixed') {
+      open.style.display = 'none';
+      reset.style.display = 'inline-flex';
+      row.style.display = 'none';
+      content.classList.remove('wx-blur');
+    }
   }
 
-  $('btnWxOpen').onclick = ()=>{ setWxButtonsState('input'); $('wxQuery').focus(); };
-  $('btnWxReset').onclick = ()=>{ clearWxPlace(); setWxButtonsState('ready'); };
+  $('btnWxOpen').onclick = () => {
+    setWxButtonsState('input');
+    $('wxQuery').focus();
+  };
 
-  $('btnWxFind').onclick = ()=> doWxSearch();
-  $('wxQuery').addEventListener('keydown',e=>{ if(e.key==='Enter') doWxSearch(); });
+  $('btnWxReset').onclick = () => {
+    clearWxPlace();
+    setWxButtonsState('ready');
+  };
 
-  // Agregado
-  // Reemplazo
-$('workRange').onchange = async ()=>{
-  const wrap = $('workChartWrap');
-  const visible = getComputedStyle(wrap).display !== 'none';
-  if (!visible || !currentOverlayDevice) return;
+  $('btnWxFind').onclick = () => doWxSearch();
+  $('wxQuery').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doWxSearch();
+  });
 
-  const period = $('workRange').value || 'dia';
-  const data = await getWorkDataFor(period, currentOverlayDevice);
-  const { fromT, toT } = periodBounds(period);
-  renderWorkCharts(data, currentOverlayDevice, {fromT, toT});
-};
+  async function doWxSearch() {
+    const q = String(($('wxQuery').value || '').trim());
+    if (!q) return;
 
-
-
-
-
-$('btnWorkHistToggle').onclick = ()=>{
-  const c = $('workHistControls');
-  const show = c.style.display === 'none';
-  c.style.display = show ? 'flex' : 'none';
-  $('btnWorkHistToggle').textContent = show ? 'Ocultar historial' : 'Historial';
-  if(show){
-    const t = ymd(new Date());
-    $('workDateFrom').value = t;
-    $('workDateTo').value   = t;
-  }
-};
-
-$('btnWorkHistShow').onclick = async ()=>{
-  const df = $('workDateFrom').value, dt = $('workDateTo').value;
-  if(!df || !dt || !currentOverlayDevice) return;
-  const fromISO = new Date(df+'T00:00:00').toISOString();
-  const toISO   = new Date(dt+'T23:59:59.999').toISOString();
-  const items = await workFetchRange(fromISO, toISO, currentOverlayDevice);
-  // Render con el rango exacto:
-  const {fromT, toT} = { fromT: new Date(df+'T00:00:00').getTime(), toT: new Date(dt+'T23:59:59.999').getTime() };
-  renderWorkCharts(items, currentOverlayDevice, {fromT, toT});
-};
-
-$('btnWorkHistCSV').onclick = async ()=>{
-  const df = $('workDateFrom').value, dt = $('workDateTo').value;
-  if(!df || !dt || !currentOverlayDevice) return;
-  await downloadWorkCSV(currentOverlayDevice, df, dt);
-};
-
-
-  
-  async function doWxSearch(){
-    const q = String(($('wxQuery').value||'').trim());
-    if(!q) return;
-    // Si es lat,lon directo
     const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
-    if(m){
-      const lat = parseFloat(m[1]), lon=parseFloat(m[2]);
+    if (m) {
+      const lat = parseFloat(m[1]);
+      const lon = parseFloat(m[2]);
       const label = `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`;
       await renderWeather(lat, lon, label);
-      saveWxPlace({lat,lon,label});
+      saveWxPlace({ lat, lon, label });
       setWxButtonsState('fixed');
       return;
     }
-    // Geocoding Open-Meteo
-    try{
+
+    try {
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=es&format=json`;
-      const r = await fetch(url); const j = await r.json();
-      if(!j?.results?.length){ alert('No se encontró la ubicación. Probá con ciudad, provincia, país o “lat,lon”.'); return; }
+      const r = await fetch(url);
+      const j = await r.json();
+      if (!j?.results?.length) {
+        alert('No se encontró la ubicación. Probá con ciudad, provincia, país o “lat,lon”.');
+        return;
+      }
       const g = j.results[0];
       const parts = [g.name, g.admin1, g.country].filter(Boolean);
       const label = parts.join(', ');
       await renderWeather(g.latitude, g.longitude, label);
-      saveWxPlace({lat:g.latitude, lon:g.longitude, label});
+      saveWxPlace({
+        lat: g.latitude,
+        lon: g.longitude,
+        label
+      });
       setWxButtonsState('fixed');
-    }catch(e){
+    } catch (e) {
       alert('Error buscando ubicación');
     }
   }
 
+  /* =========================================================
+   *  MODO: Trabajo / Aire / Movimiento (botonera)
+   * =======================================================*/
+  function setModeSelection(mode) {
+    const buttons = document.querySelectorAll('.mode-toggle button');
+    buttons.forEach(b => {
+      const isThis = (b.dataset.mode === mode);
+      b.classList.toggle('selected', isThis);
+    });
 
-  // ===== Botones de modo: Trabajo / Aire / Movimiento =====
-function setModeSelection(mode){
-  const buttons = document.querySelectorAll('.mode-toggle button');
-  buttons.forEach(b=>{
-    const isThis = (b.dataset.mode === mode);
-    b.classList.toggle('selected', isThis);
-  });
-
-  // Mostrar/ocultar carta de Trabajo
-  const wc = $('workCard');
-  if(wc){
-    wc.style.display = (mode === 'work') ? 'block' : 'none';
+    const wc = $('workCard');
+    if (wc) {
+      wc.style.display = (mode === 'work') ? 'block' : 'none';
+    }
+    // “air” y “motion” reservados para futuros dashboards
   }
 
-  // Aire y Movimiento: por ahora solo reserva de lógica futura
-  // (podemos luego enchufar otros dashboards)
-}
-
-  document.addEventListener('DOMContentLoaded', ()=>{
-    // Botones de modo (Trabajo / Aire / Movimiento)
+  /* =========================================================
+   *  DOMContentLoaded: WIRING DE BOTONES
+   * =======================================================*/
+  document.addEventListener('DOMContentLoaded', () => {
+    // Botones modo Trabajo / Aire / Movimiento
     const modeButtons = document.querySelectorAll('.mode-toggle button');
-    modeButtons.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
         const mode = btn.dataset.mode || null;
         const wasSelected = btn.classList.contains('selected');
-        if(wasSelected){
+        if (wasSelected) {
           setModeSelection(null);
-        }else{
+        } else {
           setModeSelection(mode);
         }
       });
     });
 
-    // Cartas meta en dashboard principal
+    // Cartas meta del dashboard
     const cardSan = $('cardSanidad');
     const cardCal = $('cardCalendario');
     const cardNot = $('cardNotas');
 
-    if(cardSan) cardSan.addEventListener('click', (e)=>{
-      // Evitar que el click en el botón amarillo dispare dos veces
-      e.preventDefault();
-      openMetaOverlay('sanidad', null);
-    });
-    if(cardCal) cardCal.addEventListener('click', (e)=>{
-      e.preventDefault();
-      openMetaOverlay('calendario', null);
-    });
-    if(cardNot) cardNot.addEventListener('click', (e)=>{
-      e.preventDefault();
-      openMetaOverlay('notas', null);
-    });
+    if (cardSan) {
+      cardSan.addEventListener('click', (e) => {
+        e.preventDefault();
+        openMetaOverlay('sanidad', null);
+      });
+    }
+    if (cardCal) {
+      cardCal.addEventListener('click', (e) => {
+        e.preventDefault();
+        openMetaOverlay('calendario', null);
+      });
+    }
+    if (cardNot) {
+      cardNot.addEventListener('click', (e) => {
+        e.preventDefault();
+        openMetaOverlay('notas', null);
+      });
+    }
 
-    // Tabs del overlay meta
-    ['tabSanidad','tabCalendario','tabNotas'].forEach(id=>{
+    // Tabs meta
+    ['tabSanidad', 'tabCalendario', 'tabNotas'].forEach(id => {
       const btn = $(id);
-      if(!btn) return;
-      btn.addEventListener('click', ()=>{
+      if (!btn) return;
+      btn.addEventListener('click', () => {
         const mode = btn.dataset.mode || 'sanidad';
         setMetaTabs(mode);
       });
     });
 
-    // Botón atrás del overlay meta
     const btnMetaBack = $('btnMetaBack');
-    if(btnMetaBack){
-      btnMetaBack.onclick = ()=> closeMetaOverlay();
+    if (btnMetaBack) {
+      btnMetaBack.onclick = () => closeMetaOverlay();
     }
 
     // SANIDAD
-    if($('sanidadWithdrawDays')){
+    if ($('sanidadWithdrawDays')) {
       $('sanidadWithdrawDays').addEventListener('input', computeWithdrawDate);
     }
-    if($('sanidadDate')){
+    if ($('sanidadDate')) {
       $('sanidadDate').addEventListener('change', computeWithdrawDate);
     }
-    if($('btnSanidadReload')){
-      $('btnSanidadReload').onclick = ()=> refreshSanidad();
+    if ($('btnSanidadReload')) {
+      $('btnSanidadReload').onclick = () => refreshSanidad();
     }
-    if($('btnSanidadSave')){
-      $('btnSanidadSave').onclick = ()=> saveSanidad();
+    if ($('btnSanidadSave')) {
+      $('btnSanidadSave').onclick = () => saveSanidad();
     }
 
     // CALENDARIO
-    if($('btnCalReload')){
-      $('btnCalReload').onclick = ()=> refreshCalendario();
+    if ($('btnCalReload')) {
+      $('btnCalReload').onclick = () => refreshCalendario();
     }
-    if($('btnCalSave')){
-      $('btnCalSave').onclick = ()=> saveCalendario();
+    if ($('btnCalSave')) {
+      $('btnCalSave').onclick = () => saveCalendario();
     }
 
     // NOTAS
-    if($('btnNotesReload')){
-      $('btnNotesReload').onclick = ()=> refreshNotas();
+    if ($('btnNotesReload')) {
+      $('btnNotesReload').onclick = () => refreshNotas();
     }
-    if($('btnNoteSave')){
-      $('btnNoteSave').onclick = ()=> saveNota();
+    if ($('btnNoteSave')) {
+      $('btnNoteSave').onclick = () => saveNota();
     }
 
-    // Botón ANOTACIONES en overlay de colmena
-    if($('btnOverlayNotes')){
-      $('btnOverlayNotes').onclick = ()=>{
-        if(currentOverlayDevice){
+    // Botón ANOTACIONES dentro del overlay de colmena
+    if ($('btnOverlayNotes')) {
+      $('btnOverlayNotes').onclick = () => {
+        if (currentOverlayDevice) {
           openMetaOverlay('notas', currentOverlayDevice);
-        }else{
+        } else {
           openMetaOverlay('notas', null);
         }
       };
     }
   });
 
+  /* =========================================================
+   *  RENDER CLIMA: OPEN-METEO
+   * =======================================================*/
+  async function renderWeather(lat, lon, label) {
+    const url = `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${lat}&longitude=${lon}` +
+      `&current=temperature_2m,relative_humidity_2m,weather_code` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum` +
+      `&hourly=temperature_2m,relative_humidity_2m` +
+      `&timezone=auto&forecast_days=4`;
 
-
-  async function renderWeather(lat, lon, label){
-      const url = `https://api.open-meteo.com/v1/forecast` +
-              `?latitude=${lat}&longitude=${lon}` +
-              `&current=temperature_2m,relative_humidity_2m,weather_code` +
-              `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum` +
-              `&hourly=temperature_2m,relative_humidity_2m` +
-              `&timezone=auto&forecast_days=4`;
-
-    const r = await fetch(url); const j = await r.json();
+    const r = await fetch(url);
+    const j = await r.json();
     const current = j.current || {};
     const daily = j.daily || {};
-    document.getElementById('wxContent').classList.remove('wx-blur');
-    setText('wxNow', (current.temperature_2m!=null? Math.round(current.temperature_2m)+' °C':'—'));
-    setText('wxWhere', label || `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
-    setText('wxNowMeta', `${wxMap[current.weather_code]||'—'} · HR ${current.relative_humidity_2m??'—'}%`);
 
-    // Hoy
-    if(daily.time?.length){
+    document.getElementById('wxContent').classList.remove('wx-blur');
+    setText('wxNow', (current.temperature_2m != null ? Math.round(current.temperature_2m) + ' °C' : '—'));
+    setText('wxWhere', label || `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
+    setText('wxNowMeta', `${wxMap[current.weather_code] || '—'} · HR ${current.relative_humidity_2m ?? '—'}%`);
+
+    if (daily.time?.length) {
       const max0 = Math.round(daily.temperature_2m_max?.[0] ?? NaN);
       const min0 = Math.round(daily.temperature_2m_min?.[0] ?? NaN);
-      const pr0  = Math.round((daily.precipitation_sum?.[0] ?? 0));
-      setText('wxTodayMM', `Máx ${isNaN(max0)?'—':max0}° · Mín ${isNaN(min0)?'—':min0}° · 💧 ${pr0}mm`);
+      const pr0 = Math.round((daily.precipitation_sum?.[0] ?? 0));
+      setText('wxTodayMM', `Máx ${isNaN(max0) ? '—' : max0}° · Mín ${isNaN(min0) ? '—' : min0}° · 💧 ${pr0}mm`);
     }
 
-    // Próximos 3
-    const tiles = (daily.time||[]).slice(1,4).map((d,i)=>{
-      const idx = i+1;
-      const code = daily.weather_code?.[idx], tmax = daily.temperature_2m_max?.[idx], tmin = daily.temperature_2m_min?.[idx], pr = daily.precipitation_sum?.[idx];
-      const dt = new Date(d); const lab = dt.toLocaleDateString('es-AR',{weekday:'short', day:'2-digit'});
+    const tiles = (daily.time || []).slice(1, 4).map((d, i) => {
+      const idx = i + 1;
+      const code = daily.weather_code?.[idx];
+      const tmax = daily.temperature_2m_max?.[idx];
+      const tmin = daily.temperature_2m_min?.[idx];
+      const pr = daily.precipitation_sum?.[idx];
+      const dt = new Date(d);
+      const lab = dt.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit' });
       return `<div class="wx-tile">
         <div class="wx-small">${lab}</div>
         <div style="font-size:1.2rem">${wxEmoji(code)}</div>
-        <div class="wx-small">${wxMap[code]||'—'}</div>
+        <div class="wx-small">${wxMap[code] || '—'}</div>
         <div class="wx-small">${Math.round(tmax)}° / ${Math.round(tmin)}°</div>
-        <div class="wx-small">💧 ${Math.round(pr||0)}mm</div>
+        <div class="wx-small">💧 ${Math.round(pr || 0)}mm</div>
       </div>`;
     }).join('');
     $('wxTiles').innerHTML = tiles;
-        // Curva horaria de hoy (temp + humedad)
+
     const hourly = j.hourly || {};
-    const hTime  = hourly.time || [];
-    const hTemp  = hourly.temperature_2m || [];
-    const hHum   = hourly.relative_humidity_2m || [];
+    const hTime = hourly.time || [];
+    const hTemp = hourly.temperature_2m || [];
+    const hHum = hourly.relative_humidity_2m || [];
 
     const wrap = $('wxChartWrap');
     const canvas = $('wxChart');
 
-    if(hTime.length && canvas){
-      // Tomamos solo las horas del día de "hoy" (primer elemento de daily.time)
+    if (hTime.length && canvas) {
       const todayStr = (daily.time && daily.time[0]) ? String(daily.time[0]) : null;
       const labels = [];
       const tempVals = [];
-      const humVals  = [];
+      const humVals = [];
 
-      for(let i=0;i<hTime.length;i++){
+      for (let i = 0; i < hTime.length; i++) {
         const tStr = String(hTime[i]);
-        if(todayStr && !tStr.startsWith(todayStr)) continue;
+        if (todayStr && !tStr.startsWith(todayStr)) continue;
         const d = new Date(tStr);
-        const hh = String(d.getHours()).padStart(2,'0');
-        const mm = String(d.getMinutes()).padStart(2,'0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
         labels.push(`${hh}:${mm}`);
-        tempVals.push(typeof hTemp[i]==='number' ? hTemp[i] : null);
-        humVals.push(typeof hHum[i]==='number' ? hHum[i] : null);
+        tempVals.push(typeof hTemp[i] === 'number' ? hTemp[i] : null);
+        humVals.push(typeof hHum[i] === 'number' ? hHum[i] : null);
       }
 
-      if(labels.length){
-        if(wxChart){ wxChart.destroy(); }
+      if (labels.length) {
+        if (wxChart) wxChart.destroy();
 
         wxChart = new Chart(canvas.getContext('2d'), {
           type: 'line',
@@ -3310,40 +4378,40 @@ function setModeSelection(mode){
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { display: true, labels:{boxWidth:10,font:{size:10}} },
-              tooltip: { mode:'index', intersect:false }
+              legend: { display: true, labels: { boxWidth: 10, font: { size: 10 } } },
+              tooltip: { mode: 'index', intersect: false }
             },
-            interaction:{mode:'index',intersect:false},
+            interaction: { mode: 'index', intersect: false },
             scales: {
               x: {
-                title:{display:false},
-                ticks:{maxTicksLimit:8,font:{size:9}}
+                title: { display: false },
+                ticks: { maxTicksLimit: 8, font: { size: 9 } }
               },
               y: {
-                position:'left',
-                title:{display:true,text:'°C',font:{size:10}},
-                ticks:{font:{size:9}}
+                position: 'left',
+                title: { display: true, text: '°C', font: { size: 10 } },
+                ticks: { font: { size: 9 } }
               },
               y1: {
-                position:'right',
-                title:{display:true,text:'% HR',font:{size:10}},
-                ticks:{font:{size:9}},
-                grid:{drawOnChartArea:false}
+                position: 'right',
+                title: { display: true, text: '% HR', font: { size: 10 } },
+                ticks: { font: { size: 9 } },
+                grid: { drawOnChartArea: false }
               }
             }
           }
         });
 
-        if(wrap) wrap.style.display = 'block';
-      }else{
-        if(wrap) wrap.style.display = 'none';
+        if (wrap) wrap.style.display = 'block';
+      } else {
+        if (wrap) wrap.style.display = 'none';
       }
-    }else{
-      if(wrap) wrap.style.display = 'none';
+    } else {
+      if (wrap) wrap.style.display = 'none';
     }
-
   }
   // ===== Fin Clima =====
 </script>
+
 </body>
-</html>.
+</html>
