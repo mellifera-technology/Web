@@ -1112,26 +1112,157 @@
     color: #8fa1b3;
   }
 
-  /* =========================================================
-   *  OVERLAY PRODUCCIÓN GLOBAL
-   * =======================================================*/
-  #prodOverlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    z-index: 1000;
-    background: rgba(8, 10, 14, .95);
-    backdrop-filter: blur(4px);
+  /* =======================================================
+ *  OVERLAY PRODUCCIÓN: LAYOUT + GRÁFICOS + FORM
+ * =====================================================*/
+  #prodOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    z-index:1000;
+    background:rgba(8,10,14,.95);
+    backdrop-filter:blur(4px);
   }
 
-  #prodPanel {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    max-width: 1200px;
-    margin: 0 auto;
+  #prodPanel{
+    position:absolute;
+    inset:0;
+    display:grid;
+    grid-template-rows:auto 1fr;
+    max-width:1200px;
+    margin:0 auto;
   }
+
+  /* Cabecera del overlay (reutiliza .overlay-header) */
+  /* Ya la tenés para otros overlays, la usamos igual */
+
+  /* Grilla de gráficos de producción */
+  .prod-charts-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+    margin-bottom:18px;
+  }
+
+  @media(max-width:900px){
+    .prod-charts-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  /* Layout general filtros + tabla */
+  .prod-layout{
+    display:grid;
+    grid-template-columns:320px minmax(0,1fr);
+    gap:16px;
+    align-items:flex-start;
+    margin-top:8px;
+  }
+
+  @media(max-width:960px){
+    .prod-layout{
+      grid-template-columns:1fr;
+    }
+  }
+
+  .prod-filters-column{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .prod-table-column{
+    min-width:0;
+  }
+
+  /* Filtros: fechas + colmena */
+  .prod-filters-row{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+  }
+
+  @media(max-width:680px){
+    .prod-filters-row{
+      grid-template-columns:1fr 1fr;
+    }
+    .prod-filters-row .prod-field:last-child{
+      grid-column:1 / -1;
+    }
+  }
+
+  .prod-field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:.9rem;
+  }
+
+  .prod-field label{
+    color:var(--muted);
+  }
+
+  .prod-field input[type="date"],
+  .prod-field input[type="number"],
+  .prod-field select{
+    background:#10141a;
+    border:1px solid var(--border);
+    color:#fff;
+    padding:6px 8px;
+    border-radius:8px;
+    font-size:.9rem;
+  }
+
+  /* Botones filtros */
+  .prod-actions-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:8px;
+  }
+
+  /* Caja “Nueva producción” */
+  .prod-new-box{
+    margin-top:10px;
+    padding:10px;
+    border-radius:10px;
+    background:var(--card);
+    border:1px solid var(--border);
+  }
+
+  .prod-new-box h4{
+    margin:0 0 6px;
+    font-size:.95rem;
+  }
+
+  /* Tabla “nice” que ya usabas */
+  .nice-table{
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    background:var(--card);
+  }
+
+  .nice-table thead th{
+    background:var(--accent);
+    color:#111;
+    border-bottom:1px solid #caa332;
+  }
+
+  .nice-table td,
+  .nice-table th{
+    padding:10px;
+  }
+
+  .nice-table tbody tr:nth-child(odd){
+    background:var(--zebra);
+  }
+
+  .nice-table td.num{
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  
 </style>
 </head>
 <body>
@@ -1616,102 +1747,144 @@
   </div>
 <!-- =============== Fin Overlay Reina =============== -->
 
-  <!-- Overlay Global Producción -->
-  <div id="prodOverlay" aria-hidden="true">
+  <!-- =======================================================
+     OVERLAY: PRODUCCIÓN GLOBAL (APIARIO + COLMENA)
+     =======================================================-->
+  <div id="prodOverlay" style="display:none" aria-hidden="true">
     <div id="prodPanel">
-      <div class="overlay-header">
-        <button id="btnProdBack" class="btn small" type="button">Volver</button>
-        <h3 style="margin:0">Producción — Panel</h3>
-      </div>
+      <!-- Header overlay -->
+      <header class="overlay-header">
+        <button class="btn small" id="btnProdBack">Volver</button>
+        <h2 style="margin:0">Producción</h2>
+        <div class="muted" id="prodSummary">
+          Seleccione un rango y presione “Mostrar” para ver la producción.
+        </div>
+      </header>
+
       <div class="overlay-content">
-        <div class="card">
-          <h3>Filtros</h3>
-          <div class="prod-filters-grid">
-            <div class="date-chip">
-              <input type="date" id="prodFrom">
-              <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('prodFrom')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                </svg>
-              </button>
-            </div>
-
-            <div class="date-chip">
-              <input type="date" id="prodTo">
-              <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('prodTo')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                </svg>
-              </button>
-            </div>
-
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <select id="prodDevice"
-                      style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-                <option value="">Todas las colmenas</option>
-              </select>
-              <select id="prodView"
-                      style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;padding:8px;border-radius:10px">
-                <option value="colmena">Ver por colmena</option>
-                <option value="dia">Ver por día</option>
-                <option value="mes">Ver por mes</option>
-                <option value="anio">Vista anual</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button id="btnProdShow" class="btn yellow" type="button">Mostrar</button>
-            <!-- Botones extra (Borrar / CSV) los agrega el JS -->
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h3>Visualización</h3>
-          <div id="prodSummary" class="muted" style="margin-bottom:8px">
-            Seleccione un rango y presione “Mostrar” para ver la producción.
-          </div>
-
-          <div class="charts-grid">
+        <!-- ==========================
+            Zona de gráficos
+            ==========================-->
+        <div id="prodCharts">
+          <!-- Vista APIARIO (sin colmena filtrada) -->
+          <div id="prodApiaryCharts" class="prod-charts-grid">
             <div class="chart-card">
-              <h4 id="prodMainTitle" style="margin:0 0 4px">Producción por colmena</h4>
-              <div class="chart-box" style="height:220px">
-                <canvas id="prodMainChart"></canvas>
+              <h3>Producción anual del apiario</h3>
+              <div class="chart-box">
+                <canvas id="prodApiaryYearChart"></canvas>
               </div>
             </div>
+            <div class="chart-card">
+              <h3>Producción mensual por año (apiario)</h3>
+              <div class="chart-box">
+                <canvas id="prodApiaryMonthlyChart"></canvas>
+              </div>
+            </div>
+          </div>
 
-            <div class="chart-card" id="prodSecondaryCard" style="display:none">
-              <h4 id="prodSecondaryTitle" style="margin:0 0 4px">Distribución anual por colmena</h4>
-              <div class="chart-box" style="height:220px">
-                <canvas id="prodSecondaryChart"></canvas>
+          <!-- Vista COLMENA (cuando hay filtro de colmena) -->
+          <div id="prodHiveCharts" class="prod-charts-grid" style="display:none">
+            <div class="chart-card">
+              <h3 id="prodHiveMonthlyTitle">Producción mensual por año – Colmena</h3>
+              <div class="chart-box">
+                <canvas id="prodHiveMonthlyChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3 id="prodHiveQueenTitle">Producción anual y cambios de reina</h3>
+              <div class="chart-box">
+                <canvas id="prodHiveQueenChart"></canvas>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="card" style="margin-top:12px">
-          <h3>Historial</h3>
-          <div class="nice-table" style="overflow:auto;max-height:60vh">
-            <table style="width:100%">
-              <thead>
-                <tr><th>Fecha</th><th>Colmena</th><th class="num">Kilos</th></tr>
-              </thead>
-              <tbody id="prodGlobalTbody"></tbody>
-              <tfoot>
-                <tr>
-                  <th colspan="2" style="text-align:right">Total</th>
-                  <th id="prodGlobalTotal" class="num">0.00</th>
-                </tr>
-              </tfoot>
-            </table>
+        <!-- ==========================
+            Filtros + Nueva producción + Tabla
+            ==========================-->
+        <div class="prod-layout">
+          <!-- Columna izquierda: filtros + nueva producción -->
+          <div class="prod-filters-column">
+            <!-- Filtros de búsqueda -->
+            <div class="prod-filters-row">
+              <div class="prod-field">
+                <label for="prodFrom">Desde</label>
+                <input type="date" id="prodFrom">
+              </div>
+              <div class="prod-field">
+                <label for="prodTo">Hasta</label>
+                <input type="date" id="prodTo">
+              </div>
+              <div class="prod-field">
+                <label for="prodDevice">Colmena</label>
+                <select id="prodDevice">
+                  <option value="">Todas</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="prod-actions-row">
+              <button class="btn small" id="btnProdShow">Mostrar</button>
+              <button class="btn small" id="btnProdReset">Borrar</button>
+              <button class="btn small" id="btnProdCSV" style="display:none">
+                Descargar CSV
+              </button>
+            </div>
+
+            <!-- Nueva producción -->
+            <div class="prod-new-box">
+              <h4>Nueva producción</h4>
+              <form id="prodNewForm">
+                <div class="prod-field">
+                  <label for="prodNewDevice">Colmena</label>
+                  <select id="prodNewDevice" required>
+                    <option value="">Seleccionar…</option>
+                  </select>
+                </div>
+                <div class="prod-field">
+                  <label for="prodNewDate">Fecha</label>
+                  <input type="date" id="prodNewDate" required>
+                </div>
+                <div class="prod-field">
+                  <label for="prodNewKilos">Kilos</label>
+                  <input type="number" step="0.01" min="0" id="prodNewKilos" placeholder="0,00" required>
+                </div>
+                <button type="submit" class="btn small yellow">
+                  Guardar producción
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Columna derecha: tabla historial -->
+          <div class="prod-table-column">
+            <div class="nice-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Colmena</th>
+                    <th class="num">Kilos</th>
+                  </tr>
+                </thead>
+                <tbody id="prodGlobalTbody">
+                  <tr>
+                    <td class="muted" colspan="3">Sin datos</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="muted" style="margin-top:6px;font-size:.9rem;">
+              Total del período:
+              <span id="prodGlobalTotal">0,00</span> kg
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
+
 
   <!-- Overlay Meta (Sanidad / Calendario / Notas) -->
   <div id="metaOverlay" aria-hidden="true">
@@ -1970,8 +2143,6 @@
   let wxChart = null;
 
   // Producción global
-  let prodMainChart = null;      // gráfico principal
-  let prodSecondaryChart = null; // gráfico secundario (torta)
   let prodLastItems = [];        // últimos registros de producción cargados
 
   // Meta overlay (Sanidad / Calendario / Notas)
@@ -3089,26 +3260,491 @@
     }
   }
 
-  /* =========================================================
-   *  PRODUCCIÓN (API Worker)
-   * =======================================================*/
-  async function prodInsert(device_id, fecha, kilos) {
-    if (!(Number(kilos) > 0)) throw new Error('kilos debe ser > 0');
-    return callWorker('/production', { method: 'POST', body: { device_id, fecha, kilos } });
+    /* =========================================================
+ *   PRODUCCIÓN: APIARIO + COLMENA + REINAS
+ * =======================================================*/
+
+// --- API Worker producción ---
+async function prodInsert(device_id, fecha, kilos){
+  if(!(Number(kilos) > 0)) throw new Error('kilos debe ser > 0');
+  return callWorker('/production', {
+    method:'POST',
+    body:{ device_id, fecha, kilos }
+  });
+}
+
+async function prodList(params){
+  const url = new URL(BASE + '/production');
+  if(params?.device_id) url.searchParams.set('device_id', params.device_id);
+  if(params?.fromISO)   url.searchParams.set('from', params.fromISO);
+  if(params?.toISO)     url.searchParams.set('to', params.toISO);
+
+  const u = auth.currentUser;
+  if(!u) throw new Error('No auth');
+  const t = await u.getIdToken();
+  const res = await fetch(url.toString(), {
+    headers:{ 'Authorization': `Bearer ${t}` }
+  });
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();   // { items: [...] }
+}
+
+// --- Estado en memoria de producción ---
+
+let prodApiaryYearChart   = null;
+let prodApiaryMonthlyChart= null;
+let prodHiveMonthlyChart  = null;
+let prodHiveQueenChart    = null;
+
+// Helpers de charts
+function destroyProdCharts(){
+  if(prodApiaryYearChart){    prodApiaryYearChart.destroy();    prodApiaryYearChart=null; }
+  if(prodApiaryMonthlyChart){ prodApiaryMonthlyChart.destroy(); prodApiaryMonthlyChart=null; }
+  if(prodHiveMonthlyChart){   prodHiveMonthlyChart.destroy();   prodHiveMonthlyChart=null; }
+  if(prodHiveQueenChart){     prodHiveQueenChart.destroy();     prodHiveQueenChart=null; }
+}
+
+// Tabla vacía por defecto
+function resetProdTable(){
+  const tb = $('prodGlobalTbody');
+  if(tb){
+    tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+  }
+  setText('prodGlobalTotal','0.00');
+}
+
+// Rellenar selects de colmenas (filtro + nueva producción)
+function fillProdDeviceSelects(){
+  const devices = getKnownDevices();   // ya lo tenés definido
+  const filterSel = $('prodDevice');
+  const newSel    = $('prodNewDevice');
+
+  const options = devices.map(id=>`<option value="${id}">${id}</option>`).join('');
+
+  if(filterSel){
+    filterSel.innerHTML = '<option value="">Todas</option>' + options;
+  }
+  if(newSel){
+    newSel.innerHTML = '<option value="">Seleccionar…</option>' + options;
+  }
+}
+
+// Abrir / cerrar overlay
+function openProdOverlay(){
+  const ov = $('prodOverlay');
+  if(!ov) return;
+  ov.style.display='block';
+  ov.setAttribute('aria-hidden','false');
+
+  const hoy = ymd(new Date());
+  if($('prodFrom'))    $('prodFrom').value    = hoy;
+  if($('prodTo'))      $('prodTo').value      = hoy;
+  if($('prodNewDate')) $('prodNewDate').value = hoy;
+  if($('prodNewKilos'))$('prodNewKilos').value= '';
+
+  fillProdDeviceSelects();
+  prodLastItems = [];
+  destroyProdCharts();
+  resetProdTable();
+
+  const summary = $('prodSummary');
+  if(summary){
+    summary.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
+  }
+}
+
+function closeProdOverlay(){
+  const ov = $('prodOverlay');
+  if(!ov) return;
+  ov.style.display='none';
+  ov.setAttribute('aria-hidden','true');
+}
+
+// Botones abrir/cerrar overlay principal
+$('btnProdMain').onclick = ()=> openProdOverlay();
+$('btnProdBack').onclick = ()=> closeProdOverlay();
+
+// Resumen numérico
+function summarizeProduction(items){
+  let total = 0;
+  const byHive = {};
+  for(const r of (items || [])){
+    const id = String(r.device_id || '').trim() || '—';
+    const k  = Number(r.kilos || 0);
+    total += k;
+    byHive[id] = (byHive[id] || 0) + k;
+  }
+  let bestId = null, bestVal = 0;
+  for(const [id,val] of Object.entries(byHive)){
+    if(val > bestVal){ bestVal = val; bestId = id; }
+  }
+  return { total, byHive, bestId, bestVal, hives:Object.keys(byHive).length };
+}
+
+function updateProdSummary(items, devFilter){
+  const { total, byHive, bestId, bestVal, hives } = summarizeProduction(items);
+  let txt = `Total en el período: ${total.toFixed(2)} kg. `;
+  if(devFilter){
+    txt += `Colmena seleccionada: ${devFilter}.`;
+  }else{
+    if(hives > 0) txt += `Colmenas con producción: ${hives}. `;
+    if(bestId)    txt += `Colmena destacada: ${bestId} (${bestVal.toFixed(2)} kg).`;
+  }
+  const el = $('prodSummary');
+  if(el) el.textContent = txt;
+}
+
+// Agrupar por año
+function groupProdByYear(items){
+  const map = {};
+  for(const r of (items||[])){
+    const f = String(r.fecha || '');
+    if(!f) continue;
+    const y = Number(f.slice(0,4));
+    if(!y) continue;
+    const k = Number(r.kilos || 0);
+    map[y] = (map[y] || 0) + k;
+  }
+  const years = Object.keys(map).map(Number).sort((a,b)=>a-b);
+  return { years, data: years.map(y=>map[y]) };
+}
+
+// Agrupar por mes y año → series por año (labels = meses 1..12)
+function groupProdByMonthPerYear(items){
+  const map = {};  // year -> [12]
+  for(const r of (items||[])){
+    const f = String(r.fecha || '');
+    if(!f) continue;
+    const parts = f.split('-');
+    const y = Number(parts[0] || 0);
+    const m = Number(parts[1] || 0);
+    if(!y || !m) continue;
+    if(!map[y]) map[y] = new Array(12).fill(0);
+    map[y][m-1] += Number(r.kilos || 0);
+  }
+  const years = Object.keys(map).map(Number).sort((a,b)=>a-b);
+  const monthLabels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const series = years.map(y=>map[y] || new Array(12).fill(0));
+  return { years, monthLabels, series };
+}
+
+// Gráficos APIARIO (sin filtro de colmena)
+function renderApiaryCharts(items){
+  const { years, data } = groupProdByYear(items);
+  const { years: yearsM, monthLabels, series } = groupProdByMonthPerYear(items);
+  const palette = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
+
+  // Barra anual apiario
+  const ctxYear = $('prodApiaryYearChart')?.getContext('2d');
+  if(ctxYear && years.length){
+    prodApiaryYearChart = new Chart(ctxYear,{
+      type:'bar',
+      data:{
+        labels: years,
+        datasets:[{
+          data,
+          backgroundColor: years.map((_,i)=>palette[i % palette.length])
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{display:false} },
+        scales:{
+          x:{ title:{display:true,text:'Año'} },
+          y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
+        }
+      }
+    });
   }
 
-  async function prodList(params) {
-    const url = new URL(BASE + '/production');
-    if (params?.device_id) url.searchParams.set('device_id', params.device_id);
-    if (params?.fromISO) url.searchParams.set('from', params.fromISO);
-    if (params?.toISO) url.searchParams.set('to', params.toISO);
-    const u = auth.currentUser;
-    if (!u) throw new Error('No auth');
-    const t = await u.getIdToken();
-    const res = await fetch(url.toString(), { headers: { 'Authorization': `Bearer ${t}` } });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
+  // Línea mensual por año (apiario)
+  const ctxMonth = $('prodApiaryMonthlyChart')?.getContext('2d');
+  if(ctxMonth && yearsM.length){
+    const datasets = yearsM.map((y,idx)=>({
+      label: String(y),
+      data: series[idx],
+      borderColor: palette[idx % palette.length],
+      backgroundColor:'transparent',
+      borderWidth:2,
+      tension:.25,
+      pointRadius:0,
+      spanGaps:true
+    }));
+    prodApiaryMonthlyChart = new Chart(ctxMonth,{
+      type:'line',
+      data:{ labels: monthLabels, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{display:true} },
+        interaction:{ mode:'index',intersect:false },
+        scales:{
+          x:{ title:{display:true,text:'Mes'} },
+          y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
+        }
+      }
+    });
   }
+}
+
+// Gráficos COLMENA (filtro de colmena activo)
+async function renderHiveCharts(items, deviceId){
+  const ctxMonth = $('prodHiveMonthlyChart')?.getContext('2d');
+  const ctxQueen = $('prodHiveQueenChart')?.getContext('2d');
+  const titleMonth = $('prodHiveMonthlyTitle');
+  const titleQueen = $('prodHiveQueenTitle');
+
+  if(titleMonth) titleMonth.textContent = `Producción mensual por año – Colmena ${deviceId}`;
+  if(titleQueen) titleQueen.textContent = `Producción anual y cambios de reina – Colmena ${deviceId}`;
+
+  const palette = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
+
+  // Mensual por año para esa colmena (los items ya vienen filtrados por device_id)
+  const { years, monthLabels, series } = groupProdByMonthPerYear(items);
+  if(ctxMonth && years.length){
+    const datasets = years.map((y,idx)=>({
+      label: String(y),
+      data: series[idx],
+      borderColor: palette[idx % palette.length],
+      backgroundColor:'transparent',
+      borderWidth:2,
+      tension:.25,
+      pointRadius:0,
+      spanGaps:true
+    }));
+    prodHiveMonthlyChart = new Chart(ctxMonth,{
+      type:'line',
+      data:{ labels: monthLabels, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{display:true} },
+        interaction:{ mode:'index',intersect:false },
+        scales:{
+          x:{ title:{display:true,text:'Mes'} },
+          y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
+        }
+      }
+    });
+  }
+
+  // Línea anual + hitos de reinas
+  if(ctxQueen){
+    const { years: yearsY, data: dataY } = groupProdByYear(items);
+    if(yearsY.length){
+      const datasets = [{
+        label:'Producción anual',
+        data: dataY,
+        borderColor:'#ffb74d',
+        backgroundColor:'transparent',
+        borderWidth:2,
+        tension:.25,
+        pointRadius:4
+      }];
+
+      // Marcadores de cambio de reina (usa /queens)
+      let markers = new Array(yearsY.length).fill(null);
+      try{
+        const { items: queens = [] } = await queenList(deviceId);  // ya definido en el módulo de reinas
+        queens.forEach(q=>{
+          const y = Number(q.year);
+          const idx = yearsY.indexOf(y);
+          if(idx !== -1){
+            markers[idx] = dataY[idx];   // punto sobre la curva
+          }
+        });
+      }catch(e){
+        // Si falla, simplemente no dibujamos marcadores
+      }
+
+      if(markers.some(v => v != null)){
+        datasets.push({
+          label:'Cambio de reina',
+          data: markers,
+          borderColor:'#ffffff',
+          backgroundColor:'#ffffff',
+          pointRadius:6,
+          pointHoverRadius:7,
+          showLine:false,
+          type:'line'
+        });
+      }
+
+      prodHiveQueenChart = new Chart(ctxQueen,{
+        type:'line',
+        data:{ labels: yearsY, datasets },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{display:true} },
+          interaction:{ mode:'index',intersect:false },
+          scales:{
+            x:{ title:{display:true,text:'Año'} },
+            y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
+          }
+        }
+      });
+    }
+  }
+}
+
+// Decide qué gráficos mostrar según filtro de colmena
+function renderProdCharts(){
+  destroyProdCharts();
+  const items = prodLastItems || [];
+  const apiaryWrap = $('prodApiaryCharts');
+  const hiveWrap   = $('prodHiveCharts');
+  const dev = $('prodDevice')?.value || '';
+
+  if(!items.length){
+    if(apiaryWrap) apiaryWrap.style.display='none';
+    if(hiveWrap)   hiveWrap.style.display='none';
+    const s = $('prodSummary');
+    if(s) s.textContent = 'Sin datos en el rango seleccionado.';
+    return;
+  }
+
+  if(dev){
+    if(apiaryWrap) apiaryWrap.style.display='none';
+    if(hiveWrap)   hiveWrap.style.display='grid';
+    renderHiveCharts(items, dev);
+  }else{
+    if(apiaryWrap) apiaryWrap.style.display='grid';
+    if(hiveWrap)   hiveWrap.style.display='none';
+    renderApiaryCharts(items);
+  }
+  updateProdSummary(items, dev || '');
+}
+
+// Mostrar resultados según filtros
+$('btnProdShow').onclick = async ()=>{
+  const df  = $('prodFrom').value;
+  const dt  = $('prodTo').value;
+  const dev = $('prodDevice').value || '';
+
+  const fromISO = df ? new Date(df+'T00:00:00').toISOString()       : undefined;
+  const toISO   = dt ? new Date(dt+'T23:59:59.999').toISOString()   : undefined;
+
+  try{
+    const { items } = await prodList({
+      device_id: dev || undefined,
+      fromISO,
+      toISO
+    });
+    prodLastItems = items || [];
+
+    // Pintar tabla
+    const tb = $('prodGlobalTbody');
+    if(!items?.length){
+      resetProdTable();
+      const csvBtn = $('btnProdCSV');
+      if(csvBtn) csvBtn.style.display = 'none';
+      renderProdCharts();
+      return;
+    }
+
+    tb.innerHTML = items.map(r=>`
+      <tr>
+        <td>${escapeHtml(r.fecha)}</td>
+        <td>${escapeHtml(r.device_id)}</td>
+        <td class="num">${Number(r.kilos).toFixed(2)}</td>
+      </tr>`).join('');
+
+    const total = items.reduce((a,b)=> a + Number(b.kilos || 0), 0);
+    setText('prodGlobalTotal', total.toFixed(2));
+
+    const csvBtn = $('btnProdCSV');
+    if(csvBtn) csvBtn.style.display = 'inline-flex';
+
+    renderProdCharts();
+  }catch(e){
+    alert('Error consultando: ' + (e.message || e));
+  }
+};
+
+// Reset filtros y gráficos
+function prodResetFilters(){
+  const hoy = ymd(new Date());
+  if($('prodFrom'))   $('prodFrom').value   = hoy;
+  if($('prodTo'))     $('prodTo').value     = hoy;
+  if($('prodDevice')) $('prodDevice').value = '';
+
+  prodLastItems = [];
+  destroyProdCharts();
+  resetProdTable();
+
+  const csvBtn = $('btnProdCSV');
+  if(csvBtn) csvBtn.style.display = 'none';
+
+  const s = $('prodSummary');
+  if(s) s.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
+}
+
+$('btnProdReset').onclick = ()=> prodResetFilters();
+
+// CSV de producción (historial)
+function prodDownloadCSV(){
+  const items = prodLastItems || [];
+  if(!items.length){
+    alert('Sin datos para exportar');
+    return;
+  }
+  const rows = [['fecha','colmena','kilos']];
+  for(const r of items){
+    rows.push([String(r.fecha||''), String(r.device_id||''), String(Number(r.kilos||0).toFixed(2))]);
+  }
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'produccion.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+$('btnProdCSV').onclick = ()=> prodDownloadCSV();
+
+// Formulario “Nueva producción”
+const prodNewForm = $('prodNewForm');
+if(prodNewForm){
+  prodNewForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const dev   = $('prodNewDevice')?.value || '';
+    const fecha = $('prodNewDate')?.value   || '';
+    const kilos = Number($('prodNewKilos')?.value || 0);
+
+    if(!dev || !fecha || !(kilos > 0)){
+      alert('Complete colmena, fecha y kilos > 0');
+      return;
+    }
+    try{
+      await prodInsert(dev, fecha, kilos);
+      $('prodNewKilos').value = '';
+
+      // Si ya hay un rango cargado, refrescamos la vista actual
+      if($('prodFrom').value && $('prodTo').value){
+        $('btnProdShow').click();
+      }
+    }catch(e){
+      alert('Error guardando producción: ' + (e.message || e));
+    }
+  });
+}
+
+// Inicializar fechas por defecto al cargar (madre + producción)
+function initProdDefaults(){
+  const t = ymd(new Date());
+  const ovd = $('ovProdDate'); // overlay por colmena
+  if(ovd) ovd.value = t;
+  const pf = $('prodFrom'), pt = $('prodTo');
+  if(pf) pf.value = t;
+  if(pt) pt.value = t;
+}
+
 
   /* =========================================================
    *  WORKER META: SANIDAD / CALENDARIO / NOTAS
@@ -3353,59 +3989,6 @@
     }
     queenDeviceContext = null;
   }
-
-
-  /* =========================================================
-   *  PRODUCCIÓN GLOBAL: OVERLAY
-   * =======================================================*/
-  $('btnProdMain').onclick = () => { openProdOverlay(); };
-  $('btnProdBack').onclick = () => { closeProdOverlay(); };
-
-  $('btnProdShow').onclick = async () => {
-    const df = $('prodFrom').value;
-    const dt = $('prodTo').value;
-    const dev = $('prodDevice').value || '';
-
-    const fromISO = df ? new Date(df + 'T00:00:00').toISOString() : undefined;
-    const toISO = dt ? new Date(dt + 'T23:59:59.999').toISOString() : undefined;
-
-    try {
-      const { items } = await prodList({
-        device_id: dev || undefined,
-        fromISO,
-        toISO
-      });
-      prodLastItems = items || [];
-
-      const tb = $('prodGlobalTbody');
-      if (!items?.length) {
-        tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-        setText('prodGlobalTotal', '0.00');
-        const csvBtn = $('btnProdCSV');
-        if (csvBtn) csvBtn.style.display = 'none';
-        renderProdCharts(); // limpia gráficos y texto
-        return;
-      }
-
-      tb.innerHTML = items.map(r =>
-        `<tr>
-          <td>${escapeHtml(r.fecha)}</td>
-          <td>${escapeHtml(r.device_id)}</td>
-          <td class="num">${Number(r.kilos).toFixed(2)}</td>
-        </tr>`
-      ).join('');
-
-      const total = items.reduce((a, b) => a + Number(b.kilos || 0), 0);
-      setText('prodGlobalTotal', total.toFixed(2));
-
-      const csvBtn = $('btnProdCSV');
-      if (csvBtn) csvBtn.style.display = 'inline-flex';
-
-      renderProdCharts();
-    } catch (e) {
-      alert('Error consultando: ' + (e.message || e));
-    }
-  };
 
   /* =========================================================
    *  META OVERLAY: TABS (Sanidad / Calendario / Notas)
@@ -3751,346 +4334,6 @@
   }
 
   /* =========================================================
-   *  PRODUCCIÓN: CSV SIMPLE (overlay global)
-   * =======================================================*/
-  function prodDownloadCSV() {
-    const rows = [['fecha', 'colmena', 'kilos']];
-    const tb = document.querySelectorAll('#prodGlobalTbody tr');
-    tb.forEach(tr => {
-      const c = tr.querySelectorAll('td');
-      if (c.length === 3) {
-        rows.push([c[0].innerText, c[1].innerText, c[2].innerText]);
-      }
-    });
-    if (rows.length <= 1) {
-      alert('Sin datos para exportar');
-      return;
-    }
-    const csv = rows.map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'produccion.csv';
-    a.click();
-  }
-
-  /* =========================================================
-   *  PRODUCCIÓN: RESÚMENES Y AGRUPACIONES
-   * =======================================================*/
-  function summarizeProduction(items) {
-    let total = 0;
-    const byHive = {};
-    for (const r of (items || [])) {
-      const id = String(r.device_id || '').trim() || '—';
-      const k = Number(r.kilos || 0);
-      total += k;
-      byHive[id] = (byHive[id] || 0) + k;
-    }
-    let bestId = null, bestVal = 0;
-    for (const [id, val] of Object.entries(byHive)) {
-      if (val > bestVal) {
-        bestVal = val;
-        bestId = id;
-      }
-    }
-    return {
-      total,
-      byHive,
-      bestId,
-      bestVal,
-      hives: Object.keys(byHive).length
-    };
-  }
-
-  function groupByDay(items) {
-    const map = {};
-    for (const r of (items || [])) {
-      const f = String(r.fecha || '').slice(0, 10);
-      if (!f) continue;
-      map[f] = (map[f] || 0) + Number(r.kilos || 0);
-    }
-    const labels = Object.keys(map).sort();
-    const data = labels.map(d => map[d]);
-    return { labels, data };
-  }
-
-  function groupByMonth(items) {
-    const map = {};
-    for (const r of (items || [])) {
-      const f = String(r.fecha || '');
-      if (!f) continue;
-      const key = f.slice(0, 7);
-      map[key] = (map[key] || 0) + Number(r.kilos || 0);
-    }
-    const labels = Object.keys(map).sort();
-    const data = labels.map(d => map[d]);
-    return { labels, data };
-  }
-
-  function groupByYear(items) {
-    const map = {};
-    for (const r of (items || [])) {
-      const f = String(r.fecha || '');
-      if (!f) continue;
-      const key = f.slice(0, 4);
-      map[key] = (map[key] || 0) + Number(r.kilos || 0);
-    }
-    const labels = Object.keys(map).sort();
-    const data = labels.map(d => map[d]);
-    return { labels, data };
-  }
-
-  function renderProdCharts() {
-    const items = prodLastItems || [];
-    const viewSel = $('prodView');
-    const view = viewSel ? viewSel.value : 'colmena';
-    const devSel = $('prodDevice');
-    const dev = devSel ? (devSel.value || '') : '';
-
-    const summaryEl = $('prodSummary');
-    const secCard = $('prodSecondaryCard');
-    const mainTitle = $('prodMainTitle');
-    const secTitle = $('prodSecondaryTitle');
-
-    if (prodMainChart) { prodMainChart.destroy(); prodMainChart = null; }
-    if (prodSecondaryChart) { prodSecondaryChart.destroy(); prodSecondaryChart = null; }
-    if (secCard) secCard.style.display = 'none';
-
-    if (!items.length) {
-      if (summaryEl) summaryEl.textContent = 'Sin datos en el rango seleccionado.';
-      if (mainTitle) mainTitle.textContent = 'Producción por colmena';
-      return;
-    }
-
-    const { total, byHive, bestId, bestVal, hives } = summarizeProduction(items);
-    let txt = `Total en el período: ${total.toFixed(2)} kg. `;
-    if (hives > 0) txt += `Colmenas con producción: ${hives}. `;
-    if (bestId) txt += `Colmena destacada: ${bestId} (${bestVal.toFixed(2)} kg).`;
-    if (dev) txt += ` Filtro de colmena: ${dev}.`;
-    if (summaryEl) summaryEl.textContent = txt;
-
-    const ctxMain = $('prodMainChart')?.getContext('2d');
-    const ctxSec = $('prodSecondaryChart')?.getContext('2d');
-    if (!ctxMain) return;
-
-    const palette = [
-      '#ffb74d', '#4da3ff', '#49d17d', '#ff6b6b',
-      '#7fb3ff', '#ce93d8', '#fff176', '#80cbc4'
-    ];
-
-    // Vista: por colmena (barras)
-    if (view === 'colmena') {
-      const labels = Object.keys(byHive);
-      const data = labels.map(id => byHive[id]);
-      if (mainTitle) mainTitle.textContent = 'Producción por colmena';
-
-      prodMainChart = new Chart(ctxMain, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Kilos en el período',
-            data,
-            backgroundColor: labels.map((_, i) => palette[i % palette.length])
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { title: { display: true, text: 'Colmena' } },
-            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
-          }
-        }
-      });
-      return;
-    }
-
-    // Vista: por día (línea)
-    if (view === 'dia') {
-      const { labels, data } = groupByDay(items);
-      if (mainTitle) mainTitle.textContent = 'Producción diaria (todas las colmenas del rango)';
-
-      prodMainChart = new Chart(ctxMain, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Kilos por día',
-            data,
-            borderColor: '#ffb74d',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            tension: .25,
-            pointRadius: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          interaction: { mode: 'index', intersect: false },
-          scales: {
-            x: { title: { display: true, text: 'Fecha' } },
-            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
-          }
-        }
-      });
-      return;
-    }
-
-    // Vista: por mes (barras)
-    if (view === 'mes') {
-      const { labels, data } = groupByMonth(items);
-      if (mainTitle) mainTitle.textContent = 'Producción mensual en el rango';
-
-      prodMainChart = new Chart(ctxMain, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Kilos por mes',
-            data,
-            backgroundColor: labels.map((_, i) => palette[i % palette.length])
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { title: { display: true, text: 'Mes' } },
-            y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
-          }
-        }
-      });
-      return;
-    }
-
-    // Vista: anual (barras año + torta por colmena)
-    if (view === 'anio') {
-      const { labels, data } = groupByYear(items);
-      if (mainTitle) mainTitle.textContent = 'Producción anual';
-
-      if (labels.length) {
-        prodMainChart = new Chart(ctxMain, {
-          type: 'bar',
-          data: {
-            labels,
-            datasets: [{
-              label: 'Kilos por año',
-              data,
-              backgroundColor: labels.map((_, i) => palette[i % palette.length])
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { title: { display: true, text: 'Año' } },
-              y: { title: { display: true, text: 'Kilos' }, beginAtZero: true }
-            }
-          }
-        });
-      }
-
-      if (ctxSec && Object.keys(byHive).length > 0 && secCard) {
-        if (secTitle) secTitle.textContent = 'Distribución por colmena';
-        const pieLabels = Object.keys(byHive);
-        const pieData = pieLabels.map(id => byHive[id]);
-        prodSecondaryChart = new Chart(ctxSec, {
-          type: 'pie',
-          data: {
-            labels: pieLabels,
-            datasets: [{
-              data: pieData,
-              backgroundColor: pieLabels.map((_, i) => palette[i % palette.length])
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'right' } }
-          }
-        });
-        secCard.style.display = 'block';
-      }
-    }
-  }
-
-  function openProdOverlay() {
-    $('prodOverlay').style.display = 'block';
-    $('prodOverlay').setAttribute('aria-hidden', 'false');
-
-    const showBtn = $('btnProdShow');
-    if (showBtn) {
-      const row = showBtn.parentElement;
-      if (row) {
-        if (!$('btnProdReset')) {
-          const btn = document.createElement('button');
-          btn.id = 'btnProdReset';
-          btn.type = 'button';
-          btn.className = 'btn small';
-          btn.textContent = 'Borrar';
-          btn.onclick = prodResetFilters;
-          row.appendChild(btn);
-        }
-        if (!$('btnProdCSV')) {
-          const csv = document.createElement('button');
-          csv.id = 'btnProdCSV';
-          csv.type = 'button';
-          csv.className = 'btn small';
-          csv.textContent = 'Descargar CSV';
-          csv.style.display = 'none';
-          csv.onclick = prodDownloadCSV;
-          row.appendChild(csv);
-        }
-      }
-    }
-
-    const viewSel = $('prodView');
-    if (viewSel) viewSel.value = 'colmena';
-  }
-
-  function prodResetFilters() {
-    const hoy = ymd(new Date());
-    $('prodFrom').value = hoy;
-    $('prodTo').value = hoy;
-    $('prodDevice').value = '';
-
-    const viewSel = $('prodView');
-    if (viewSel) viewSel.value = 'colmena';
-
-    const tb = $('prodGlobalTbody');
-    if (tb) tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
-    setText('prodGlobalTotal', '0.00');
-
-    const csvBtn = $('btnProdCSV');
-    if (csvBtn) csvBtn.style.display = 'none';
-
-    prodLastItems = [];
-    if (prodMainChart) { prodMainChart.destroy(); prodMainChart = null; }
-    if (prodSecondaryChart) { prodSecondaryChart.destroy(); prodSecondaryChart = null; }
-
-    const secCard = $('prodSecondaryCard');
-    if (secCard) secCard.style.display = 'none';
-
-    const summaryEl = $('prodSummary');
-    if (summaryEl) {
-      summaryEl.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
-    }
-    const mainTitle = $('prodMainTitle');
-    if (mainTitle) mainTitle.textContent = 'Producción por colmena';
-  }
-
-  function closeProdOverlay() {
-    $('prodOverlay').style.display = 'none';
-    $('prodOverlay').setAttribute('aria-hidden', 'true');
-  }
-
-  /* =========================================================
    *  TOGGLE TABLA LECTURAS CRUDAS
    * =======================================================*/
   $('toggleTbl').onclick = () => {
@@ -4133,14 +4376,6 @@
     }
   }, 15000);
 
-  function initProdDefaults() {
-    const t = ymd(new Date());
-    const ovd = $('ovProdDate');
-    if (ovd) ovd.value = t;
-    const pf = $('prodFrom'), pt = $('prodTo');
-    if (pf) pf.value = t;
-    if (pt) pt.value = t;
-  }
 
   /* =========================================================
    *  BLOQUE: “TRABAJO” (modo avanzado por colmena)
