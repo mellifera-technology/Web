@@ -150,9 +150,35 @@
     .nice-table td.num{text-align:right;font-variant-numeric:tabular-nums}
     .badge{display:inline-block;background:#222;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-weight:700}
 
-    /* Status dot */
-    .status-row{display:flex;align-items:center;gap:8px;color:var(--muted);margin:.25rem 0 0}
-    .status-dot{width:10px;height:10px;border-radius:50%;background:var(--idle);box-shadow:0 0 0 2px rgba(0,0,0,.2) inset}
+    
+        /* Status dot */
+.status-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  margin:.25rem 0 0;
+}
+
+.status-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--idle);
+  box-shadow:0 0 0 2px rgba(0,0,0,.2) inset;
+}
+
+/* Alerta: colmena abierta */
+.status-dot.alert{
+  background:var(--bad);
+  animation:status-blink .8s ease-in-out infinite alternate;
+}
+
+@keyframes status-blink{
+  from{opacity:1;}
+  to{opacity:.25;}
+}
+
 
       /* Centrar títulos y métricas de las tarjetas de Temp/Hum en el overlay */
 .overlay-grid .card h3{
@@ -946,20 +972,41 @@ async function getProductionSummary(period){
   // Tarjetas colmena + estado extendido
   // Tarjetas colmena + estado extendido
 async function renderDeviceCards(items){
-  const wrap = $('autoCards'); if(!wrap) return;
+  const wrap = $('autoCards');
+  if(!wrap) return;
 
+  // Último timestamp por colmena
   const lastById = new Map();
-  for(const d of items||[]){
-    const raw = String(d.device_id||'').trim();
-    if(!raw || /mother/i.test(raw) || !isNumericId(raw)) continue;
+  // Estado por colmena: último OPN / último MS
+  const statusById = new Map();
+
+  for(const d of items || []){
+    const rawId = String(d.device_id || '').trim();
+    if(!rawId || /mother/i.test(rawId) || !isNumericId(rawId)) continue;
+
     const t = new Date(d.ts).getTime();
-    const prev = lastById.get(raw) || 0;
-    if(t > prev) lastById.set(raw, t);
+    const prev = lastById.get(rawId) || 0;
+    if(t > prev) lastById.set(rawId, t);
+
+    const key = String(d.sensor_key || '').toUpperCase().trim();
+    if(!statusById.has(rawId)){
+      statusById.set(rawId, { lastOpen:0, lastClose:0 });
+    }
+    const st = statusById.get(rawId);
+
+    // OPN = colmena abierta
+    if(key === 'OPN' || key.endsWith('.OPN') || key.includes('OPN')){
+      if(t > st.lastOpen) st.lastOpen = t;
+    }
+    // MS = “cierra” alerta
+    if(key === 'MS' || key.endsWith('.MS')){
+      if(t > st.lastClose) st.lastClose = t;
+    }
   }
 
   const devices = [...lastById.entries()]
-    .sort((a,b)=>b[1]-a[1])
-    .map(([id,ts])=>({id,ts}));
+    .sort((a,b) => b[1] - a[1])
+    .map(([id, ts]) => ({ id, ts }));
 
   if(!devices.length){
     wrap.innerHTML = '<div class="muted">Sin colmenas detectadas.</div>';
@@ -968,18 +1015,38 @@ async function renderDeviceCards(items){
 
   const now = Date.now();
 
-  // Pedir datos según configuración
+  // Pedir datos según configuración global de tarjetas
   const prodKilos   = await getProductionSummary(cardCfg.kilos);    // mes / año
   const prodTrabajo = await getProductionSummary(cardCfg.trabajo);  // semana / mes / año
 
   const labelKilos   = getKilosLabel();
   const labelTrabajo = getTrabajoLabel();
 
-  wrap.innerHTML = devices.map(({id,ts})=>{
-    const diffMin   = (now-ts)/60000;
-    const conectado = diffMin <= 15;
-    const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
-    const estadoColor = 'var(--idle)'; // por ahora fijo
+  wrap.innerHTML = devices.map(({id, ts})=>{
+    const diffMin    = (now - ts) / 60000;
+    const conectado  = diffMin <= 15;
+    const colorConn  = conectado ? 'var(--ok)' : 'var(--bad)';
+
+    const st = statusById.get(id) || { lastOpen:0, lastClose:0 };
+
+    // Por defecto: sin eventos → punto gris
+    let estadoLabel   = 'Estado';
+    let estadoDotCls  = 'status-dot';
+    let estadoDotStyle = 'background:var(--idle);';
+
+    if(st.lastOpen || st.lastClose){
+      if(st.lastOpen > st.lastClose){
+        // Último evento fue OPN → alerta activa
+        estadoLabel    = 'ABIERTO';
+        estadoDotCls   = 'status-dot alert';  // rojo titilando desde el CSS
+        estadoDotStyle = '';                  // sin style inline, manda la clase
+      }else{
+        // Último evento fue MS → todo OK
+        estadoLabel    = 'Estado';
+        estadoDotCls   = 'status-dot';
+        estadoDotStyle = 'background:var(--ok);'; // verde
+      }
+    }
 
     const kilosVal    = (prodKilos[id]?.kilos || 0).toFixed(1);
     const trabajoMin  = prodTrabajo[id]?.trabajoMin || 0;
@@ -993,8 +1060,8 @@ async function renderDeviceCards(items){
           <span class="status-dot" style="background:${colorConn}"></span>
         </div>
         <div class="status-row">
-          <span>Estado</span>
-          <span class="status-dot" style="background:${estadoColor}"></span>
+          <span>${estadoLabel}</span>
+          <span class="${estadoDotCls}"${estadoDotStyle ? ` style="${estadoDotStyle}"` : ''}></span>
         </div>
         <div class="status-row">
           <span>${labelKilos}</span>
@@ -1014,10 +1081,11 @@ async function renderDeviceCards(items){
   if(sel){
     const cur = sel.value;
     sel.innerHTML = '<option value="">Todas</option>' +
-      devices.map(d=>`<option value="${d.id}">${d.id}</option>`).join('');
+      devices.map(d => `<option value="${d.id}">${d.id}</option>`).join('');
     if(cur) sel.value = cur;
   }
 }
+
 
 
   
