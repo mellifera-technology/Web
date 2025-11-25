@@ -3333,23 +3333,43 @@ function fillProdDeviceSelects(){
 function openProdOverlay(){
   const ov = $('prodOverlay');
   if(!ov) return;
-  ov.style.display='block';
+
+  ov.style.display = 'block';
   ov.setAttribute('aria-hidden','false');
 
-  const hoy = ymd(new Date());
-  if($('prodFrom'))    $('prodFrom').value    = hoy;
-  if($('prodTo'))      $('prodTo').value      = hoy;
-  if($('prodNewDate')) $('prodNewDate').value = hoy;
-  if($('prodNewKilos'))$('prodNewKilos').value= '';
+  // Filtros: al abrir, SIN rango de fechas y SIN colmena → apiario completo
+  const fromInput = $('prodFrom');
+  const toInput   = $('prodTo');
+  const devSel    = $('prodDevice');
+  const viewSel   = $('prodView'); // si existe
 
+  if (fromInput) fromInput.value = '';
+  if (toInput)   toInput.value   = '';
+  if (devSel)    devSel.value    = '';
+
+  // Vista por defecto: APIARIO ANUAL
+  if (viewSel) viewSel.value = 'anio';
+
+  // Selects de colmenas (filtro + carga nueva prod)
   fillProdDeviceSelects();
+
+  // Limpiar estado previo
   prodLastItems = [];
   destroyProdCharts();
   resetProdTable();
 
+  const csvBtn = $('btnProdCSV');
+  if (csvBtn) csvBtn.style.display = 'none';
+
   const summary = $('prodSummary');
-  if(summary){
-    summary.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
+  if (summary) {
+    summary.textContent = 'Cargando producción del apiario...';
+  }
+
+  // Disparar la búsqueda con filtros vacíos (apiario completo)
+  const showBtn = $('btnProdShow');
+  if (showBtn) {
+    showBtn.click();
   }
 }
 
@@ -3490,28 +3510,32 @@ function renderApiaryCharts(items){
 
 // Gráficos COLMENA (filtro de colmena activo)
 async function renderHiveCharts(items, deviceId){
-  const ctxMonth = $('prodHiveMonthlyChart')?.getContext('2d');
-  const ctxQueen = $('prodHiveQueenChart')?.getContext('2d');
+  const ctxMonth  = $('prodHiveMonthlyChart')?.getContext('2d');
+  const ctxQueen  = $('prodHiveQueenChart')?.getContext('2d');
   const titleMonth = $('prodHiveMonthlyTitle');
   const titleQueen = $('prodHiveQueenTitle');
 
-  if(titleMonth) titleMonth.textContent = `Producción mensual por año – Colmena ${deviceId}`;
-  if(titleQueen) titleQueen.textContent = `Producción anual y cambios de reina – Colmena ${deviceId}`;
+  if(titleMonth) {
+    titleMonth.textContent = `Producción mensual por año – Colmena ${deviceId}`;
+  }
+  if(titleQueen) {
+    titleQueen.textContent = `Producción anual y cambios de reina – Colmena ${deviceId}`;
+  }
 
   const palette = ['#ffb74d','#4da3ff','#49d17d','#ff6b6b','#7fb3ff','#ce93d8','#fff176','#80cbc4'];
 
-  // Mensual por año para esa colmena (los items ya vienen filtrados por device_id)
+  // ===== 1) Mensual por año para ESA colmena (líneas) =====
   const { years, monthLabels, series } = groupProdByMonthPerYear(items);
-  if(ctxMonth && years.length){
+  if (ctxMonth && years.length){
     const datasets = years.map((y,idx)=>({
       label: String(y),
       data: series[idx],
       borderColor: palette[idx % palette.length],
-      backgroundColor:'transparent',
-      borderWidth:2,
-      tension:.25,
-      pointRadius:0,
-      spanGaps:true
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      tension: .25,
+      pointRadius: 0,
+      spanGaps: true
     }));
     prodHiveMonthlyChart = new Chart(ctxMonth,{
       type:'line',
@@ -3529,65 +3553,105 @@ async function renderHiveCharts(items, deviceId){
     });
   }
 
-  // Línea anual + hitos de reinas
-  if(ctxQueen){
-    const { years: yearsY, data: dataY } = groupProdByYear(items);
-    if(yearsY.length){
-      const datasets = [{
-        label:'Producción anual',
-        data: dataY,
-        borderColor:'#ffb74d',
-        backgroundColor:'transparent',
-        borderWidth:2,
-        tension:.25,
-        pointRadius:4
-      }];
+  // ===== 2) Anual + cambios de reina (barras por reina) =====
+  if (!ctxQueen) return;
 
-      // Marcadores de cambio de reina (usa /queens)
-      let markers = new Array(yearsY.length).fill(null);
-      try{
-        const { items: queens = [] } = await queenList(deviceId);  // ya definido en el módulo de reinas
-        queens.forEach(q=>{
-          const y = Number(q.year);
-          const idx = yearsY.indexOf(y);
-          if(idx !== -1){
-            markers[idx] = dataY[idx];   // punto sobre la curva
-          }
-        });
-      }catch(e){
-        // Si falla, simplemente no dibujamos marcadores
-      }
+  const { years: yearsY, data: dataY } = groupProdByYear(items);
+  if (!yearsY.length) {
+    return;
+  }
 
-      if(markers.some(v => v != null)){
-        datasets.push({
-          label:'Cambio de reina',
-          data: markers,
-          borderColor:'#ffffff',
-          backgroundColor:'#ffffff',
+  // Traemos cambios de reina de /queens
+  let queens = [];
+  try{
+    const { items: qItems = [] } = await queenList({ device_id: deviceId });
+    queens = (qItems || []).slice().sort((a,b)=> Number(a.year) - Number(b.year));
+  }catch(e){
+    queens = [];
+  }
+
+  // Helper: qué reina aplica en un año dado (última <= año)
+  function queenYearFor(y){
+    let current = null;
+    for (const q of queens){
+      const qy = Number(q.year);
+      if (!qy) continue;
+      if (qy <= y) current = qy;
+    }
+    return current; // año de la reina vigente ese año
+  }
+
+  // Mapear cada reina (por año) a un color fijo
+  const queenColorMap = {};
+  let colorIdx = 0;
+  function colorForQueenYear(qYear){
+    if (!qYear) return '#9aa3ad';
+    if (!queenColorMap[qYear]){
+      queenColorMap[qYear] = palette[colorIdx % palette.length];
+      colorIdx++;
+    }
+    return queenColorMap[qYear];
+  }
+
+  // Reina aplicada por año (según año de producción)
+  const queenForEachYear = yearsY.map(y => queenYearFor(y));
+  const barColors = yearsY.map((y,idx) => colorForQueenYear(queenForEachYear[idx]));
+
+  // Marcadores de cambio de reina:
+  //  - solo en los años donde HAY registro de cambio
+  //  - color = color de la reina que queda vigente
+  const changeYears = new Set(queens.map(q => Number(q.year) || 0));
+  const markerData   = [];
+  const markerColors = [];
+
+  yearsY.forEach((y, idx) => {
+    if (changeYears.has(y)) {
+      markerData.push(dataY[idx]);               // punto arriba de la barra (sobre la misma altura)
+    } else {
+      markerData.push(null);                     // sin punto ese año
+    }
+    markerColors.push(colorForQueenYear(queenForEachYear[idx]));
+  });
+
+  prodHiveQueenChart = new Chart(ctxQueen,{
+    type:'bar',
+    data:{
+      labels: yearsY,
+      datasets:[
+        {
+          label:'Producción anual',
+          data: dataY,
+          backgroundColor: barColors,
+          borderWidth: 1
+        },
+        {
+          type:'line',
+          label:'Cambios de reina',
+          data: markerData,
+          showLine:false,
           pointRadius:6,
           pointHoverRadius:7,
-          showLine:false,
-          type:'line'
-        });
-      }
-
-      prodHiveQueenChart = new Chart(ctxQueen,{
-        type:'line',
-        data:{ labels: yearsY, datasets },
-        options:{
-          responsive:true,
-          maintainAspectRatio:false,
-          plugins:{ legend:{display:true} },
-          interaction:{ mode:'index',intersect:false },
-          scales:{
-            x:{ title:{display:true,text:'Año'} },
-            y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
-          }
+          pointBackgroundColor: markerColors,
+          pointBorderColor:'#ffffff',
+          borderWidth:0
         }
-      });
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ display:true }
+      },
+      interaction:{ mode:'index', intersect:false },
+      scales:{
+        x:{ title:{display:true,text:'Año'} },
+        y:{ title:{display:true,text:'Kilos'}, beginAtZero:true }
+      }
     }
-  }
+  });
 }
+
 
 // Decide qué gráficos mostrar según filtro de colmena
 function renderProdCharts(){
