@@ -1577,14 +1577,14 @@
             </div>
           </div>
         </div>
-
-        <!-- Herramientas de análisis -->
+                <!-- Herramientas de análisis -->
         <div class="card" style="margin-top:12px">
           <h3 style="margin-top:0">Herramientas de análisis</h3>
           <div class="mode-toggle">
             <button type="button" data-mode="work" id="btnModeWork">Trabajo</button>
             <button type="button" data-mode="air" id="btnModeAir">Aire</button>
             <button type="button" data-mode="motion" id="btnModeMotion">Movimiento</button>
+            <button type="button" data-mode="prod" id="btnModeProd">Producción</button>
           </div>
         </div>
 
@@ -1617,13 +1617,19 @@
             <div class="date-chip">
               <input type="date" id="workDateFrom">
               <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                </svg>
               </button>
             </div>
             <div class="date-chip">
               <input type="date" id="workDateTo">
               <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
-                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                </svg>
               </button>
             </div>
             <div class="hist-actions">
@@ -1633,11 +1639,24 @@
           </div>
         </div>
 
-        <!-- Producción por colmena (overlay) -->
-        <div class="card" id="ovProdCard" style="margin-top:12px">
+        <!-- Aire (placeholder, por si luego lo llenamos) -->
+        <div class="card" id="airCard" style="margin-top:12px;display:none">
+          <h3>Aire</h3>
+          <p class="muted">Aquí irán las herramientas de análisis de ventilación / CO₂ / etc.</p>
+        </div>
+
+        <!-- Movimiento (placeholder) -->
+        <div class="card" id="motionCard" style="margin-top:12px;display:none">
+          <h3>Movimiento</h3>
+          <p class="muted">Aquí irán las herramientas de análisis de movimiento.</p>
+        </div>
+
+        <!-- Producción por colmena (modo dentro de Herramientas) -->
+        <div class="card" id="prodCardHive" style="margin-top:12px;display:none">
           <h3>Producción</h3>
 
-          <div class="prod-inputs">
+          <!-- FORM: Producción (fecha + kilos + guardar) -->
+          <div class="prod-inputs" style="margin-bottom:10px">
             <div class="date-chip">
               <input type="date" id="ovProdDate">
               <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('ovProdDate')">
@@ -1648,31 +1667,94 @@
               </button>
             </div>
 
-            <input type="number" id="ovProdKilos"
-                   inputmode="decimal" min="0.01" step="0.01"
+            <input type="number"
+                   id="ovProdKilos"
+                   inputmode="decimal"
+                   min="0.01"
+                   step="0.01"
                    placeholder="Kilos"
                    class="prod-kilos">
+
+            <button id="ovBtnSaveProd" class="btn yellow" type="button">
+              Guardar
+            </button>
           </div>
 
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-            <button id="ovBtnSaveProd" class="btn yellow" type="button">Guardar</button>
-            <button id="ovBtnToggleHist" class="btn small" type="button">Ver historial</button>
+          <!-- GRÁFICOS: todos para ESTA colmena -->
+          <div class="hive-prod-charts">
+            <!-- 1. Producción anual (barras por año) -->
+            <div class="chart-card">
+              <h3 style="margin-top:0;">Producción anual de la colmena</h3>
+              <p class="muted" style="margin-top:0;margin-bottom:6px;">
+                Total de kilos por año (barras comparativas).
+              </p>
+              <div class="chart-box">
+                <canvas id="hiveProdYearChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 2. Línea mensual por año (superpuestas) -->
+            <div class="chart-card">
+              <h3 style="margin-top:0;">Producción mensual por año</h3>
+              <p class="muted" style="margin-top:0;margin-bottom:6px;">
+                Producción mes a mes, comparando años (una línea por año).
+              </p>
+              <div class="chart-box">
+                <canvas id="hiveProdMonthlyChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 3. Línea multianual (evolución) -->
+            <div class="chart-card">
+              <h3 style="margin-top:0;">Evolución multianual</h3>
+              <p class="muted" style="margin-top:0;margin-bottom:6px;">
+                Evolución de la producción a lo largo de los años (por mes o por cosecha).
+              </p>
+              <div class="chart-box">
+                <canvas id="hiveProdMultiYearChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 4. Línea con hitos de cambio de reina -->
+            <div class="chart-card">
+              <h3 style="margin-top:0;">Producción y cambios de reina</h3>
+              <p class="muted" style="margin-top:0;margin-bottom:6px;">
+                Muestra la producción anual/mensual y marca los cambios de reina (líneas verticales o símbolos).
+              </p>
+              <div class="chart-box">
+                <canvas id="hiveProdQueenChart"></canvas>
+              </div>
+            </div>
           </div>
 
-          <div id="ovProdHistWrap" style="display:none">
-            <div class="nice-table">
-              <div style="max-height:220px;overflow:auto">
-                <table style="width:100%">
-                  <thead><tr><th>Fecha</th><th class="num">Kilos</th></tr></thead>
-                  <tbody id="ovProdTbody">
-                    <tr><td class="muted" colspan="2">Sin datos</td></tr>
-                  </tbody>
-                </table>
+          <!-- HISTORIAL (tabla limitada en alto, como ahora) -->
+          <div style="margin-top:12px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center;justify-content:space-between">
+              <span class="muted">Historial de producción de esta colmena</span>
+              <button id="ovBtnToggleHist" class="btn small" type="button">
+                Ver / ocultar historial
+              </button>
+            </div>
+
+            <div id="ovProdHistWrap" style="display:none">
+              <div class="nice-table">
+                <div style="max-height:220px;overflow:auto">
+                  <table style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th class="num">Kilos</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ovProdTbody">
+                      <tr><td class="muted" colspan="2">Sin datos</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
       </div> <!-- overlay-content -->
     </div>
   </div>
@@ -4105,6 +4187,43 @@ function initProdDefaults(){
     queenDeviceContext = null;
   }
 
+  (function initAnalysisModes() {
+    const buttons = document.querySelectorAll('.mode-toggle button');
+    const cardsByMode = {
+      work: document.getElementById('workCard'),
+      air: document.getElementById('airCard'),
+      motion: document.getElementById('motionCard'),
+      prod: document.getElementById('prodCardHive'),
+    };
+
+    if (!buttons.length) return;
+
+    function activateMode(mode) {
+      // activar botón
+      buttons.forEach(btn => {
+        const isActive = btn.dataset.mode === mode;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+
+      // mostrar/ocultar cartas
+      Object.entries(cardsByMode).forEach(([m, card]) => {
+        if (!card) return;
+        card.style.display = (m === mode) ? 'block' : 'none';
+      });
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        if (mode) activateMode(mode);
+      });
+    });
+
+    // Modo por defecto: Trabajo
+    activateMode('work');
+  })();
+  
   /* =========================================================
    *  META OVERLAY: TABS (Sanidad / Calendario / Notas)
    * =======================================================*/
