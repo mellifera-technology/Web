@@ -789,6 +789,115 @@
     line-height: 1.2;
   }
 
+  /* ===== Producción: layout superior (filtros + nueva producción) ===== */
+  #prodOverlay .prod-top-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) minmax(260px, 320px);
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  #prodOverlay .card {
+    border-radius: 10px;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  /* Títulos de tarjetas */
+  #prodOverlay .card-title {
+    margin: 0 0 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  /* Grid de filtros (fechas / colmena / vista) */
+  #prodOverlay .prod-filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem 1rem;
+  }
+
+  /* Campos (labels + inputs) */
+  #prodOverlay .field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: var(--muted, #6c757d);
+  }
+
+  #prodOverlay .field input[type="date"],
+  #prodOverlay .field input[type="number"],
+  #prodOverlay .field select {
+    width: 100%;
+    box-sizing: border-box;
+    height: 2.3rem;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* Input + botón calendario */
+  #prodOverlay .input-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #prodOverlay .icon-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 2px;
+  }
+
+  /* Botones debajo de los filtros */
+  #prodOverlay .prod-filters-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  #prodOverlay .btn.primary {
+    background: var(--accent, #ffb74d);
+    color: #222;
+  }
+
+  #prodOverlay .btn.ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.18);
+  }
+
+  /* ===== Nueva producción ===== */
+  #prodOverlay #prodNewCard .prod-new-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem 1rem;
+  }
+
+  /* Botón de guardar más abajo y limpio */
+  #prodOverlay #prodNewCard .prod-new-actions {
+    margin-top: 0.9rem;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  /* ===== Tabla: hacerla menos “gigante” ===== */
+
+  /* Contenedor de la tabla de producción global */
+  #prodOverlay .prod-table-wrap {
+    max-height: 260px;           /* limita altura */
+    overflow: auto;              /* scroll interno si hace falta */
+  }
+
+  /* Fuente un poco más chica en la tabla */
+  #prodOverlay table {
+    font-size: 0.9rem;
+  }
+
+
+
   /* ================== Reina ================== */
 
   .queen-layout{
@@ -1798,88 +1907,109 @@
             </div>
           </div>
         </div>
+        <!-- ================== FILTROS PRODUCCIÓN + NUEVA CARGA ================== -->
+        <div class="prod-top-layout">
 
-        <!-- ==========================
-            Filtros + Nueva producción + Tabla
-            ==========================-->
-        <div class="prod-layout">
-          <!-- Columna izquierda: filtros + nueva producción -->
-          <div class="prod-filters-column">
-            <!-- Filtros de búsqueda -->
-            <div class="prod-filters-row">
-              <div class="prod-field">
+          <!-- Filtros de producción -->
+          <section class="card" id="prodFiltersCard">
+            <h3 class="card-title">Producción del apiario</h3>
+
+            <div class="prod-filters-grid">
+              <!-- Desde -->
+              <div class="field">
                 <label for="prodFrom">Desde</label>
-                <input type="date" id="prodFrom">
+                <div class="input-with-icon">
+                  <input type="date" id="prodFrom" name="prodFrom">
+                  <button type="button" class="icon-btn" onclick="tryOpenPicker('prodFrom')" aria-label="Elegir fecha desde">
+                    📅
+                  </button>
+                </div>
               </div>
-              <div class="prod-field">
+
+              <!-- Hasta -->
+              <div class="field">
                 <label for="prodTo">Hasta</label>
-                <input type="date" id="prodTo">
+                <div class="input-with-icon">
+                  <input type="date" id="prodTo" name="prodTo">
+                  <button type="button" class="icon-btn" onclick="tryOpenPicker('prodTo')" aria-label="Elegir fecha hasta">
+                    📅
+                  </button>
+                </div>
               </div>
-              <div class="prod-field">
+
+              <!-- Colmena -->
+              <div class="field">
                 <label for="prodDevice">Colmena</label>
-                <select id="prodDevice">
+                <select id="prodDevice" name="prodDevice">
+                  <!-- se llena desde JS con fillProdDeviceSelects() -->
                   <option value="">Todas</option>
+                </select>
+              </div>
+
+              <!-- Vista -->
+              <div class="field">
+                <label for="prodView">Vista</label>
+                <select id="prodView" name="prodView">
+                  <option value="colmena">Por colmena</option>
+                  <option value="dia">Por día</option>
+                  <option value="mes">Por mes</option>
+                  <option value="anio">Por año</option>
                 </select>
               </div>
             </div>
 
-            <!-- Botones de acción -->
-            <div class="prod-actions-row">
-              <button class="btn small" id="btnProdShow">Mostrar</button>
-              <button class="btn small" id="btnProdReset">Borrar</button>
-              <button class="btn small" id="btnProdCSV" style="display:none">
-                Descargar CSV
-              </button>
+            <div class="prod-filters-actions">
+              <button type="button" id="btnProdShow" class="btn primary">Mostrar</button>
+              <button type="button" id="btnProdReset" class="btn ghost">Borrar</button>
+              <button type="button" id="btnProdCSV" class="btn ghost" style="display:none">Descargar CSV</button>
             </div>
+          </section>
 
-            <!-- Nueva producción -->
-            <div class="prod-new-box">
-              <h4>Nueva producción</h4>
-              <form id="prodNewForm">
-                <div class="prod-field">
+          <!-- Nueva producción -->
+          <section class="card" id="prodNewCard">
+            <h3 class="card-title">Nueva producción</h3>
+
+            <form id="prodNewForm" autocomplete="off">
+              <div class="prod-new-grid">
+                <div class="field">
+                  <label for="prodNewDate">Fecha</label>
+                  <div class="input-with-icon">
+                    <input type="date" id="prodNewDate" name="prodNewDate">
+                    <button type="button" class="icon-btn" onclick="tryOpenPicker('prodNewDate')" aria-label="Elegir fecha de producción">
+                      📅
+                    </button>
+                  </div>
+                </div>
+
+                <div class="field">
                   <label for="prodNewDevice">Colmena</label>
-                  <select id="prodNewDevice" required>
+                  <select id="prodNewDevice" name="prodNewDevice">
+                    <!-- se llena desde JS: fillProdDeviceSelects() -->
                     <option value="">Seleccionar…</option>
                   </select>
                 </div>
-                <div class="prod-field">
-                  <label for="prodNewDate">Fecha</label>
-                  <input type="date" id="prodNewDate" required>
-                </div>
-                <div class="prod-field">
-                  <label for="prodNewKilos">Kilos</label>
-                  <input type="number" step="0.01" min="0" id="prodNewKilos" placeholder="0,00" required>
-                </div>
-                <button type="submit" class="btn small yellow">
+              </div>
+
+              <div class="field" style="margin-top:0.5rem;">
+                <label for="prodNewKilos">Kilos cosechados</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  id="prodNewKilos"
+                  name="prodNewKilos"
+                  placeholder="Ej. 15.5"
+                >
+              </div>
+
+              <!-- Botón un poco más abajo y bien separado -->
+              <div class="prod-new-actions">
+                <button type="submit" id="prodNewSaveBtn" class="btn primary">
                   Guardar producción
                 </button>
-              </form>
-            </div>
-          </div>
-
-          <!-- Columna derecha: tabla historial -->
-          <div class="prod-table-column">
-            <div class="nice-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Colmena</th>
-                    <th class="num">Kilos</th>
-                  </tr>
-                </thead>
-                <tbody id="prodGlobalTbody">
-                  <tr>
-                    <td class="muted" colspan="3">Sin datos</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="muted" style="margin-top:6px;font-size:.9rem;">
-              Total del período:
-              <span id="prodGlobalTotal">0,00</span> kg
-            </div>
-          </div>
+              </div>
+            </form>
+          </section>
         </div>
       </div>
     </div>
