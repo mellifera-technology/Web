@@ -243,6 +243,20 @@
     margin-top: 18px;
   }
 
+  /* Meta cards como botones */
+  .meta-cards .card{
+    cursor: pointer;
+    transition: transform .08s ease, border-color .08s ease;
+  }
+  .meta-cards .card:hover{
+    transform: translateY(-1px);
+    border-color: rgba(255,255,255,.18);
+  }
+  .meta-cards .card button{
+    display:none; /* ocultamos el botón chico */
+  }
+
+
   @media (max-width: 980px) {
     .meta-cards {
       grid-template-columns: 1fr;
@@ -700,12 +714,13 @@
     font-weight: 600;
     padding: 8px 10px;
     cursor: pointer;
-    min-width: 140px;
+    min-width: 170px;
     line-height: 1.2;
   }
 
   .date-chip input[type="date"]::-webkit-calendar-picker-indicator {
-    display: none;
+    opacity: 0.9;
+    cursor: pointer;
   }
 
   .cal-btn {
@@ -1675,23 +1690,16 @@
           <div class="meta-cards">
             <div class="card" id="cardSanidad">
               <h3 class="meta-card-title">Manejo sanitario</h3>
-              <p class="meta-card-text">
-                Registrar qué productos se usaron, cuándo se aplicaron, dosis y fecha de retiro. Evaluar si el tratamiento fue efectivo.
-              </p>
               <button class="btn small yellow" type="button">Abrir manejo sanitario</button>
             </div>
             <div class="card" id="cardCalendario">
               <h3 class="meta-card-title">Calendario</h3>
-              <p class="meta-card-text">
-                Ver y agendar manejos sanitarios y otros eventos de la piario por fecha y por colmena.
-              </p>
+              
               <button class="btn small yellow" type="button">Abrir calendario</button>
             </div>
             <div class="card" id="cardNotas">
               <h3 class="meta-card-title">Anotaciones</h3>
-              <p class="meta-card-text">
-                Registrar observaciones de campo vinculadas a cada colmena y consultarlas más adelante.
-              </p>
+              
               <button class="btn small yellow" type="button">Abrir anotaciones</button>
             </div>
           </div>
@@ -4204,6 +4212,8 @@
 
     const s = $('prodSummary');
     if (s) s.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
+    $('prodApiaryCharts').style.display = '';
+    $('prodHiveCharts').style.display = 'none';
   }
 
   $('btnProdReset').onclick = () => prodResetFilters();
