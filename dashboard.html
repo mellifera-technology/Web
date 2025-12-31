@@ -1328,9 +1328,12 @@
 
   .wx-tiles {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(7, minmax(92px, 1fr));
     gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
   }
+
 
   .wx-tile {
     background: #10141a;
@@ -1339,6 +1342,47 @@
     padding: 8px;
     text-align: center;
   }
+
+  .wx-tile {
+    cursor: pointer;
+    user-select: none;
+    transition: transform .08s ease, border-color .08s ease;
+  }
+  .wx-tile:hover { transform: translateY(-1px); }
+  .wx-tile.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.35);
+  }
+
+  .wx-results{
+    display:none;
+    margin: 0 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #0f141b;
+    overflow: hidden;
+  }
+  .wx-results button{
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .wx-results button:hover{ background: rgba(255,255,255,.06); }
+  .wx-results button:last-child{ border-bottom: 0; }
+
+  .wx-day-detail{
+    margin-top: 10px;
+    padding: 10px;
+    background: #10141a;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
 
   .wx-big {
     font-size: 1.6rem;
@@ -1587,7 +1631,6 @@
           </div>
           <div id="msg" class="muted" style="margin-top:8px"></div>
           <hr style="border:0;border-top:1px solid var(--border)">
-
           <!-- Clima y pronóstico -->
           <div>
             <h3 style="margin:10px 0 8px">Clima y pronóstico</h3>
@@ -1606,10 +1649,14 @@
                   <input id="wxQuery" type="text" placeholder="Ciudad, provincia, país o lat,lon" aria-label="Ubicación">
                 </div>
                 <button id="btnWxFind" class="btn small yellow" type="button">Buscar</button>
+                <button id="btnWxGeo" class="btn small" type="button" title="Usar ubicación del dispositivo">Usar mi ubicación</button>
               </div>
 
+              <!-- Resultados geocoding -->
+              <div id="wxResults" class="wx-results" style="display:none"></div>
+
               <div id="wxContent" class="wx-blur">
-                <!-- Hoy -->
+                <!-- Hoy / seleccionado -->
                 <div class="wx-today">
                   <div>
                     <div class="wx-big" id="wxNow">— °C</div>
@@ -1618,15 +1665,20 @@
                   </div>
                   <div class="wx-small" id="wxTodayMM">Máx —° · Mín —° · 💧 —mm</div>
                 </div>
-                <!-- Próximos 3 -->
+
+                <!-- Próximos 7 (tocables) -->
                 <div class="wx-tiles" id="wxTiles"></div>
-                <!-- Curva de hoy -->
-                <div id="wxChartWrap" class="chart-card" style="margin-top:10px;display:none">
-                  <h4 style="margin:0 0 4px">Evolución de hoy</h4>
-                  <div class="chart-box" style="height:140px">
-                    <canvas id="wxChart"></canvas>
+
+                <!-- Gráfico semanal -->
+                <div id="wxWeekWrap" class="chart-card" style="margin-top:10px;display:none">
+                  <h4 style="margin:0 0 4px">Próximos 7 días (tocar un día para ver detalle)</h4>
+                  <div class="chart-box" style="height:170px">
+                    <canvas id="wxWeekChart"></canvas>
                   </div>
                 </div>
+
+                <!-- Detalle del día -->
+                <div id="wxDayDetail" class="wx-day-detail" style="display:none"></div>
               </div>
             </div>
           </div>
@@ -2594,10 +2646,7 @@
   let ovChartsVisible = false;
   let ovChartTemp = null;
   let ovChartHum = null;
-
-  // Clima
-  let wxChart = null;
-
+  
   // Producción global
   let prodLastItems = [];        // últimos registros de producción cargados
 
@@ -5505,6 +5554,118 @@
     return '⛅';
   }
 
+  // Estado interno del módulo de clima
+  let wxWeekChart = null;
+  let wxDailyCache = null;   // { daily, current, label, lat, lon }
+  let wxSelectedIdx = 0;
+
+  function wxHideResults() {
+    const box = $('wxResults');
+    if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+  }
+
+  function wxShowResults(results) {
+    const box = $('wxResults');
+    if (!box) return;
+    if (!results || !results.length) { wxHideResults(); return; }
+    box.innerHTML = results.map((g, i) => {
+      const parts = [g.name, g.admin1, g.country].filter(Boolean);
+      const label = parts.join(', ');
+      const sub = [g.admin2, g.admin3].filter(Boolean).join(' · ');
+      return `<button type="button" data-i="${i}">
+        <div style="font-weight:800">${label}</div>
+        <div class="muted" style="font-size:.88rem">${sub || `Lat ${g.latitude.toFixed(2)}, Lon ${g.longitude.toFixed(2)}`}</div>
+      </button>`;
+    }).join('');
+    box.style.display = 'block';
+    box.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const i = Number(btn.dataset.i || 0);
+        const g = results[i];
+        const parts = [g.name, g.admin1, g.country].filter(Boolean);
+        const label = parts.join(', ');
+        wxHideResults();
+        await renderWeather(g.latitude, g.longitude, label);
+        saveWxPlace({ lat: g.latitude, lon: g.longitude, label });
+        setWxButtonsState('fixed');
+      });
+    });
+  }
+
+  function wxFmtDayLabel(isoDate) {
+    const dt = new Date(String(isoDate) + 'T00:00:00');
+    return dt.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit' });
+  }
+
+  function wxPickDay(idx) {
+    if (!wxDailyCache?.daily?.time?.length) return;
+    const n = wxDailyCache.daily.time.length;
+    const i = Math.max(0, Math.min(n - 1, Number(idx || 0)));
+    wxSelectedIdx = i;
+
+    // Tile UI
+    document.querySelectorAll('#wxTiles .wx-tile').forEach((el) => {
+      el.classList.toggle('selected', Number(el.dataset.idx) === i);
+    });
+
+    const d = wxDailyCache.daily;
+    const code = d.weather_code?.[i];
+    const tmax = d.temperature_2m_max?.[i];
+    const tmin = d.temperature_2m_min?.[i];
+    const hmax = d.relative_humidity_2m_max?.[i];
+    const hmin = d.relative_humidity_2m_min?.[i];
+    const pr = d.precipitation_sum?.[i] ?? 0;
+
+    const dayLabel = wxFmtDayLabel(d.time[i]);
+    const title = `${dayLabel} · ${wxEmoji(code)} ${wxMap[code] || '—'}`;
+
+    // Arriba: "actual" por defecto; si elige otro día, mostramos resumen
+    if (i === 0 && wxDailyCache.current) {
+      const c = wxDailyCache.current;
+      setText('wxNow', (c.temperature_2m != null ? Math.round(c.temperature_2m) + ' °C' : '—'));
+      setText('wxNowMeta', `${wxMap[c.weather_code] || '—'} · HR ${c.relative_humidity_2m ?? '—'}%`);
+    } else {
+      const mm = `Máx ${Math.round(tmax ?? NaN)}° · Mín ${Math.round(tmin ?? NaN)}°`;
+      setText('wxNow', isFinite(tmax) && isFinite(tmin) ? mm : '—');
+      setText('wxNowMeta', `HR ${Math.round(hmin ?? NaN)}%–${Math.round(hmax ?? NaN)}% · 💧 ${Math.round(pr || 0)}mm`);
+    }
+
+    // Hoy MM (siempre el del día seleccionado)
+    const max0 = Math.round(tmax ?? NaN);
+    const min0 = Math.round(tmin ?? NaN);
+    setText('wxTodayMM', `Máx ${isNaN(max0) ? '—' : max0}° · Mín ${isNaN(min0) ? '—' : min0}° · 💧 ${Math.round(pr || 0)}mm`);
+
+    // Detalle
+    const detail = $('wxDayDetail');
+    if (detail) {
+      detail.style.display = 'block';
+      detail.innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="font-weight:900">${title}</div>
+          <div class="muted">${wxDailyCache.label || ''}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;margin-top:10px">
+          <div class="loc-chip" style="justify-content:center"><b>Máx</b>&nbsp;${isFinite(tmax) ? Math.round(tmax) + '°C' : '—'}</div>
+          <div class="loc-chip" style="justify-content:center"><b>Mín</b>&nbsp;${isFinite(tmin) ? Math.round(tmin) + '°C' : '—'}</div>
+          <div class="loc-chip" style="justify-content:center"><b>HR</b>&nbsp;${isFinite(hmin) && isFinite(hmax) ? `${Math.round(hmin)}–${Math.round(hmax)}%` : '—'}</div>
+          <div class="loc-chip" style="justify-content:center"><b>Lluvia</b>&nbsp;${Math.round(pr || 0)}mm</div>
+        </div>
+      `;
+    }
+
+    // Chart: resaltar día seleccionado
+    if (wxWeekChart) {
+      const ds = wxWeekChart.data?.datasets || [];
+      ds.forEach(dset => {
+        const base = 2;
+        const hi = 5;
+        dset.pointRadius = Array.from({ length: n }, (_, k) => (k === i ? hi : base));
+      });
+      wxWeekChart.update();
+    }
+  }
+
+
   function setWxButtonsState(state) {
     // state: 'ready' | 'input' | 'fixed'
     const open = $('btnWxOpen');
@@ -5547,19 +5708,33 @@
   };
 
   $('btnWxFind').onclick = () => doWxSearch();
+  if ($('btnWxGeo')) $('btnWxGeo').onclick = () => doWxGeo();
   $('wxQuery').addEventListener('keydown', e => {
     if (e.key === 'Enter') doWxSearch();
+    if (e.key === 'Escape') wxHideResults();
   });
 
-  async function doWxSearch() {
+  // Sugerencias mientras escribe (debounce)
+  let _wxDeb = null;
+  $('wxQuery').addEventListener('input', () => {
+    clearTimeout(_wxDeb);
+    const q = String(($('wxQuery').value || '').trim());
+    if (q.length < 3) { wxHideResults(); return; }
+    _wxDeb = setTimeout(() => doWxSearch({ suggest: true }), 220);
+  });
+
+
+  async function doWxSearch(opts = {}) {
     const q = String(($('wxQuery').value || '').trim());
     if (!q) return;
 
+    // Caso "lat,lon" directo
     const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
     if (m) {
       const lat = parseFloat(m[1]);
       const lon = parseFloat(m[2]);
       const label = `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`;
+      wxHideResults();
       await renderWeather(lat, lon, label);
       saveWxPlace({ lat, lon, label });
       setWxButtonsState('fixed');
@@ -5567,27 +5742,69 @@
     }
 
     try {
-      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=es&format=json`;
-      const r = await fetch(url);
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=es&format=json`;
+      const r = await fetch(url, { cache: 'no-store' });
       const j = await r.json();
-      if (!j?.results?.length) {
-        alert('No se encontró la ubicación. Probá con ciudad, provincia, país o “lat,lon”.');
+
+      const results = (j?.results || []).filter(x => Number.isFinite(x.latitude) && Number.isFinite(x.longitude));
+      if (!results.length) {
+        if (!opts.suggest) alert('No se encontró la ubicación. Probá con ciudad, provincia, país o “lat,lon”.');
+        wxHideResults();
         return;
       }
-      const g = j.results[0];
+
+      // En modo sugerencia, mostramos lista; en búsqueda explícita, si hay 1 elegimos.
+      if (opts.suggest || results.length > 1) {
+        wxShowResults(results);
+        if (!opts.suggest && results.length === 1) wxHideResults();
+        if (!opts.suggest && results.length === 1) {
+          const g = results[0];
+          const parts = [g.name, g.admin1, g.country].filter(Boolean);
+          const label = parts.join(', ');
+          await renderWeather(g.latitude, g.longitude, label);
+          saveWxPlace({ lat: g.latitude, lon: g.longitude, label });
+          setWxButtonsState('fixed');
+        }
+        return;
+      }
+
+      const g = results[0];
       const parts = [g.name, g.admin1, g.country].filter(Boolean);
       const label = parts.join(', ');
+      wxHideResults();
       await renderWeather(g.latitude, g.longitude, label);
-      saveWxPlace({
-        lat: g.latitude,
-        lon: g.longitude,
-        label
-      });
+      saveWxPlace({ lat: g.latitude, lon: g.longitude, label });
       setWxButtonsState('fixed');
     } catch (e) {
-      alert('Error buscando ubicación');
+      if (!opts.suggest) alert('Error buscando ubicación');
     }
   }
+
+  async function doWxGeo() {
+    if (!navigator.geolocation) {
+      alert('Este navegador no permite geolocalización.');
+      return;
+    }
+    try {
+      wxHideResults();
+      const loc = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (p) => resolve(p),
+          (e) => reject(e),
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 600000 }
+        );
+      });
+      const lat = loc.coords.latitude;
+      const lon = loc.coords.longitude;
+      const label = 'Mi ubicación';
+      await renderWeather(lat, lon, label);
+      saveWxPlace({ lat, lon, label });
+      setWxButtonsState('fixed');
+    } catch (e) {
+      alert('No se pudo obtener la ubicación del dispositivo.');
+    }
+  }
+
 
   /* =========================================================
    *  MODO: Trabajo / Aire / Movimiento (botonera)
@@ -5757,139 +5974,98 @@
    *  RENDER CLIMA: OPEN-METEO
    * =======================================================*/
   async function renderWeather(lat, lon, label) {
+    // 7 días + humedad diaria
     const url = `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,relative_humidity_2m,weather_code` +
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum` +
-      `&hourly=temperature_2m,relative_humidity_2m` +
-      `&timezone=auto&forecast_days=4`;
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min,precipitation_sum` +
+      `&timezone=auto&forecast_days=7`;
 
-    const r = await fetch(url);
+    const r = await fetch(url, { cache: 'no-store' });
     const j = await r.json();
     const current = j.current || {};
     const daily = j.daily || {};
 
+    wxDailyCache = { current, daily, label, lat, lon };
+
     document.getElementById('wxContent').classList.remove('wx-blur');
-    setText('wxNow', (current.temperature_2m != null ? Math.round(current.temperature_2m) + ' °C' : '—'));
     setText('wxWhere', label || `Lat ${lat.toFixed(2)}, Lon ${lon.toFixed(2)}`);
-    setText('wxNowMeta', `${wxMap[current.weather_code] || '—'} · HR ${current.relative_humidity_2m ?? '—'}%`);
 
-    if (daily.time?.length) {
-      const max0 = Math.round(daily.temperature_2m_max?.[0] ?? NaN);
-      const min0 = Math.round(daily.temperature_2m_min?.[0] ?? NaN);
-      const pr0 = Math.round((daily.precipitation_sum?.[0] ?? 0));
-      setText('wxTodayMM', `Máx ${isNaN(max0) ? '—' : max0}° · Mín ${isNaN(min0) ? '—' : min0}° · 💧 ${pr0}mm`);
-    }
-
-    const tiles = (daily.time || []).slice(1, 4).map((d, i) => {
-      const idx = i + 1;
-      const code = daily.weather_code?.[idx];
-      const tmax = daily.temperature_2m_max?.[idx];
-      const tmin = daily.temperature_2m_min?.[idx];
-      const pr = daily.precipitation_sum?.[idx];
-      const dt = new Date(d);
-      const lab = dt.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit' });
-      return `<div class="wx-tile">
+    // Tiles 7 días (tocables)
+    const tiles = (daily.time || []).slice(0, 7).map((d, i) => {
+      const code = daily.weather_code?.[i];
+      const tmax = daily.temperature_2m_max?.[i];
+      const tmin = daily.temperature_2m_min?.[i];
+      const hmax = daily.relative_humidity_2m_max?.[i];
+      const pr = daily.precipitation_sum?.[i];
+      const lab = wxFmtDayLabel(d);
+      return `<div class="wx-tile" data-idx="${i}" role="button" tabindex="0" aria-label="Ver ${lab}">
         <div class="wx-small">${lab}</div>
-        <div style="font-size:1.2rem">${wxEmoji(code)}</div>
-        <div class="wx-small">${wxMap[code] || '—'}</div>
-        <div class="wx-small">${Math.round(tmax)}° / ${Math.round(tmin)}°</div>
+        <div style="font-size:1.25rem">${wxEmoji(code)}</div>
+        <div class="wx-small">${Math.round(tmax ?? NaN)}° / ${Math.round(tmin ?? NaN)}°</div>
+        <div class="wx-small">HR ${Math.round(hmax ?? NaN)}%</div>
         <div class="wx-small">💧 ${Math.round(pr || 0)}mm</div>
       </div>`;
     }).join('');
     $('wxTiles').innerHTML = tiles;
 
-    const hourly = j.hourly || {};
-    const hTime = hourly.time || [];
-    const hTemp = hourly.temperature_2m || [];
-    const hHum = hourly.relative_humidity_2m || [];
+    // Click/enter para seleccionar día
+    document.querySelectorAll('#wxTiles .wx-tile').forEach(el => {
+      el.addEventListener('click', () => wxPickDay(el.dataset.idx));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wxPickDay(el.dataset.idx); }
+      });
+    });
 
-    const wrap = $('wxChartWrap');
-    const canvas = $('wxChart');
+    // Chart semanal (Temp Máx/Mín + HR Máx/Mín)
+    const wrap = $('wxWeekWrap');
+    const canvas = $('wxWeekChart');
 
-    if (hTime.length && canvas) {
-      const todayStr = (daily.time && daily.time[0]) ? String(daily.time[0]) : null;
-      const labels = [];
-      const tempVals = [];
-      const humVals = [];
+    if (wrap && canvas && (daily.time || []).length) {
+      const labels = (daily.time || []).slice(0, 7).map(d => wxFmtDayLabel(d));
+      const tMax = (daily.temperature_2m_max || []).slice(0, 7).map(v => (v == null ? null : Math.round(v)));
+      const tMin = (daily.temperature_2m_min || []).slice(0, 7).map(v => (v == null ? null : Math.round(v)));
+      const hMax = (daily.relative_humidity_2m_max || []).slice(0, 7).map(v => (v == null ? null : Math.round(v)));
+      const hMin = (daily.relative_humidity_2m_min || []).slice(0, 7).map(v => (v == null ? null : Math.round(v)));
 
-      for (let i = 0; i < hTime.length; i++) {
-        const tStr = String(hTime[i]);
-        if (todayStr && !tStr.startsWith(todayStr)) continue;
-        const d = new Date(tStr);
-        const hh = String(d.getHours()).padStart(2, '0');
-        const mm = String(d.getMinutes()).padStart(2, '0');
-        labels.push(`${hh}:${mm}`);
-        tempVals.push(typeof hTemp[i] === 'number' ? hTemp[i] : null);
-        humVals.push(typeof hHum[i] === 'number' ? hHum[i] : null);
-      }
-
-      if (labels.length) {
-        if (wxChart) wxChart.destroy();
-
-        wxChart = new Chart(canvas.getContext('2d'), {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [
-              {
-                label: 'Temperatura (°C)',
-                data: tempVals,
-                borderColor: '#ffb74d',
-                backgroundColor: 'transparent',
-                borderWidth: 2,
-                tension: 0.25,
-                pointRadius: 0,
-                yAxisID: 'y'
-              },
-              {
-                label: 'Humedad (%)',
-                data: humVals,
-                borderColor: '#4da3ff',
-                backgroundColor: 'transparent',
-                borderWidth: 2,
-                tension: 0.25,
-                pointRadius: 0,
-                yAxisID: 'y1'
-              }
-            ]
+      if (wxWeekChart) { wxWeekChart.destroy(); wxWeekChart = null; }
+      wxWeekChart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Temp Máx (°C)', data: tMax, yAxisID: 'yT', tension: .25, pointRadius: 2 },
+            { label: 'Temp Mín (°C)', data: tMin, yAxisID: 'yT', tension: .25, pointRadius: 2 },
+            { label: 'HR Máx (%)', data: hMax, yAxisID: 'yH', tension: .25, pointRadius: 2, borderDash: [5,4] },
+            { label: 'HR Mín (%)', data: hMin, yAxisID: 'yH', tension: .25, pointRadius: 2, borderDash: [5,4] }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'nearest', intersect: false },
+          plugins: {
+            legend: { display: true },
+            tooltip: { callbacks: { title: (it) => it[0]?.label || '' } }
           },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: true, labels: { boxWidth: 10, font: { size: 10 } } },
-              tooltip: { mode: 'index', intersect: false }
-            },
-            interaction: { mode: 'index', intersect: false },
-            scales: {
-              x: {
-                title: { display: false },
-                ticks: { maxTicksLimit: 8, font: { size: 9 } }
-              },
-              y: {
-                position: 'left',
-                title: { display: true, text: '°C', font: { size: 10 } },
-                ticks: { font: { size: 9 } }
-              },
-              y1: {
-                position: 'right',
-                title: { display: true, text: '% HR', font: { size: 10 } },
-                ticks: { font: { size: 9 } },
-                grid: { drawOnChartArea: false }
-              }
-            }
+          scales: {
+            yT: { position: 'left', title: { display: true, text: '°C' } },
+            yH: { position: 'right', title: { display: true, text: '%' }, grid: { drawOnChartArea: false } },
+            x: { title: { display: false } }
           }
-        });
+        }
+      });
 
-        if (wrap) wrap.style.display = 'block';
-      } else {
-        if (wrap) wrap.style.display = 'none';
-      }
+      wrap.style.display = 'block';
     } else {
       if (wrap) wrap.style.display = 'none';
     }
+
+    // Por defecto: día actual
+    wxPickDay(0);
+    setWxButtonsState('fixed');
   }
+
   // ===== Fin Clima =====
 </script>
 
