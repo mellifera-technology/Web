@@ -1824,43 +1824,6 @@
   .gcal-box summary{ cursor:pointer; }
   .danger{ border-color: rgba(255,107,107,.35) !important; color:#ffb3b3 !important; }
 
-
-
-  /* =========================
-     Ajustes Colmena / Overlay
-     ========================= */
-  #deviceOverlay .kpi-card { text-align: center; }
-  #deviceOverlay .kpi-card .metric { justify-content: center; }
-  #deviceOverlay .kpi-card .muted, #deviceOverlay .kpi-card #ovTemWhen, #deviceOverlay .kpi-card #ovHumWhen { text-align:center; }
-
-  /* Herramientas de análisis: que no parezca "otra carta" */
-  #deviceOverlay .chart-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
-  #deviceOverlay .card#workCard .chart-card,
-  #deviceOverlay .card#airCard .chart-card,
-  #deviceOverlay .card#motionCard .chart-card,
-  #deviceOverlay .card#prodCardHive .chart-card { box-shadow: none; }
-
-  /* Producción: título de sub-sección */
-  .subcard-title { font-weight: 800; letter-spacing: .2px; margin: 6px 0 8px; }
-
-  /* Inputs date: icono visible */
-  .date-chip .cal-btn { color: #dfe6ee; opacity: 0.9; }
-  .date-chip .cal-btn:hover { opacity: 1; }
-
-  /* Calendario: editor colapsable */
-  #calEditor.is-collapsed { display: none !important; }
-  #calEditor.is-open { display: grid !important; }
-
-  /* Sanidad: asegurar selects/inputs oscuros consistentes */
-  #metaSanidad .ui-select, #metaSanidad .ui-input, #metaSanidad .ui-textarea,
-  #sanidadForm select, #sanidadForm input, #sanidadForm textarea {
-    background: #0f141a !important;
-    color: #ffffff !important;
-    border: 1px solid var(--border) !important;
-  }
-  #metaSanidad input[type="date"]::-webkit-datetime-edit { color: #ffffff; }
-  #metaSanidad input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .9; }
-
 </style>
 </head>
 <body class="hide-exterior">
@@ -2108,7 +2071,7 @@
       <div class="overlay-content">
         <!-- Mini dashboard: Temp, Hum -->
         <div class="overlay-grid">
-          <div class="card kpi-card">
+          <div class="card">
             <h3>Temperatura Colmena</h3>
             <div class="metric">
               <span id="ovTemVal" class="val">—</span>
@@ -2116,7 +2079,7 @@
             </div>
             <div id="ovTemWhen" class="muted">—</div>
           </div>
-          <div class="card kpi-card">
+          <div class="card">
             <h3>Humedad Colmena</h3>
             <div class="metric">
               <span id="ovHumVal" class="val">—</span>
@@ -2180,22 +2143,6 @@
           <div id="workWeek" class="muted">Trabajo de la semana: —</div>
           <div id="workMonth" class="muted">Trabajo del mes: —</div>
 
-          <!-- Resumen MS (mensual) + variables mensuales -->
-          <div id="workMonthlyWrap" style="display:none;margin-top:10px">
-            <div class="chart-card" style="margin-top:0">
-              <h3 style="margin-top:0">Trabajo mensual — Variables (C2R, NHR, NXR, ALR, SMR)</h3>
-              <div class="chart-box" style="height:260px"><canvas id="workMonthlyChart"></canvas></div>
-              <div class="filters-row" style="margin-top:10px">
-                <label class="muted" for="workMonthPick" style="margin-right:6px">Mes</label>
-                <input id="workMonthPick" type="month" class="ui-input" />
-                <button id="btnWorkMonthApply" class="btn small" type="button">Aplicar</button>
-                <button id="btnWorkMonthReset" class="btn small" type="button">Hoy</button>
-              </div>
-            </div>
-          </div>
-
-</div>
-
           <div id="workChartWrap" style="display:none;margin-top:10px">
             <div class="chart-card">
               <h3>Trabajo del día — Variables</h3>
@@ -2240,90 +2187,21 @@
           </div>
         </div>
 
-        
-        <!-- Aire -->
+        <!-- Aire (placeholder, por si luego lo llenamos) -->
         <div class="card" id="airCard" style="margin-top:12px;display:none">
           <h3>Aire</h3>
-          <div class="muted" style="margin-top:-6px;margin-bottom:10px">
-            Análisis a lo largo del día. Variables: CO2, NH3, NOX, ALC, SMK.
-          </div>
-
-          <div class="chart-card" style="margin-top:0">
-            <h3 style="margin-top:0">Aire — evolución diaria</h3>
-            <div class="chart-box" style="height:260px"><canvas id="airChart"></canvas></div>
-            <div class="filters-row" style="margin-top:10px">
-              <label class="muted" for="airFrom" style="margin-right:6px">Desde</label>
-              <div class="date-chip">
-                <input type="date" id="airFrom" class="ui-input">
-                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('airFrom')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                    <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                    <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                  </svg>
-                </button>
-              </div>
-
-              <label class="muted" for="airTo" style="margin-right:6px">Hasta</label>
-              <div class="date-chip">
-                <input type="date" id="airTo" class="ui-input">
-                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('airTo')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                    <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                    <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                  </svg>
-                </button>
-              </div>
-
-              <button id="btnAirApply" class="btn small" type="button">Aplicar</button>
-              <button id="btnAirReset" class="btn small" type="button">Hoy</button>
-            </div>
-          </div>
+          <p class="muted">Aquí irán las herramientas de análisis de ventilación / CO₂ / etc.</p>
         </div>
 
-        <!-- Movimiento -->
+        <!-- Movimiento (placeholder) -->
         <div class="card" id="motionCard" style="margin-top:12px;display:none">
           <h3>Movimiento</h3>
-          <div class="muted" style="margin-top:-6px;margin-bottom:10px">
-            MAX = cantidad aproximada de abejas que pasaron por la colmena hoy (no es conteo real, es un estimado).
-          </div>
-
-          <div class="chart-card" style="margin-top:0">
-            <h3 style="margin-top:0">Movimiento — evolución diaria</h3>
-            <div class="chart-box" style="height:260px"><canvas id="motionChart"></canvas></div>
-            <div class="filters-row" style="margin-top:10px">
-              <label class="muted" for="motionFrom" style="margin-right:6px">Desde</label>
-              <div class="date-chip">
-                <input type="date" id="motionFrom" class="ui-input">
-                <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('motionFrom')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                    <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                    <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                  </svg>
-                </button>
-              </div>
-
-              <label class="muted" for="motionTo" style="margin-right:6px">Hasta</label>
-              <div class="date-chip">
-                <input type="date" id="motionTo" class="ui-input">
-                <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('motionTo')">
-                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                    <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                    <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
-                  </svg>
-                </button>
-              </div>
-
-              <button id="btnMotionApply" class="btn small" type="button">Aplicar</button>
-              <button id="btnMotionReset" class="btn small" type="button">Hoy</button>
-            </div>
-          </div>
+          <p class="muted">Aquí irán las herramientas de análisis de movimiento.</p>
         </div>
-<!-- Producción por colmena (modo dentro de Herramientas) -->
+
+        <!-- Producción por colmena (modo dentro de Herramientas) -->
         <div class="card" id="prodCardHive" style="margin-top:12px;display:none">
           <h3>Producción</h3>
-
-          <div class="subcard-title">Agregar producción</div>
-          <div class="muted" style="margin-top:-6px;margin-bottom:10px">Cargar kilos en una fecha. Queda registrado en el historial y se refleja en los gráficos.</div>
 
           <!-- FORM: Producción (fecha + kilos + guardar) -->
           <div class="prod-inputs" style="margin-bottom:10px">
@@ -2914,7 +2792,7 @@
 
               <div id="calDayList" class="calendar-day-list"></div>
 
-              <div class="meta-form-grid calendar-editor is-collapsed" id="calEditor">
+              <div class="meta-form-grid calendar-editor" id="calEditor">
                 <div>
                   <label class="muted" for="calDevice">Colmena</label>
                   <select id="calDevice" class="ui-select" style="width:100%">
@@ -2945,10 +2823,6 @@
                     <option value="alimentación">Alimentación</option>
                     <option value="otro">Otro</option>
                   </select>
-                </div>
-                <div id="calTypeOtherWrap" style="display:none;grid-column:1/-1">
-                  <label class="muted" for="calTypeOther">Tipo (otro)</label>
-                  <input id="calTypeOther" class="ui-input" type="text" placeholder="Escribir tipo…">
                 </div>
                 <div style="grid-column:1/-1">
                   <label class="muted" for="calNotes">Notas</label>
@@ -4978,13 +4852,7 @@
     const ul = document.createElement('ul');
     ul.className = 'queen-history-list';
 
-    const ordered = (items || []).slice().sort((a,b)=>{
-      const da = String(a.fecha || a.date || a.ts || '').slice(0,10);
-      const db = String(b.fecha || b.date || b.ts || '').slice(0,10);
-      return db.localeCompare(da);
-    });
-
-    ordered.forEach(r=>{
+    items.forEach(r=>{
       const li = document.createElement('li');
       li.className = 'queen-history-item';
 
@@ -5084,25 +4952,6 @@
       Object.entries(cardsByMode).forEach(([m, card]) => {
         if (!card) return;
         card.style.display = (m === mode) ? 'block' : 'none';
-
-      // refresh visual según modo activo
-      try {
-        if (mode === 'work') {
-          // default month
-          const mp = $('workMonthPick');
-          if (mp && !mp.value) mp.value = new Date().toISOString().slice(0,7);
-          if (currentOverlayDevice) {
-            const ym = (mp && mp.value) ? mp.value : new Date().toISOString().slice(0,7);
-            renderWorkMonthlyChart(lastItemsCache || [], currentOverlayDevice, ym);
-          }
-        }
-        if (mode === 'air') {
-          if (typeof refreshAirMode === 'function') refreshAirMode();
-        }
-        if (mode === 'motion') {
-          if (typeof refreshMotionMode === 'function') refreshMotionMode();
-        }
-      } catch(e){}
       });
     }
 
@@ -5115,68 +4964,7 @@
 
     // Modo por defecto: Trabajo
     activateMode('work');
-  })()
-  (function initHiveAdvancedCharts(){
-    // Trabajo mensual
-    const mp = $('workMonthPick');
-    if (mp && !mp.value) mp.value = new Date().toISOString().slice(0,7);
-
-    if ($('btnWorkMonthApply')) $('btnWorkMonthApply').addEventListener('click', ()=>{
-      if (currentOverlayDevice) {
-        const ym = (mp && mp.value) ? mp.value : new Date().toISOString().slice(0,7);
-        renderWorkMonthlyChart(lastItemsCache || [], currentOverlayDevice, ym);
-      }
-    });
-    if ($('btnWorkMonthReset')) $('btnWorkMonthReset').addEventListener('click', ()=>{
-      if (mp) mp.value = new Date().toISOString().slice(0,7);
-      if (currentOverlayDevice) renderWorkMonthlyChart(lastItemsCache || [], currentOverlayDevice, mp.value);
-    });
-
-    // Aire
-    const airFrom = $('airFrom');
-    const airTo = $('airTo');
-    function todayISO(){ return new Date().toISOString().slice(0,10); }
-    if (airFrom && !airFrom.value) airFrom.value = todayISO();
-    if (airTo && !airTo.value) airTo.value = todayISO();
-
-    window.refreshAirMode = async function refreshAirMode(){
-      if (!currentOverlayDevice) return;
-      const df = (airFrom && airFrom.value) ? airFrom.value : todayISO();
-      const dt = (airTo && airTo.value) ? airTo.value : df;
-      const items = await fetchRange(df+'T00:00:00', dt+'T23:59:59');
-      renderAirChart(items, currentOverlayDevice, df, dt);
-    };
-
-    if ($('btnAirApply')) $('btnAirApply').addEventListener('click', ()=>{ refreshAirMode(); });
-    if ($('btnAirReset')) $('btnAirReset').addEventListener('click', ()=>{
-      if (airFrom) airFrom.value = todayISO();
-      if (airTo) airTo.value = todayISO();
-      refreshAirMode();
-    });
-
-    // Movimiento
-    const motionFrom = $('motionFrom');
-    const motionTo = $('motionTo');
-    if (motionFrom && !motionFrom.value) motionFrom.value = todayISO();
-    if (motionTo && !motionTo.value) motionTo.value = todayISO();
-
-    window.refreshMotionMode = async function refreshMotionMode(){
-      if (!currentOverlayDevice) return;
-      const df = (motionFrom && motionFrom.value) ? motionFrom.value : todayISO();
-      const dt = (motionTo && motionTo.value) ? motionTo.value : df;
-      const items = await fetchRange(df+'T00:00:00', dt+'T23:59:59');
-      renderMotionChart(items, currentOverlayDevice, df, dt);
-    };
-
-    if ($('btnMotionApply')) $('btnMotionApply').addEventListener('click', ()=>{ refreshMotionMode(); });
-    if ($('btnMotionReset')) $('btnMotionReset').addEventListener('click', ()=>{
-      if (motionFrom) motionFrom.value = todayISO();
-      if (motionTo) motionTo.value = todayISO();
-      refreshMotionMode();
-    });
   })();
-
-;
 
   /* =========================================================
    *  META OVERLAY: TABS (Sanidad / Calendario / Notas)
@@ -5651,11 +5439,7 @@
     const dev = $('calDevice')?.value || '';
     const fecha = $('calDate')?.value || '';
     const titulo = $('calTitle')?.value || '';
-    let tipo = $('calType')?.value || '';
-    if (tipo === 'otro') {
-      const other = $('calTypeOther')?.value || '';
-      tipo = other.trim() || 'otro';
-    }
+    const tipo = $('calType')?.value || '';
     const notas = $('calNotes')?.value || '';
 
     if (!fecha || !titulo) {
@@ -5755,25 +5539,10 @@
 
   function openCalEditor(ev){
     calEditingId = ev?.id || null;
-    const ed = $('calEditor');
-    if (ed) { ed.classList.remove('is-collapsed'); ed.classList.add('is-open'); }
-
     if ($('calDevice')) $('calDevice').value = ev?.device_id ? String(ev.device_id) : '';
     if ($('calDate')) $('calDate').value = ev?.fecha || (calSelectedDate || isoDate(new Date()));
     if ($('calTitle')) $('calTitle').value = ev?.titulo || '';
-
-    // Tipo: si no existe en el select, usamos 'otro' y volcamos el texto
-    const tipoVal = String(ev?.tipo || 'otro');
-    const typeSel = $('calType');
-    if (typeSel) {
-      const exists = Array.from(typeSel.options || []).some(o => o.value === tipoVal);
-      typeSel.value = exists ? tipoVal : 'otro';
-      const w = $('calTypeOtherWrap');
-      if (w) w.style.display = (typeSel.value === 'otro') ? 'block' : 'none';
-      if (!exists && $('calTypeOther')) $('calTypeOther').value = tipoVal;
-      if (exists && $('calTypeOther')) $('calTypeOther').value = '';
-    }
-
+    if ($('calType')) $('calType').value = ev?.tipo || 'otro';
     if ($('calNotes')) $('calNotes').value = ev?.notas || '';
     if ($('btnCalDelete')) $('btnCalDelete').style.display = ev?.user_created ? 'inline-flex' : 'none';
     if ($('calEditor')) $('calEditor').scrollIntoView({ behavior:'smooth', block:'start' });
@@ -5785,13 +5554,8 @@
     if ($('calDate')) $('calDate').value = calSelectedDate || isoDate(new Date());
     if ($('calTitle')) $('calTitle').value = '';
     if ($('calType')) $('calType').value = 'sanidad';
-    if ($('calTypeOther')) $('calTypeOther').value = '';
-    if ($('calTypeOtherWrap')) $('calTypeOtherWrap').style.display = 'none';
     if ($('calNotes')) $('calNotes').value = '';
     if ($('btnCalDelete')) $('btnCalDelete').style.display = 'none';
-    // colapsar editor
-    const ed = $('calEditor');
-    if (ed) { ed.classList.remove('is-open'); ed.classList.add('is-collapsed'); }
   }
 
   function mergeCalendarioEvents(autoEvents, userEvents){
@@ -5945,18 +5709,10 @@
     });
     if ($('btnCalNew')) $('btnCalNew').addEventListener('click', ()=>{
       clearCalEditor();
-      const ed = $('calEditor');
-      if (ed) { ed.classList.remove('is-collapsed'); ed.classList.add('is-open'); }
       if ($('calDate')) $('calDate').value = calSelectedDate || isoDate(new Date());
       if ($('calTitle')) $('calTitle').focus();
     });
-        if ($('calType')) $('calType').addEventListener('change', ()=>{
-      const v = $('calType').value;
-      const w = $('calTypeOtherWrap');
-      if (w) w.style.display = (v === 'otro') ? 'block' : 'none';
-      if (v !== 'otro' && $('calTypeOther')) $('calTypeOther').value = '';
-    });
-if ($('btnCalCancel')) $('btnCalCancel').addEventListener('click', ()=>{
+    if ($('btnCalCancel')) $('btnCalCancel').addEventListener('click', ()=>{
       clearCalEditor();
     });
     if ($('btnCalDelete')) $('btnCalDelete').addEventListener('click', async ()=>{
@@ -6070,14 +5826,6 @@ if ($('btnCalCancel')) $('btnCalCancel').addEventListener('click', ()=>{
           renderOverlayChartsDaily(lastItemsCache, currentOverlayDevice);
         }
         renderWorkSection(lastItemsCache, currentOverlayDevice);
-        try {
-          const mp = $('workMonthPick');
-          const ym = (mp && mp.value) ? mp.value : new Date().toISOString().slice(0,7);
-          if ($('workCard') && $('workCard').style.display !== 'none') {
-            renderWorkMonthlyChart(lastItemsCache || [], currentOverlayDevice, ym);
-          }
-        } catch(e){}
-
       }
     } finally {
       polling = false;
@@ -6095,9 +5843,6 @@ if ($('btnCalCancel')) $('btnCalCancel').addEventListener('click', ()=>{
    *  BLOQUE: “TRABAJO” (modo avanzado por colmena)
    * =======================================================*/
   let workChart = null;
-  let workMonthlyChart = null;
-  let airChart = null;
-  let motionChart = null;
 
   // Eventos OPN (golpes)
   function extractWorkEvents(items, deviceId) {
@@ -6133,158 +5878,7 @@ if ($('btnCalCancel')) $('btnCalCancel').addEventListener('click', ()=>{
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   }
 
-  
-  function extractVarSeries(items, deviceId, key) {
-    const devId = String(deviceId);
-    const K = String(key || '').toUpperCase().trim();
-    const rows = (items || []).filter(d => {
-      if (String(d.device_id) !== devId) return false;
-      const k = String(d.sensor_key || '').toUpperCase().trim();
-      return k === K || k.endsWith('.' + K);
-    }).map(d => ({
-      ts: d.ts,
-      value: Number(d.value) || 0
-    })).sort((a,b)=>String(a.ts).localeCompare(String(b.ts)));
-    return rows;
-  }
-
-  function groupDailyMax(series) {
-    const by = {};
-    for (const r of (series || [])) {
-      const day = String(r.ts || '').slice(0,10);
-      if (!day) continue;
-      const v = Number(r.value) || 0;
-      if (!by[day] || v > by[day]) by[day] = v;
-    }
-    const days = Object.keys(by).sort();
-    return { days, values: days.map(d => by[d]) };
-  }
-
-  function destroyChartSafe(ch) {
-    try { if (ch && typeof ch.destroy === 'function') ch.destroy(); } catch(e){}
-  }
-
-  function renderWorkMonthlyChart(items, deviceId, ym /* YYYY-MM */) {
-    const wrap = $('workMonthlyWrap');
-    const cvs = $('workMonthlyChart');
-    if (!wrap || !cvs) return;
-
-    wrap.style.display = 'block';
-
-    const monthPrefix = String(ym || new Date().toISOString().slice(0,7));
-    const vars = ['C2R','NHR','NXR','ALR','SMR'];
-    const labelsSet = new Set();
-
-    const datasets = vars.map((k, i) => {
-      const s = extractVarSeries(items, deviceId, k).filter(r => String(r.ts).slice(0,7) === monthPrefix);
-      const g = groupDailyMax(s);
-      g.days.forEach(d=>labelsSet.add(d.slice(8,10)));
-      return { key:k, g };
-    });
-
-    const labels = Array.from(labelsSet).sort((a,b)=>Number(a)-Number(b));
-    const dataSets = datasets.map((d, i) => ({
-      label: d.key,
-      data: labels.map(day => {
-        const full = monthPrefix + '-' + day;
-        const idx = d.g.days.indexOf(full);
-        return idx >= 0 ? d.g.values[idx] : null;
-      }),
-      tension: 0.25
-    }));
-
-    destroyChartSafe(workMonthlyChart);
-    workMonthlyChart = new Chart(cvs.getContext('2d'), {
-      type: 'line',
-      data: { labels, datasets: dataSets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-  }
-
-  function renderAirChart(items, deviceId, fromISO, toISO) {
-    const cvs = $('airChart');
-    if (!cvs) return;
-
-    const vars = ['CO2','NH3','NOX','ALC','SMK'];
-    const labelsSet = new Set();
-    const datasets = vars.map(k => {
-      const s = extractVarSeries(items, deviceId, k).filter(r => {
-        const t = String(r.ts).slice(0,10);
-        return (!fromISO || t >= fromISO) && (!toISO || t <= toISO);
-      });
-      // Para gráfico "a lo largo del día": usamos HH:MM como label, tomando el último valor por minuto
-      const byMin = {};
-      for (const r of s) {
-        const hhmm = String(r.ts).slice(11,16);
-        byMin[hhmm] = r.value;
-      }
-      const labels = Object.keys(byMin).sort();
-      labels.forEach(l=>labelsSet.add(l));
-      return { key:k, labels, byMin };
-    });
-
-    const labels = Array.from(labelsSet).sort();
-    const dataSets = datasets.map(d => ({
-      label: d.key,
-      data: labels.map(l => (l in d.byMin) ? d.byMin[l] : null),
-      tension: 0.25
-    }));
-
-    destroyChartSafe(airChart);
-    airChart = new Chart(cvs.getContext('2d'), {
-      type: 'line',
-      data: { labels, datasets: dataSets },
-      options: {
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{ legend:{ display:true }},
-        scales:{ y:{ beginAtZero:true } }
-      }
-    });
-  }
-
-  function renderMotionChart(items, deviceId, fromISO, toISO) {
-    const cvs = $('motionChart');
-    if (!cvs) return;
-
-    const s = extractVarSeries(items, deviceId, 'MAX').filter(r => {
-      const t = String(r.ts).slice(0,10);
-      return (!fromISO || t >= fromISO) && (!toISO || t <= toISO);
-    });
-
-    const byMin = {};
-    for (const r of s) {
-      const hhmm = String(r.ts).slice(11,16);
-      byMin[hhmm] = r.value;
-    }
-    const labels = Object.keys(byMin).sort();
-    const dataset = [{
-      label: 'MAX',
-      data: labels.map(l => byMin[l]),
-      tension: 0.25
-    }];
-
-    destroyChartSafe(motionChart);
-    motionChart = new Chart(cvs.getContext('2d'), {
-      type: 'line',
-      data: { labels, datasets: dataset },
-      options: {
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{ legend:{ display:true }},
-        scales:{ y:{ beginAtZero:true } }
-      }
-    });
-  }
-
-function getPeriodBounds(period, refDate) {
+  function getPeriodBounds(period, refDate) {
     const ref = new Date(refDate);
     let from = new Date(ref), to = new Date(ref);
     if (period === 'dia') {
@@ -6369,48 +5963,29 @@ function getPeriodBounds(period, refDate) {
   }
 
   function calcWorkTotals(items, deviceId) {
-    // MS suele ser un contador acumulativo (ms trabajados) que se actualiza por tick.
-    // Si lo sumamos, duplicamos todo. Para evitarlo:
-    // - agrupamos por día
-    // - tomamos el MÁXIMO del día como "total diario"
-    // - sumamos máximos diarios para semana/mes
     const msData = extractWorkTimes(items, deviceId);
-
-    const byDayMax = {}; // YYYY-MM-DD -> max(ms)
-    for (const d of (msData || [])) {
-      const ts = d.ts || d.date || d.fecha;
-      if (!ts) continue;
-
-      const day = String(ts).slice(0, 10);
-      const v = Number(d.value) || 0;
-
-      if (byDayMax[day] === undefined || v > byDayMax[day]) {
-        byDayMax[day] = v;
-      }
-    }
-
+    let todayMs = 0, weekMs = 0, monthMs = 0;
     const now = new Date();
-    const nowDay = now.toISOString().slice(0, 10);
 
-    const todayMs = byDayMax[nowDay] || 0;
-    let weekMs = 0;
-    let monthMs = 0;
-
-    for (const [day, v] of Object.entries(byDayMax)) {
-      const t = new Date(day + 'T12:00:00');
-      const valMs = Number(v) || 0;
-
+    for (const d of msData) {
+      const t = new Date(d.ts);
+      const valMs = Number(d.value) || 0;
+      if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth() &&
+        t.getDate() === now.getDate()) {
+        todayMs += valMs;
+      }
       if (isSameISOWeek(t, now)) {
         weekMs += valMs;
       }
-      if (t.getFullYear() === now.getFullYear() && t.getMonth() === now.getMonth()) {
+      if (t.getFullYear() === now.getFullYear() &&
+        t.getMonth() === now.getMonth()) {
         monthMs += valMs;
       }
     }
 
     return { todayMs, weekMs, monthMs };
   }
-
 
   function isSameWeek(d1, d2) {
     const start = new Date(d2);
