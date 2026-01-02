@@ -1687,6 +1687,25 @@
 
         <!-- KPIs madre + gráficos -->
         <div>
+          <div class="side-cards">
+            <div class="card">
+              <h3>Temperatura Exterior</h3>
+              <div class="metric">
+                <span id="temVal" class="val">—</span>
+                <span class="unit">°C</span>
+              </div>
+              <div id="temWhen" class="muted">—</div>
+            </div>
+
+            <div class="card">
+              <h3>Humedad Exterior</h3>
+              <div class="metric">
+                <span id="humVal" class="val">—</span>
+                <span class="unit">%</span>
+              </div>
+              <div id="humWhen" class="muted">—</div>
+            </div>
+          </div>
           <!-- Gráficos + historial -->
           <div id="chartsWrap">
             <div class="charts-grid">
@@ -1738,12 +1757,6 @@
               <button class="btn small yellow" type="button">Abrir anotaciones</button>
             </div>
           </div>
-
-          <div class="card" id="cardFinanzas">
-            <h3 class="meta-card-title">Finanzas</h3>
-            <button class="btn small yellow" type="button">Abrir finanzas</button>
-          </div>
-
 
           <!-- Modelo de tarjeta de colmena (solo visible en modo edición) -->
           <br><br><br>
@@ -2633,7 +2646,8 @@
   // Overlay por colmena
   let currentOverlayDevice = null;
   let ovChartsVisible = false;
-  
+  let ovChartTemp = null;
+  let ovChartHum = null;
   
   // Producción global
   let prodLastItems = [];        // últimos registros de producción cargados
@@ -2922,6 +2936,15 @@
     return best;
   }
 
+  function updateMotherKPIs(items) {
+    const tem = latestBySensor(items, 'MOTHER.TEM');
+    setText('temVal', tem?.value != null ? fmt(tem.value) : '—');
+    setText('temWhen', tem ? dtAR(tem.ts) : '—');
+
+    const hum = latestBySensor(items, 'MOTHER.HUM');
+    setText('humVal', hum?.value != null ? fmt(hum.value) : '—');
+    setText('humWhen', hum ? dtAR(hum.ts) : '—');
+  }
 
   /* =========================================================
    *  TABLA GENERAL (lecturas crudas)
@@ -5184,6 +5207,7 @@
       lastItemsCache = items;
       renderTable(items);
       updateLastReading(items);
+      updateMotherKPIs(items);
       renderDeviceCards(items);
       if (chartsVisible && !historyMode) renderChartsDaily(items);
 
@@ -6049,3 +6073,4 @@
 
 </body>
 </html>
+  
