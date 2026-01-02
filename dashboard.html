@@ -1584,9 +1584,47 @@
     font-variant-numeric:tabular-nums;
   }
   
+
+  /* === Ajustes visuales Producción / Calendarios === */
+  .date-chip input[type="date"]::-webkit-calendar-picker-indicator{
+    opacity: 0; /* ocultar icono nativo (evita doble calendario) */
+    width: 0;
+    height: 0;
+  }
+  .date-chip input[type="date"]{
+    padding-right: 8px; /* que no quede raro sin el icono nativo */
+  }
+
+  #prodNewForm{
+    display: grid;
+    gap: 10px;
+  }
+  #prodNewForm button[type="submit"]{
+    margin-top: 2px;
+    width: 100%;
+  }
+
+  .prod-no-data{
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px dashed var(--border);
+    background: rgba(255,255,255,0.04);
+    color: #cfd6df;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* === Ocultar KPIs/Gráficas exteriores sin romper updates === */
+  .hide-exterior #extKpisWrap,
+  .hide-exterior #btnChart,
+  .hide-exterior #chartsWrap{
+    display: none !important;
+  }
+
 </style>
 </head>
-<body>
+<body class="hide-exterior">
   <header class="header">
     <div class="nav-grid">
       <a class="brand" href="index.html">MIELLIFERA</a>
@@ -1663,7 +1701,7 @@
                     <div class="wx-loc" id="wxWhere">Ubicación no establecida</div>
                     <div class="wx-small" id="wxNowMeta">—</div>
                   </div>
-                  <div class="wx-small" id="wxTodayMM">Máx —° · Mín —° · 💧 —mm</div>
+                  <div class="wx-small" id="wxTodayMM">Máx —° · Mín —° · 🌧️ —% · 💧 —mm</div>
                 </div>
 
                 <!-- Próximos 7 (tocables) -->
@@ -1687,7 +1725,7 @@
 
         <!-- KPIs madre + gráficos -->
         <div>
-          <div class="side-cards">
+          <div class="side-cards" id="extKpisWrap">
             <div class="card">
               <h3>Temperatura Exterior</h3>
               <div class="metric"><span id="temVal" class="val">—</span><span class="unit">°C</span></div>
@@ -2318,8 +2356,10 @@
                   <tr>
                     <td class="muted" colspan="3">Sin datos</td>
                   </tr>
+                
                 </tbody>
               </table>
+              <div id="prodNoDataMsg" class="prod-no-data" style="display:none">Sin datos encontrados</div>
             </div>
             <div class="muted" style="margin-top:6px;font-size:.9rem;">
               Total del período:
@@ -3809,12 +3849,21 @@
   }
 
   // Tabla vacía por defecto
-  function resetProdTable() {
+  function setProdNoData(show, msg) {
+    const box = $('prodNoDataMsg');
+    if (!box) return;
+    box.style.display = show ? 'block' : 'none';
+    if (msg != null) box.textContent = String(msg);
+  }
+
+  // Tabla vacía por defecto
+  function resetProdTable(msg) {
     const tb = $('prodGlobalTbody');
     if (tb) {
-      tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos</td></tr>';
+      tb.innerHTML = '<tr><td class="muted" colspan="3">Sin datos encontrados</td></tr>';
     }
     setText('prodGlobalTotal', '0.00');
+    setProdNoData(true, msg || 'Sin datos encontrados');
   }
 
   // Rellenar selects de colmenas (filtro + nueva producción)
@@ -3860,7 +3909,10 @@
     // Limpiar estado previo
     prodLastItems = [];
     destroyProdCharts();
-    resetProdTable();
+    setProdNoData(false);
+    const tb = $('prodGlobalTbody');
+    if (tb) tb.innerHTML = '<tr><td class="muted" colspan="3">Cargando…</td></tr>';
+    setText('prodGlobalTotal', '—');
 
     const csvBtn = $('btnProdCSV');
     if (csvBtn) csvBtn.style.display = 'none';
@@ -4219,12 +4271,14 @@
 
       const tb = $('prodGlobalTbody');
       if (!items?.length) {
-        resetProdTable();
+        resetProdTable('Sin datos encontrados para ese filtro.');
         const csvBtn = $('btnProdCSV');
         if (csvBtn) csvBtn.style.display = 'none';
         renderProdCharts();
         return;
       }
+
+      setProdNoData(false);
 
       tb.innerHTML = items.map(r => `
         <tr>
@@ -4247,22 +4301,31 @@
 
   // Reset filtros y gráficos
   function prodResetFilters() {
-    const hoy = ymd(new Date());
-    if ($('prodFrom')) $('prodFrom').value = hoy;
-    if ($('prodTo')) $('prodTo').value = hoy;
+    // Volver al estado inicial (sin filtros): apiario completo
+    if ($('prodFrom')) $('prodFrom').value = '';
+    if ($('prodTo')) $('prodTo').value = '';
     if ($('prodDevice')) $('prodDevice').value = '';
+
+    const viewSel = $('prodView');
+    if (viewSel) viewSel.value = 'anio';
 
     prodLastItems = [];
     destroyProdCharts();
-    resetProdTable();
+    setProdNoData(false);
+
+    const tb = $('prodGlobalTbody');
+    if (tb) tb.innerHTML = '<tr><td class="muted" colspan="3">Cargando…</td></tr>';
+    setText('prodGlobalTotal', '—');
 
     const csvBtn = $('btnProdCSV');
     if (csvBtn) csvBtn.style.display = 'none';
 
     const s = $('prodSummary');
-    if (s) s.textContent = 'Seleccione un rango y presione “Mostrar” para ver la producción.';
-    $('prodApiaryCharts').style.display = '';
-    $('prodHiveCharts').style.display = 'none';
+    if (s) s.textContent = 'Cargando producción del apiario.';
+
+    // disparar consulta sin filtros
+    const showBtn = $('btnProdShow');
+    if (showBtn) showBtn.click();
   }
 
   $('btnProdReset').onclick = () => prodResetFilters();
@@ -5633,7 +5696,7 @@
     // Hoy MM (siempre el del día seleccionado)
     const max0 = Math.round(tmax ?? NaN);
     const min0 = Math.round(tmin ?? NaN);
-    setText('wxTodayMM', `Máx ${isNaN(max0) ? '—' : max0}° · Mín ${isNaN(min0) ? '—' : min0}° · 💧 ${Math.round(pr || 0)}mm`);
+    setText('wxTodayMM', `Máx ${isNaN(max0) ? '—' : max0}° · Mín ${isNaN(min0) ? '—' : min0}° · 🌧️ ${pp == null ? '—' : Math.round(pp)}% · 💧 ${Math.round(pr || 0)}mm`);
 
     // Detalle
     const detail = $('wxDayDetail');
@@ -5648,7 +5711,7 @@
           <div class="loc-chip" style="justify-content:center"><b>Máx</b>&nbsp;${isFinite(tmax) ? Math.round(tmax) + '°C' : '—'}</div>
           <div class="loc-chip" style="justify-content:center"><b>Mín</b>&nbsp;${isFinite(tmin) ? Math.round(tmin) + '°C' : '—'}</div>
           <div class="loc-chip" style="justify-content:center"><b>HR</b>&nbsp;${isFinite(hmin) && isFinite(hmax) ? `${Math.round(hmin)}–${Math.round(hmax)}%` : '—'}</div>
-          <div class="loc-chip" style="justify-content:center"><b>Lluvia</b>&nbsp;${Math.round(pr || 0)}mm</div>
+          <div class="loc-chip" style="justify-content:center"><b>Lluvia</b>&nbsp;${pp == null ? '—' : Math.round(pp)+'%'} · ${Math.round(pr || 0)}mm</div>
         </div>
       `;
     }
@@ -5975,7 +6038,7 @@
    * =======================================================*/
   async function renderWeather(lat, lon, label) {
     // 7 días + humedad diaria
-    const url = `https://api.open-meteo.com/v1/forecast` +
+    const url = `https://https://api.open-meteo.com/v1/forecast` +
       `?latitude=${lat}&longitude=${lon}` +
       `&current=temperature_2m,relative_humidity_2m,weather_code` +
       `&daily=weather_code,temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min,precipitation_sum` +
@@ -5998,13 +6061,14 @@
       const tmin = daily.temperature_2m_min?.[i];
       const hmax = daily.relative_humidity_2m_max?.[i];
       const pr = daily.precipitation_sum?.[i];
+      const pp = daily.precipitation_probability_max?.[i];
       const lab = wxFmtDayLabel(d);
       return `<div class="wx-tile" data-idx="${i}" role="button" tabindex="0" aria-label="Ver ${lab}">
         <div class="wx-small">${lab}</div>
         <div style="font-size:1.25rem">${wxEmoji(code)}</div>
         <div class="wx-small">${Math.round(tmax ?? NaN)}° / ${Math.round(tmin ?? NaN)}°</div>
         <div class="wx-small">HR ${Math.round(hmax ?? NaN)}%</div>
-        <div class="wx-small">💧 ${Math.round(pr || 0)}mm</div>
+        <div class="wx-small">🌧️ ${pp == null ? "—" : Math.round(pp)}% · 💧 ${Math.round(pr || 0)}mm</div>
       </div>`;
     }).join('');
     $('wxTiles').innerHTML = tiles;
