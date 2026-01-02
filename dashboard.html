@@ -1498,6 +1498,8 @@
 
   /* Filtros: fechas + colmena */
   .prod-filters-row{
+    overflow: visible;
+
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
     gap:10px;
@@ -1621,6 +1623,206 @@
   .hide-exterior #chartsWrap{
     display: none !important;
   }
+
+
+  /* =========================================================
+   *  UI - Controles oscuros (evita “cajas blancas”)
+   * =======================================================*/
+  .ui-input, .ui-select, .ui-textarea{
+    width:100%;
+    background:#10141a;
+    border:1px solid var(--border);
+    color:#fff;
+    border-radius:10px;
+    padding:8px 10px;
+    outline:none;
+  }
+  .ui-textarea{ min-height:90px; resize:vertical; }
+  select.ui-select{ appearance:none; }
+
+  /* =========================================================
+   *  Meta overlay: menos “bruma mental”
+   * =======================================================*/
+  .meta-section{ max-width: 1080px; margin:0 auto; }
+  .meta-subtitle{ margin: 0 0 10px 0; font-size: 1.15rem; }
+  .meta-tabs button{
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 6px 12px;
+  }
+  .meta-tabs button.active{
+    background: rgba(255, 183, 77, .12);
+    border-color: rgba(255, 183, 77, .35);
+    color: #fff;
+  }
+  .meta-filter-row{
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .meta-filter-row > *{ min-width: 160px; }
+  .meta-filter-row .cal-nav{ display:flex; align-items:center; gap:6px; }
+
+  /* “Bloques” con aire */
+  .meta-block{
+    background:#0f1319;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px;
+    margin: 12px 0;
+  }
+  .meta-block h4{ margin:0 0 10px 0; font-size:1rem; }
+  .field-row label span{ color: var(--muted); font-size:.9rem; }
+
+  /* =========================================================
+   *  Date chip: que SI se vea el calendario
+   * =======================================================*/
+  .date-chip{
+    position:relative;
+    display:flex;
+    align-items:center;
+    width:100%;
+  }
+  .date-chip input[type="date"], .date-chip input[type="month"]{
+    padding-right:42px;
+  }
+  .date-chip .cal-btn{
+    position:absolute;
+    right:6px;
+    top:50%;
+    transform: translateY(-50%);
+    width:32px;
+    height:32px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.04);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .date-chip .cal-btn svg{ width:18px; height:18px; }
+  /* oculto el icono nativo para evitar “doble calendario” */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="month"]::-webkit-calendar-picker-indicator{
+    opacity:0;
+    display:none;
+  }
+
+  /* =========================================================
+   *  Calendario grande (grid mensual)
+   * =======================================================*/
+  .calendar-shell{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:12px;
+    margin-top:10px;
+  }
+  @media (max-width: 980px){
+    .calendar-shell{ grid-template-columns: 1fr; }
+  }
+  .calendar-grid-wrap{
+    background:#0f1319;
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:12px;
+    overflow:hidden;
+  }
+  .calendar-weekdays{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap:6px;
+    color: var(--muted);
+    font-size: .85rem;
+    margin-bottom: 8px;
+  }
+  .calendar-weekdays > div{ text-align:center; padding:6px 0; }
+  .calendar-grid{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap:6px;
+  }
+  .cal-day{
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:8px;
+    min-height:92px;
+    background: rgba(255,255,255,.02);
+    cursor:pointer;
+  }
+  .cal-day:hover{ background: rgba(255,255,255,.04); }
+  .cal-day.muted{
+    opacity:.55;
+  }
+  .cal-day-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:6px;
+    font-size:.85rem;
+    color: var(--muted);
+  }
+  .cal-badges{ display:flex; flex-direction:column; gap:4px; }
+  .cal-badge{
+    font-size:.78rem;
+    padding:2px 6px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.03);
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  .calendar-side{
+    background:#0f1319;
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:12px;
+  }
+  .calendar-side-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .calendar-day-list{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:10px;
+    min-height:120px;
+    background: rgba(255,255,255,.02);
+  }
+  .day-item{
+    display:flex;
+    gap:10px;
+    padding:8px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.03);
+    margin-bottom:8px;
+    cursor:pointer;
+  }
+  .day-item:last-child{ margin-bottom:0; }
+  .day-dot{
+    width:10px;height:10px;border-radius:50%;
+    margin-top:4px; flex:0 0 auto;
+  }
+  .day-item .t{ font-weight:650; }
+  .day-item .m{ color: var(--muted); font-size:.85rem; }
+  .calendar-editor{ margin-top:12px; }
+  .gcal-box{
+    margin-top:12px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:10px;
+    background: rgba(255,255,255,.02);
+  }
+  .gcal-box summary{ cursor:pointer; }
+  .danger{ border-color: rgba(255,107,107,.35) !important; color:#ffb3b3 !important; }
 
 </style>
 </head>
@@ -2397,7 +2599,7 @@
                 <div class="field-row">
                   <label>
                     <span>Colmena</span>
-                    <select id="sanidadDevice"></select>
+                    <select id="sanidadDevice" class="ui-select"></select>
                   </label>
                 </div>
 
@@ -2411,7 +2613,7 @@
                 <div class="field-row">
                   <label>
                     <span>Producto</span>
-                    <input type="text" id="sanidadProduct" list="sanidadProductList" autocomplete="off" placeholder="Ej. Amitraz, Timol…">
+                    <input type="text" id="sanidadProduct" list="sanidadProductList" autocomplete="off" placeholder="Ej. Amitraz, Timol…" class="ui-input">
                     <datalist id="sanidadProductList"></datalist>
                   </label>
                 </div>
@@ -2419,7 +2621,7 @@
                 <div class="field-row">
                   <label>
                     <span>Fecha estimada de retiro</span>
-                    <input type="date" id="sanidadEstimated">
+                    <input type="date" id="sanidadEstimated" class="ui-input">
                   </label>
                 </div>
 
@@ -2521,11 +2723,11 @@
                 </label>
                 <label>
                   <span>Desde</span>
-                  <input type="date" id="varroaFrom">
+                  <input type="date" id="varroaFrom" class="ui-input">
                 </label>
                 <label>
                   <span>Hasta</span>
-                  <input type="date" id="varroaTo">
+                  <input type="date" id="varroaTo" class="ui-input">
                 </label>
                 <button type="button" id="btnVarroaReload" class="btn subtle">Actualizar</button>
               </div>
@@ -2549,53 +2751,109 @@
         </section>
         <!-- CALENDARIO -->
         <section id="metaCalendario" class="meta-section">
-          <h3>Calendario</h3>
+          <h3 class="meta-subtitle">Calendario</h3>
           <p class="muted" style="margin-top:0">
-            Ver manejos sanitarios y otros eventos por fecha y colmena.
+            Eventos por fecha y colmena. Incluye manejos sanitarios y eventos creados manualmente.
           </p>
 
           <div class="meta-filter-row">
-            <select id="calDeviceFilter">
+            <select id="calDeviceFilter" class="ui-select">
               <option value="">Todas las colmenas</option>
             </select>
-            <input type="month" id="calMonth" />
+
+            <div class="cal-nav">
+              <button id="btnCalPrev" class="btn small subtle" type="button" title="Mes anterior">◀</button>
+              <input type="month" id="calMonth" class="ui-input" />
+              <button id="btnCalNext" class="btn small subtle" type="button" title="Mes siguiente">▶</button>
+            </div>
+
             <button id="btnCalReload" class="btn small" type="button">Mostrar</button>
           </div>
 
-          <div class="meta-form-grid">
-            <div>
-              <label class="muted" for="calDevice">Colmena</label>
-              <select id="calDevice" style="width:100%">
-                <option value="">General / apiario</option>
-              </select>
+          <div class="calendar-shell">
+            <div class="calendar-grid-wrap">
+              <div class="calendar-weekdays">
+                <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+              </div>
+              <div id="calBig" class="calendar-grid" aria-label="Calendario"></div>
+              <div class="muted" style="font-size:.85rem;margin-top:8px;">
+                Consejo: click en un día para crear evento. Click en un evento para editarlo.
+              </div>
             </div>
-            <div>
-              <label class="muted" for="calDate">Fecha</label>
-              <input id="calDate" type="date" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-            </div>
-            <div>
-              <label class="muted" for="calTitle">Título</label>
-              <input id="calTitle" type="text" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-            </div>
-            <div>
-              <label class="muted" for="calType">Tipo</label>
-              <select id="calType" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
-                <option value="sanidad">Manejo sanitario</option>
-                <option value="revisión">Revisión</option>
-                <option value="alimentación">Alimentación</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
-            <div style="grid-column:1/-1">
-              <label class="muted" for="calNotes">Notas</label>
-              <textarea id="calNotes" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px"></textarea>
-            </div>
-            <div style="grid-column:1/-1;display:flex;justify-content:flex-end">
-              <button id="btnCalSave" class="btn yellow small" type="button">Guardar evento</button>
+
+            <div class="calendar-side">
+              <div class="calendar-side-head">
+                <div>
+                  <div class="muted" style="font-size:.85rem">Eventos del día</div>
+                  <div id="calSideDate" style="font-weight:700">—</div>
+                </div>
+                <button id="btnCalNew" class="btn yellow small" type="button">+ Nuevo</button>
+              </div>
+
+              <div id="calDayList" class="calendar-day-list"></div>
+
+              <div class="meta-form-grid calendar-editor" id="calEditor">
+                <div>
+                  <label class="muted" for="calDevice">Colmena</label>
+                  <select id="calDevice" class="ui-select" style="width:100%">
+                    <option value="">(opcional) Sin colmena</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="muted" for="calDate">Fecha</label>
+                  <div class="date-chip">
+                    <input type="date" id="calDate" class="ui-input">
+                    <button class="cal-btn" type="button" aria-label="Calendario" onclick="tryOpenPicker('calDate')">
+                      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div style="grid-column:1/-1">
+                  <label class="muted" for="calTitle">Título</label>
+                  <input id="calTitle" class="ui-input" type="text" placeholder="Ej. Control varroa, Alimentación…">
+                </div>
+                <div>
+                  <label class="muted" for="calType">Tipo</label>
+                  <select id="calType" class="ui-select" style="width:100%">
+                    <option value="sanidad">Manejo sanitario</option>
+                    <option value="revisión">Revisión</option>
+                    <option value="alimentación">Alimentación</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <div style="grid-column:1/-1">
+                  <label class="muted" for="calNotes">Notas</label>
+                  <textarea id="calNotes" class="ui-textarea" placeholder="Opcional"></textarea>
+                </div>
+                <div style="grid-column:1/-1;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                  <button id="btnCalDelete" class="btn small subtle danger" type="button" style="display:none">Eliminar</button>
+                  <div style="display:flex;gap:8px;justify-content:flex-end;flex:1">
+                    <button id="btnCalCancel" class="btn small subtle" type="button">Cancelar</button>
+                    <button id="btnCalSave" class="btn yellow small" type="button">Guardar</button>
+                  </div>
+                </div>
+              </div>
+
+              <details class="gcal-box">
+                <summary>Conexión Google Calendar (UI)</summary>
+                <div class="muted" style="font-size:.9rem;line-height:1.35">
+                  Esta pantalla deja listo el flujo visual. Para sincronización real con Google Calendar hace falta
+                  un backend (OAuth2 + API de Google). En este HTML queda preparado el mapeo de eventos y el botón.
+                </div>
+                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+                  <button id="btnGCalConnect" class="btn small" type="button">Conectar</button>
+                  <button id="btnGCalSync" class="btn small subtle" type="button">Sincronizar</button>
+                </div>
+                <div id="gcalStatus" class="muted" style="margin-top:8px;font-size:.85rem">No conectado</div>
+              </details>
             </div>
           </div>
 
-          <div id="calList"></div>
+          <!-- Mantengo el listado existente (por compatibilidad) -->
+          <div id="calList" style="display:none"></div>
         </section>
 
         <!-- NOTAS -->
@@ -2615,13 +2873,13 @@
           <div class="meta-form-grid">
             <div>
               <label class="muted" for="noteDevice">Colmena</label>
-              <select id="noteDevice" style="width:100%">
+              <select id="noteDevice" style="width:100%" class="ui-select">
                 <option value="">Seleccionar colmena…</option>
               </select>
             </div>
             <div style="grid-column:1/-1">
               <label class="muted" for="noteText">Texto de la anotación</label>
-              <textarea id="noteText" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px"></textarea>
+              <textarea id="noteText" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px" class="ui-textarea"></textarea>
             </div>
             <div style="grid-column:1/-1;display:flex;justify-content:flex-end">
               <button id="btnNoteSave" class="btn yellow small" type="button">Guardar anotación</button>
@@ -5160,7 +5418,22 @@
     } catch (e) {
       console.error(e);
     }
+  
+    // Vista grande
+    try{
+      // autoEvents (sanidad) + userEvents (manual)
+      const autoEvents = await buildAutoSanidadEvents();
+      const userEvents = await eventsList();
+      window.__calMergedEvents = mergeCalendarioEvents(autoEvents, userEvents);
+      renderBigCalendar();
+    }catch(e){
+      // no rompe
+      console.warn('Calendario grande:', e);
+      window.__calMergedEvents = [];
+      renderBigCalendar();
+    }
   }
+
 
   async function saveCalendario() {
     const dev = $('calDevice')?.value || '';
@@ -5189,7 +5462,282 @@
     }
   }
 
+  
   /* =========================================================
+   *  CALENDARIO - Vista grande mensual (sin romper lo existente)
+   * =======================================================*/
+  let calSelectedDate = null;
+  let calEditingId = null;
+
+  function isoDate(d){
+    const x = new Date(d);
+    const y = x.getFullYear();
+    const m = String(x.getMonth()+1).padStart(2,'0');
+    const day = String(x.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  function monthKeyFromInput(){
+    const v = $('calMonth')?.value;
+    if (v) return v;
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  }
+  function setMonthInput(ym){
+    if ($('calMonth')) $('calMonth').value = ym;
+  }
+  function addMonths(ym, delta){
+    const [y,m]=ym.split('-').map(n=>parseInt(n,10));
+    const d=new Date(y, m-1, 1);
+    d.setMonth(d.getMonth()+delta);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
+
+  function calColorForEvent(ev){
+    return getDeviceColor(ev.device_id || '');
+  }
+
+  function calPickDate(d){
+    calSelectedDate = d;
+    if ($('calSideDate')) $('calSideDate').textContent = new Date(d+'T00:00:00').toLocaleDateString('es-AR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    renderCalDayList();
+  }
+
+  function renderCalDayList(){
+    const wrap = $('calDayList');
+    if (!wrap) return;
+    const day = calSelectedDate || isoDate(new Date());
+    const devFilter = $('calDeviceFilter')?.value || '';
+    const all = (window.__calMergedEvents || []).filter(ev => ev.fecha === day && (!devFilter || String(ev.device_id||'')===String(devFilter)));
+    if (!all.length){
+      wrap.innerHTML = '<div class="muted">Sin eventos para este día.</div>';
+      return;
+    }
+    wrap.innerHTML = all
+      .sort((a,b)=>String(a.titulo||'').localeCompare(String(b.titulo||'')))
+      .map(ev=>{
+        const c = calColorForEvent(ev);
+        const t = escapeHtml(ev.titulo||'(sin título)');
+        const tipo = escapeHtml(ev.tipo||'Evento');
+        const col = ev.device_id ? `Colmena ${escapeHtml(String(ev.device_id))}` : 'Sin colmena';
+        return `
+          <div class="day-item" data-eid="${escapeHtml(String(ev.id||''))}">
+            <div class="day-dot" style="background:${c}"></div>
+            <div style="min-width:0">
+              <div class="t">${t}</div>
+              <div class="m">${col} · ${tipo}</div>
+            </div>
+          </div>`;
+      }).join('');
+    wrap.querySelectorAll('.day-item').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const id = el.getAttribute('data-eid');
+        const ev = (window.__calMergedEvents || []).find(x=>String(x.id||'')===String(id));
+        if (ev) openCalEditor(ev);
+      });
+    });
+  }
+
+  function openCalEditor(ev){
+    calEditingId = ev?.id || null;
+    if ($('calDevice')) $('calDevice').value = ev?.device_id ? String(ev.device_id) : '';
+    if ($('calDate')) $('calDate').value = ev?.fecha || (calSelectedDate || isoDate(new Date()));
+    if ($('calTitle')) $('calTitle').value = ev?.titulo || '';
+    if ($('calType')) $('calType').value = ev?.tipo || 'otro';
+    if ($('calNotes')) $('calNotes').value = ev?.notas || '';
+    if ($('btnCalDelete')) $('btnCalDelete').style.display = ev?.user_created ? 'inline-flex' : 'none';
+    if ($('calEditor')) $('calEditor').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function clearCalEditor(){
+    calEditingId = null;
+    if ($('calDevice')) $('calDevice').value = '';
+    if ($('calDate')) $('calDate').value = calSelectedDate || isoDate(new Date());
+    if ($('calTitle')) $('calTitle').value = '';
+    if ($('calType')) $('calType').value = 'sanidad';
+    if ($('calNotes')) $('calNotes').value = '';
+    if ($('btnCalDelete')) $('btnCalDelete').style.display = 'none';
+  }
+
+  function mergeCalendarioEvents(autoEvents, userEvents){
+    // autoEvents: from sanitary, read-only; userEvents: editable
+    const res = [];
+    for (const e of (autoEvents||[])){
+      res.push({ ...e, user_created:false });
+    }
+    for (const e of (userEvents||[])){
+      res.push({ ...e, user_created:true });
+    }
+    // normalize id
+    res.forEach((e,i)=>{
+      if (!e.id) e.id = (e.user_created?'U':'A') + '_' + i + '_' + (e.fecha||'');
+    });
+    return res;
+  }
+
+  async function buildAutoSanidadEvents(){
+    // Construye eventos automáticos basados en registros sanitarios (retiro estimado) y controles.
+    // Si la API no devuelve nada, simplemente devuelve [].
+    const res = [];
+    try{
+      const list = await healthList(); // tu endpoint actual de sanidad
+      for (const r of (list||[])){
+        const fecha = (r.fecha_estimada_retiro || r.estimated_withdrawal || r.retiro || r.fecha || '').slice(0,10);
+        if (!fecha) continue;
+        const dev = r.device_id || r.colmena_id || r.colmena || null;
+        const prod = r.producto || r.product || r.product_name || 'Manejo sanitario';
+        const titulo = `Retiro estimado: ${prod}`;
+        res.push({
+          id: 'AUTO_RETIRO_' + (r.id||Math.random().toString(36).slice(2)),
+          device_id: dev,
+          fecha,
+          titulo,
+          tipo: 'sanidad',
+          notas: r.notas || r.notes || ''
+        });
+      }
+    }catch(e){
+      // ignore
+    }
+    try{
+      const vlist = await varroaList();
+      for (const r of (vlist||[])){
+        const fecha = (r.fecha || r.date || '').slice(0,10);
+        if (!fecha) continue;
+        const dev = r.device_id || null;
+        const p = Number(r.porcentaje || r.porcentaje_barroa || 0);
+        const titulo = `Control varroa: ${p.toFixed(1)}%`;
+        res.push({
+          id: 'AUTO_VARROA_' + (r.id||Math.random().toString(36).slice(2)),
+          device_id: dev,
+          fecha,
+          titulo,
+          tipo: 'revisión',
+          notas: ''
+        });
+      }
+    }catch(e){
+      // ignore
+    }
+    return res;
+  }
+
+
+  function buildCalendarMonthGrid(ym){
+    const [Y,M]=ym.split('-').map(n=>parseInt(n,10));
+    const first = new Date(Y, M-1, 1);
+    // JS: 0=Dom ... 6=Sáb. Queremos lun=0
+    const dow = (first.getDay()+6)%7;
+    const start = new Date(first);
+    start.setDate(first.getDate() - dow);
+    const cells = [];
+    for (let i=0;i<42;i++){
+      const d = new Date(start);
+      d.setDate(start.getDate()+i);
+      cells.push(d);
+    }
+    return cells;
+  }
+
+  function renderBigCalendar(){
+    const grid = $('calBig');
+    if (!grid) return;
+
+    const ym = monthKeyFromInput();
+    const cells = buildCalendarMonthGrid(ym);
+    const [Y,M]=ym.split('-').map(n=>parseInt(n,10));
+
+    const events = window.__calMergedEvents || [];
+    const map = {};
+    for (const ev of events){
+      if (!ev.fecha) continue;
+      if (!map[ev.fecha]) map[ev.fecha]=[];
+      map[ev.fecha].push(ev);
+    }
+
+    grid.innerHTML = cells.map(d=>{
+      const dayIso = isoDate(d);
+      const inMonth = (d.getFullYear()===Y && (d.getMonth()+1)===M);
+      const evs = (map[dayIso]||[]).slice(0,3);
+      const badges = evs.map(ev=>{
+        const c = calColorForEvent(ev);
+        const t = escapeHtml(ev.titulo||'');
+        return `<div class="cal-badge" style="border-color:${c};color:${c}">${t||'(evento)'}</div>`;
+      }).join('');
+      const more = (map[dayIso]||[]).length - evs.length;
+      const moreBadge = more>0 ? `<div class="cal-badge muted">+${more} más</div>` : '';
+      return `
+        <div class="cal-day ${inMonth?'':'muted'}" data-day="${dayIso}">
+          <div class="cal-day-head">
+            <span>${d.getDate()}</span>
+            <span style="width:10px;height:10px;border-radius:50%;background:${(map[dayIso]||[]).length?getDeviceColor((map[dayIso]||[])[0]?.device_id||''):'transparent'}"></span>
+          </div>
+          <div class="cal-badges">${badges}${moreBadge}</div>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.cal-day').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const day = el.getAttribute('data-day');
+        calPickDate(day);
+        clearCalEditor();
+        if ($('calDate')) $('calDate').value = day;
+      });
+    });
+
+    // default selection
+    const today = isoDate(new Date());
+    const defaultDay = (today.startsWith(ym) ? today : `${ym}-01`);
+    if (!calSelectedDate || !String(calSelectedDate).startsWith(ym)) {
+      calPickDate(defaultDay);
+      if ($('calDate')) $('calDate').value = defaultDay;
+    } else {
+      renderCalDayList();
+    }
+  }
+
+  // UI NAV
+  function hookCalendarUI(){
+    if ($('btnCalPrev')) $('btnCalPrev').addEventListener('click', ()=>{
+      const ym = addMonths(monthKeyFromInput(), -1);
+      setMonthInput(ym);
+      refreshCalendario();
+    });
+    if ($('btnCalNext')) $('btnCalNext').addEventListener('click', ()=>{
+      const ym = addMonths(monthKeyFromInput(), 1);
+      setMonthInput(ym);
+      refreshCalendario();
+    });
+    if ($('btnCalNew')) $('btnCalNew').addEventListener('click', ()=>{
+      clearCalEditor();
+      if ($('calDate')) $('calDate').value = calSelectedDate || isoDate(new Date());
+      if ($('calTitle')) $('calTitle').focus();
+    });
+    if ($('btnCalCancel')) $('btnCalCancel').addEventListener('click', ()=>{
+      clearCalEditor();
+    });
+    if ($('btnCalDelete')) $('btnCalDelete').addEventListener('click', async ()=>{
+      if (!calEditingId) return;
+      if (!confirm('Eliminar este evento?')) return;
+      try{
+        await eventsDelete(calEditingId);
+        clearCalEditor();
+        refreshCalendario();
+      }catch(e){
+        alert('Error eliminando: ' + (e.message||e));
+      }
+    });
+    // Google Calendar stub
+    if ($('btnGCalConnect')) $('btnGCalConnect').addEventListener('click', ()=>{
+      $('gcalStatus').textContent = 'Conexión pendiente (requiere backend OAuth2).';
+      alert('Para Google Calendar hace falta un backend OAuth2. Esta UI ya queda lista para conectarlo.');
+    });
+    if ($('btnGCalSync')) $('btnGCalSync').addEventListener('click', ()=>{
+      $('gcalStatus').textContent = 'Sync pendiente (requiere backend).';
+      alert('Sync con Google Calendar: pendiente de backend.');
+    });
+  }
+
+/* =========================================================
    *  NOTAS: LISTADO + ALTA
    * =======================================================*/
   async function refreshNotas() {
@@ -5805,7 +6353,7 @@
     }
 
     try {
-      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=es&format=json`;
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=8&language=es&format=json`;
       const r = await fetch(url, { cache: 'no-store' });
       const j = await r.json();
 
@@ -5964,7 +6512,10 @@
     if ($('btnCalSave')) {
       $('btnCalSave').onclick = () => saveCalendario();
     }
-    // Botón REINA en overlay de colmena
+    
+    // Navegación y editor calendario grande
+    hookCalendarUI();
+// Botón REINA en overlay de colmena
     if($('btnOverlayQueen')){
       $('btnOverlayQueen').onclick = ()=>{
         if(currentOverlayDevice){
@@ -6038,11 +6589,11 @@
    * =======================================================*/
   async function renderWeather(lat, lon, label) {
     // 7 días + humedad diaria
-    const url = `https://https://api.open-meteo.com/v1/forecast` +
+    const url = `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${lat}&longitude=${lon}` +
-      `&current=temperature_2m,relative_humidity_2m,weather_code` +
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min,precipitation_sum` +
-      `&timezone=auto&forecast_days=7`;
+      `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum` +
+      `&hourly=temperature_2m,relative_humidity_2m` +
+      `&forecast_days=7&timezone=auto`;
 
     const r = await fetch(url, { cache: 'no-store' });
     const j = await r.json();
