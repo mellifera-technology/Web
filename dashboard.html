@@ -1824,6 +1824,83 @@
   .gcal-box summary{ cursor:pointer; }
   .danger{ border-color: rgba(255,107,107,.35) !important; color:#ffb3b3 !important; }
 
+
+  /* ===========================
+   *  Overlay Colmena: centrar KPI (TEM/HUM)
+   * =========================== */
+  .overlay-grid .card .metric{
+    display:flex;
+    justify-content:center;
+    align-items:baseline;
+    gap:8px;
+    text-align:center;
+  }
+  .overlay-grid .card .metric .val,
+  .overlay-grid .card .metric .unit{
+    line-height:1;
+  }
+  .overlay-grid .card .muted{
+    text-align:center;
+  }
+
+  /* ===========================
+   *  Herramientas de análisis: misma carta (tabs)
+   * =========================== */
+  #analysisCard .analysis-panels{
+    margin-top:12px;
+  }
+  #analysisCard .analysis-panel{
+    display:none;
+    padding-top:6px;
+  }
+  #analysisCard .analysis-panel.active{
+    display:block;
+  }
+
+  /* Aire / Movimiento charts */
+  .filters-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-top:10px;
+  }
+  .filters-row input[type="date"], .filters-row select{
+    background: rgba(255,255,255,.06);
+    border:1px solid var(--border);
+    color:#fff;
+    padding:6px 10px;
+    border-radius:10px;
+    font-size:12px;
+  }
+  .filters-row label{
+    font-size:12px;
+    color: var(--muted);
+  }
+
+  /* Producción principal: que los íconos no tapen texto */
+  .prod-chip-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .prod-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(255,200,80,.12);
+    border: 1px solid rgba(255,200,80,.28);
+    color: #ffcf66;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  .prod-chip svg{
+    width:14px;height:14px;
+    stroke:#ffcf66;
+  }
 </style>
 </head>
 <body class="hide-exterior">
@@ -2126,7 +2203,7 @@
           </div>
         </div>
                 <!-- Herramientas de análisis -->
-        <div class="card" style="margin-top:12px">
+        <div class="card" style="margin-top:12px" id="analysisCard">
           <h3 style="margin-top:0">Herramientas de análisis</h3>
           <div class="mode-toggle">
             <button type="button" data-mode="work" id="btnModeWork">Trabajo</button>
@@ -2134,10 +2211,10 @@
             <button type="button" data-mode="motion" id="btnModeMotion">Movimiento</button>
             <button type="button" data-mode="prod" id="btnModeProd">Producción</button>
           </div>
-        </div>
+          <div class="analysis-panels">
 
         <!-- Trabajo -->
-        <div class="card" id="workCard" style="margin-top:12px;display:none">
+        <div class="analysis-panel" id="workCard" style="display:none">
           <h3>Trabajo</h3>
           <div id="workToday" class="muted">Trabajo de hoy: —</div>
           <div id="workWeek" class="muted">Trabajo de la semana: —</div>
@@ -2188,19 +2265,50 @@
         </div>
 
         <!-- Aire (placeholder, por si luego lo llenamos) -->
-        <div class="card" id="airCard" style="margin-top:12px;display:none">
+        <div class="analysis-panel" id="airCard" style="display:none">
           <h3>Aire</h3>
-          <p class="muted">Aquí irán las herramientas de análisis de ventilación / CO₂ / etc.</p>
+          <div class="muted">Gráfica a lo largo del día (variables: CO2, NH3, NOX, ALC, SMK).</div>
+
+          <div class="chart-card" style="margin-top:10px">
+            <h3 id="airTitle">Aire — Día</h3>
+            <div class="chart-box"><canvas id="airChart"></canvas></div>
+
+            <div class="filters-row">
+              <label>Desde <input type="date" id="airFrom"></label>
+              <label>Hasta <input type="date" id="airTo"></label>
+              <button id="btnAirApply" class="btn small yellow" type="button">Aplicar</button>
+              <button id="btnAirToday" class="btn small" type="button">Hoy</button>
+            </div>
+          </div>
+
+          <div id="airNoData" class="muted" style="display:none;margin-top:8px">Sin datos de aire para el rango seleccionado.</div>
         </div>
 
         <!-- Movimiento (placeholder) -->
-        <div class="card" id="motionCard" style="margin-top:12px;display:none">
+        <div class="analysis-panel" id="motionCard" style="display:none">
           <h3>Movimiento</h3>
-          <p class="muted">Aquí irán las herramientas de análisis de movimiento.</p>
+          <div class="muted">Gráfica a lo largo del día (variable: MAX).</div>
+          <div class="muted" style="margin-top:6px">
+            Cantidad de abejas <b>aproximadas</b> que pasaron por la colmena hoy (no es conteo real; es un estimado a partir del sensor).
+          </div>
+
+          <div class="chart-card" style="margin-top:10px">
+            <h3 id="motionTitle">Movimiento — Día</h3>
+            <div class="chart-box"><canvas id="motionChart"></canvas></div>
+
+            <div class="filters-row">
+              <label>Desde <input type="date" id="motionFrom"></label>
+              <label>Hasta <input type="date" id="motionTo"></label>
+              <button id="btnMotionApply" class="btn small yellow" type="button">Aplicar</button>
+              <button id="btnMotionToday" class="btn small" type="button">Hoy</button>
+            </div>
+          </div>
+
+          <div id="motionNoData" class="muted" style="display:none;margin-top:8px">Sin datos de movimiento para el rango seleccionado.</div>
         </div>
 
         <!-- Producción por colmena (modo dentro de Herramientas) -->
-        <div class="card" id="prodCardHive" style="margin-top:12px;display:none">
+        <div class="analysis-panel" id="prodCardHive" style="display:none">
           <h3>Producción</h3>
 
           <!-- FORM: Producción (fecha + kilos + guardar) -->
@@ -2303,7 +2411,10 @@
             </div>
           </div>
         </div>
-      </div> <!-- overlay-content -->
+                </div><!-- /analysis-panels -->
+        </div><!-- /analysisCard -->
+
+</div> <!-- overlay-content -->
     </div>
   </div>
   <!-- ================= Overlay Reina ================= -->
@@ -3934,6 +4045,145 @@
     }
   }
 
+
+  /* =========================================================
+   *  AIRE + MOVIMIENTO (gráficos diarios con filtros)
+   * =======================================================*/
+  let airChart = null;
+  let motionChart = null;
+
+  function dayRangeFromTo(fromDateStr, toDateStr){
+    // from/to inclusivo por día
+    const df = fromDateStr ? new Date(fromDateStr + 'T00:00:00') : new Date();
+    const dt = toDateStr ? new Date(toDateStr + 'T23:59:59') : new Date();
+    return { fromT:+df, toT:+dt };
+  }
+
+  function filterSeries(items, deviceId, KEYS, fromT, toT, bucketMinutes){
+    const byKey = Object.fromEntries(KEYS.map(k=>[k,[]]));
+    const labelSet = new Set();
+
+    for(const d of (items||[])){
+      if(String(d.device_id)!==String(deviceId)) continue;
+      const k = String(d.sensor_key||'').toUpperCase().trim();
+      if(!KEYS.includes(k)) continue;
+      const t = new Date(d.ts).getTime();
+      if(t<fromT || t>toT) continue;
+      const y = Number(d.value);
+      if(!Number.isFinite(y)) continue;
+      const tB = Math.floor(t/(bucketMinutes*60000))*(bucketMinutes*60000);
+      byKey[k].push({t:tB, y});
+      labelSet.add(tB);
+    }
+
+    const labelsTs = Array.from(labelSet).sort((a,b)=>a-b);
+    const labels = labelsTs.map(ts=> {
+      const d = new Date(ts);
+      return d.toLocaleString('es-AR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    });
+
+    // map last value per bucket
+    const maps = {};
+    for(const k of KEYS){
+      const m = new Map();
+      byKey[k].sort((a,b)=>a.t-b.t);
+      for(const p of byKey[k]) m.set(p.t, p.y);
+      maps[k]=m;
+    }
+
+    const datasets = KEYS.map(k=>({
+      label:k,
+      data: labelsTs.map(ts=> maps[k].has(ts) ? maps[k].get(ts) : null),
+      borderWidth:2,
+      tension:.25,
+      pointRadius:0,
+      spanGaps:true
+    }));
+
+    return { labels, datasets };
+  }
+
+  async function renderAir(deviceId, fromT, toT){
+    if(!deviceId) return;
+    const items = await fetchRange(new Date(fromT).toISOString(), new Date(toT).toISOString());
+    const KEYS = ['CO2','NH3','NOX','ALC','SMK'];
+    const { labels, datasets } = filterSeries(items, deviceId, KEYS, fromT, toT, 10);
+
+    const hasAny = datasets.some(ds => (ds.data||[]).some(v=>v!==null));
+    $('airNoData').style.display = hasAny ? 'none' : 'block';
+
+    if(airChart) airChart.destroy();
+    airChart = new Chart($('airChart').getContext('2d'), {
+      type:'line',
+      data:{ labels, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{
+          x:{ ticks:{ maxTicksLimit:8 } }
+        },
+        plugins:{ legend:{ display:true } }
+      }
+    });
+  }
+
+  async function renderMotion(deviceId, fromT, toT){
+    if(!deviceId) return;
+    const items = await fetchRange(new Date(fromT).toISOString(), new Date(toT).toISOString());
+    const KEYS = ['MAX'];
+    const { labels, datasets } = filterSeries(items, deviceId, KEYS, fromT, toT, 10);
+
+    const hasAny = datasets.some(ds => (ds.data||[]).some(v=>v!==null));
+    $('motionNoData').style.display = hasAny ? 'none' : 'block';
+
+    if(motionChart) motionChart.destroy();
+    motionChart = new Chart($('motionChart').getContext('2d'), {
+      type:'line',
+      data:{ labels, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{ x:{ ticks:{ maxTicksLimit:8 } } },
+        plugins:{ legend:{ display:true } }
+      }
+    });
+  }
+
+  function scheduleRenderAir(){
+    const dev = currentOverlayDeviceId;
+    if(!dev || !$('airCard')?.classList.contains('active')) return;
+    const {fromT,toT} = dayRangeFromTo($('airFrom').value, $('airTo').value);
+    renderAir(dev, fromT, toT);
+  }
+  function scheduleRenderMotion(){
+    const dev = currentOverlayDeviceId;
+    if(!dev || !$('motionCard')?.classList.contains('active')) return;
+    const {fromT,toT} = dayRangeFromTo($('motionFrom').value, $('motionTo').value);
+    renderMotion(dev, fromT, toT);
+  }
+  function scheduleRenderWork(){
+    // ya existe lógica actual; llamamos al refresh del overlay si está disponible
+    if(typeof refreshOverlayData === 'function') refreshOverlayData();
+  }
+  function scheduleRenderProd(){
+    if(typeof renderProdAll === 'function') renderProdAll();
+  }
+
+  if($('btnAirApply')) $('btnAirApply').onclick = () => scheduleRenderAir();
+  if($('btnAirToday')) $('btnAirToday').onclick = () => {
+    const d = new Date(); const iso = d.toISOString().slice(0,10);
+    $('airFrom').value = iso; $('airTo').value = iso;
+    scheduleRenderAir();
+  };
+
+  if($('btnMotionApply')) $('btnMotionApply').onclick = () => scheduleRenderMotion();
+  if($('btnMotionToday')) $('btnMotionToday').onclick = () => {
+    const d = new Date(); const iso = d.toISOString().slice(0,10);
+    $('motionFrom').value = iso; $('motionTo').value = iso;
+    scheduleRenderMotion();
+  };
+
+
   function normalizeDateRangeInputs() {
     let df = $('dateFrom').value;
     let dt = $('dateTo').value;
@@ -4046,7 +4296,32 @@
     URL.revokeObjectURL(url);
   }
 
+  
   /* =========================================================
+   *  Herramientas de análisis: tabs en la misma carta
+   * =======================================================*/
+  function setAnalysisMode(mode){
+    const modes = ['work','air','motion','prod'];
+    for(const m of modes){
+      const panel = (m==='prod') ? $('prodCardHive') : (m==='work' ? $('workCard') : m==='air' ? $('airCard') : $('motionCard'));
+      const btn = (m==='prod') ? $('btnModeProd') : (m==='work' ? $('btnModeWork') : m==='air' ? $('btnModeAir' ) : $('btnModeMotion'));
+      if(panel){
+        panel.classList.toggle('active', m===mode);
+        panel.style.display = ''; // por si quedó inline
+      }
+      if(btn){
+        btn.classList.toggle('active', m===mode);
+      }
+    }
+
+    // renders on demand (charts en panels ocultos no se dibujan bien)
+    if(mode==='work') scheduleRenderWork();
+    if(mode==='air') scheduleRenderAir();
+    if(mode==='motion') scheduleRenderMotion();
+    if(mode==='prod') scheduleRenderProd();
+  }
+
+/* =========================================================
    *  WORKER: DATOS DE TRABAJO (C2R, NHR, etc.)
    * =======================================================*/
   async function workFetchRange(fromISO, toISO, deviceId) {
@@ -4841,6 +5116,8 @@
   }
 
   function renderQueenHistory(items){
+    // mostrar la más actual primero
+    items = (items || []).slice().sort((a,b)=> new Date(b.date||b.ts||0) - new Date(a.date||a.ts||0));
     const wrap = $('queenHistoryWrap');
     if(!wrap) return;
 
