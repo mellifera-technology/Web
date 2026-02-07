@@ -1071,6 +1071,102 @@
   cursor: help;
 }
 
+  /* ================= NOTAS ================= */
+
+  .notes-layout{
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.55fr);
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 900px){
+    .notes-layout{ grid-template-columns: 1fr; }
+  }
+
+  .notes-panel{
+    background: var(--card-bg, #10141c);
+    border-radius: 12px;
+    padding: 1.05rem 1.25rem;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  .notes-panel h4{
+    margin: 0 0 .85rem;
+    font-size: 1.02rem;
+  }
+
+  .notes-panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: .6rem;
+  }
+
+  .notes-filters{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
+    align-items: end;
+    margin-bottom: .9rem;
+  }
+
+  .notes-filters label,
+  .notes-form label{
+    display:flex;
+    flex-direction:column;
+    gap:.25rem;
+    font-size:.9rem;
+  }
+
+  .notes-form .ui-select,
+  .notes-filters .ui-select,
+  .notes-form .ui-textarea{
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  .notes-form .ui-textarea{
+    min-height: 140px;
+    line-height: 1.35;
+  }
+
+  #metaNotas #btnNoteSave{
+    height: 44px;
+  }
+
+  #metaNotas #btnNotesReload{
+    height: 40px;
+  }
+
+  /* Tarjetas de anotaciones: agrandadas (reusa el HTML que arma refreshNotas) */
+  #metaNotas .note-item{
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+  }
+
+  #metaNotas .note-item-head{
+    gap: 12px;
+  }
+
+  #metaNotas .note-item-meta{
+    font-size: .9rem;
+  }
+
+  /* el texto es el 2do <div> dentro de .note-item */
+  #metaNotas .note-item > div:last-child{
+    margin-top: 8px;
+    white-space: pre-wrap;
+    line-height: 1.35;
+    font-size: 1rem;
+  }
+
+
   /* ================== Reina ================== */
 
   .queen-layout{
@@ -2954,36 +3050,61 @@
 
         <!-- NOTAS -->
         <section id="metaNotas" class="meta-section">
-          <h3>Anotaciones</h3>
+          <h3 class="meta-subtitle">Anotaciones</h3>
           <p class="muted" style="margin-top:0">
             Registrar observaciones y ver el historial por colmena.
           </p>
 
-          <div class="meta-filter-row">
-            <select id="notesDeviceFilter">
-              <option value="">Todas las colmenas</option>
-            </select>
-            <button id="btnNotesReload" class="btn small" type="button">Actualizar</button>
-          </div>
+          <div class="notes-layout">
+            <!-- Nueva anotación -->
+            <div class="notes-panel">
+              <h4>Nueva anotación</h4>
 
-          <div class="meta-form-grid">
-            <div>
-              <label class="muted" for="noteDevice">Colmena</label>
-              <select id="noteDevice" style="width:100%" class="ui-select">
-                <option value="">Seleccionar colmena…</option>
-              </select>
+              <div class="notes-form">
+                <div class="field-row">
+                  <label>
+                    <span>Colmena</span>
+                    <select id="noteDevice" class="ui-select">
+                      <option value="">Seleccionar colmena…</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div class="field-row">
+                  <label>
+                    <span>Texto de la anotación</span>
+                    <textarea id="noteText" class="ui-textarea" placeholder="Escribir anotación..."></textarea>
+                  </label>
+                </div>
+
+                <div class="field-row" style="display:flex;justify-content:flex-end">
+                  <button id="btnNoteSave" class="btn yellow" type="button">Guardar anotación</button>
+                </div>
+              </div>
             </div>
-            <div style="grid-column:1/-1">
-              <label class="muted" for="noteText">Texto de la anotación</label>
-              <textarea id="noteText" style="width:100%;background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px" class="ui-textarea"></textarea>
-            </div>
-            <div style="grid-column:1/-1;display:flex;justify-content:flex-end">
-              <button id="btnNoteSave" class="btn yellow small" type="button">Guardar anotación</button>
+
+            <!-- Historial -->
+            <div class="notes-panel">
+              <div class="notes-panel-head">
+                <h4 style="margin:0">Historial</h4>
+                <button id="btnNotesReload" class="btn subtle" type="button">Actualizar</button>
+              </div>
+
+              <div class="notes-filters">
+                <label>
+                  <span>Colmena</span>
+                  <select id="notesDeviceFilter" class="ui-select">
+                    <option value="">Todas las colmenas</option>
+                  </select>
+                </label>
+              </div>
+
+              <div id="notesList"></div>
             </div>
           </div>
-
-          <div id="notesList"></div>
         </section>
+
+
       </div>
     </div>
   </div>
