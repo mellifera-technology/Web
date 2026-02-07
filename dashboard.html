@@ -698,6 +698,67 @@
     height: 100% !important;
   }
 
+    /* =========================================================
+   *  TRABAJO: layout de gráfico + promedios
+   * =======================================================*/
+  .work-chart-grid{
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 14px;
+    align-items: stretch;
+  }
+  @media (max-width: 860px){
+    .work-chart-grid{
+      grid-template-columns: 1fr;
+    }
+  }
+  .work-chart-main h3{
+    margin-top: 0;
+  }
+  .work-avg-panel{
+    border-left: 1px solid var(--border);
+    padding-left: 12px;
+  }
+  @media (max-width: 860px){
+    .work-avg-panel{
+      border-left: none;
+      border-top: 1px solid var(--border);
+      padding-left: 0;
+      padding-top: 12px;
+    }
+  }
+  .work-avg-title{
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .work-avg-grid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .work-avg-item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 10px;
+    padding: 8px 10px;
+  }
+  .work-avg-item .k{
+    font-weight: 800;
+    letter-spacing: .3px;
+  }
+  .work-avg-item .v{
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+  }
+  .work-avg-foot{
+    margin-top: 10px;
+    font-size: .9rem;
+  }
+
+
   /* Controles de historial para gráficas (rango de fechas, botones) */
   .hist-controls {
     display: none;
@@ -2311,26 +2372,40 @@
         </div>
 
         <!-- Trabajo -->
+        <!-- Trabajo -->
         <div class="card" id="workCard" style="margin-top:12px;display:none">
           <h3>Trabajo</h3>
           <div id="workToday" class="muted">Trabajo de hoy: —</div>
           <div id="workWeek" class="muted">Trabajo de la semana: —</div>
           <div id="workMonth" class="muted">Trabajo del mes: —</div>
 
-          <div id="workChartWrap" style="display:none;margin-top:10px">
-            <div class="chart-card">
-              <h3>Trabajo del día — Variables</h3>
-              <div class="chart-box"><canvas id="workChart"></canvas></div>
+          <div id="workChartWrap" style="display:block;margin-top:10px">
+            <div class="chart-card work-chart-grid">
+              <div class="work-chart-main">
+                <h3 id="workChartTitle">Trabajo mensual — Variables (ppm)</h3>
+                <div class="chart-box"><canvas id="workChart"></canvas></div>
+              </div>
+
+              <aside class="work-avg-panel" aria-label="Promedios del período">
+                <div class="work-avg-title">Promedio del período</div>
+                <div class="work-avg-grid">
+                  <div class="work-avg-item"><div class="k">C2R</div><div class="v" id="workAvgC2R">—</div></div>
+                  <div class="work-avg-item"><div class="k">NHR</div><div class="v" id="workAvgNHR">—</div></div>
+                  <div class="work-avg-item"><div class="k">NXR</div><div class="v" id="workAvgNXR">—</div></div>
+                  <div class="work-avg-item"><div class="k">ALR</div><div class="v" id="workAvgALR">—</div></div>
+                  <div class="work-avg-item"><div class="k">SMR</div><div class="v" id="workAvgSMR">—</div></div>
+                </div>
+                <div class="work-avg-foot muted">Se calcula promedio dentro del rango seleccionado.</div>
+              </aside>
             </div>
           </div>
 
-          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <div class="work-controls" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <select id="workRange" class="btn small" style="background:#10141a;border:1px solid var(--border);color:#fff;border-radius:10px;padding:6px 10px">
               <option value="dia">Día</option>
               <option value="semana">Semana</option>
-              <option value="mes">Mes</option>
+              <option value="mes" selected>Mes</option>
             </select>
-            <button id="btnWorkChart" class="btn small yellow" type="button">Mostrar gráficos</button>
             <button id="btnWorkHistToggle" class="btn small" type="button">Historial</button>
             <button id="btnWorkCSV" class="btn small" type="button">Descargar CSV</button>
           </div>
@@ -2340,26 +2415,29 @@
               <input type="date" id="workDateFrom">
               <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('workDateFrom')">
                 <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
                 </svg>
               </button>
             </div>
+
             <div class="date-chip">
               <input type="date" id="workDateTo">
               <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('workDateTo')">
                 <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                  <rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/>
-                  <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/>
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
                 </svg>
               </button>
             </div>
+
             <div class="hist-actions">
               <button id="btnWorkHistShow" class="btn small" type="button">Mostrar</button>
               <button id="btnWorkHistCSV" class="btn small" type="button">Descargar CSV</button>
             </div>
           </div>
         </div>
+
 
         <!-- Aire (placeholder, por si luego lo llenamos) -->
         <div class="card" id="airCard" style="margin-top:12px;display:none">
@@ -6079,37 +6157,43 @@
     }
   }, 15000);
 
-
-  /* =========================================================
-   *  BLOQUE: “TRABAJO” (modo avanzado por colmena)
+    /* =========================================================
+   *  BLOQUE: “TRABAJO” (modo avanzado por colmena) — v2
+   *  - MS: suma (hoy / semana / mes)
+   *  - C2R/NHR/NXR/ALR/SMR: promedios (día/semana/mes/rango)
+   *  - Gráfico siempre visible, default: MES
    * =======================================================*/
   let workChart = null;
 
-  // Eventos OPN (golpes)
-  function extractWorkEvents(items, deviceId) {
-    return (items || []).filter(d =>
-      String(d.device_id) === String(deviceId) &&
-      String(d.sensor_key).toUpperCase().includes('OPN')
-    );
+  const WORK_VAR_KEYS = ['C2R', 'NHR', 'NXR', 'ALR', 'SMR'];
+  const WORK_ALL_KEYS = [...WORK_VAR_KEYS, 'MS', 'OPN'];
+
+  const WORK_PALETTE = {
+    C2R: '#ffb74d',
+    NHR: '#4da3ff',
+    NXR: '#ff6b6b',
+    ALR: '#7fb3ff',
+    SMR: '#49d17d'
+  };
+
+  function normalizeWorkKey(raw) {
+    const K = String(raw || '').toUpperCase().trim();
+    for (const base of WORK_ALL_KEYS) {
+      if (K === base) return base;
+      const re = new RegExp(`(^|[.\\-_:])${base}($|[.\\-_:])`);
+      if (re.test(K)) return base;
+    }
+    return null;
   }
 
-  // MS bruta (primera implementación)
-  function extractWorkTimes(items, deviceId) {
-    return (items || []).filter(d =>
-      String(d.device_id) === String(deviceId) &&
-      String(d.sensor_key).toUpperCase() === 'MS'
-    );
+  function workIsVisible() {
+    const c = $('workCard');
+    return c && getComputedStyle(c).display !== 'none';
   }
 
-  // Reemplazo: admite MS, WORK.MS, DEVICE.MS, etc.
-  // (esta segunda definición sobrescribe la anterior, se mantiene para no tocar lógica)
-  function extractWorkTimes(items, deviceId) {
-    const devId = String(deviceId);
-    return (items || []).filter(d => {
-      if (String(d.device_id) !== devId) return false;
-      const k = String(d.sensor_key || '').toUpperCase().trim();
-      return k === 'MS' || k.endsWith('.MS');
-    });
+  function fmtWork(v, dec = 1) {
+    if (v == null || Number.isNaN(+v)) return '—';
+    return Number(v).toFixed(dec);
   }
 
   function formatHM_fromMs(ms) {
@@ -6119,68 +6203,149 @@
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   }
 
-  function getPeriodBounds(period, refDate) {
-    const ref = new Date(refDate);
-    let from = new Date(ref), to = new Date(ref);
-    if (period === 'dia') {
-      from.setHours(0, 0, 0, 0);
-      to.setHours(23, 59, 59, 999);
-    } else if (period === 'semana') {
-      const day = (ref.getDay() + 6) % 7; // lunes ISO
-      from.setHours(0, 0, 0, 0);
-      from.setDate(from.getDate() - day);
-      to = new Date(from);
-      to.setDate(from.getDate() + 6);
-      to.setHours(23, 59, 59, 999);
-    } else {
-      from = new Date(ref.getFullYear(), ref.getMonth(), 1, 0, 0, 0, 0);
-      to = new Date(ref.getFullYear(), ref.getMonth() + 1, 0, 23, 59, 59, 999);
-    }
-    return { fromT: +from, toT: +to };
+  // Cache simple por rango (evita martillar el Worker si el usuario deja el panel abierto)
+  const workRangeCache = new Map(); // key => { fetchedAt, items }
+  function workTTL(period) {
+    if (period === 'dia') return 15000;
+    if (period === 'semana') return 30000;
+    return 60000; // mes / rango
   }
 
-  function filterWorkSeries(items, deviceId, fromT, toT) {
-    const KEYS = ['C2R', 'NHR', 'NXR', 'ALR', 'SMR'];
-    const byKey = Object.fromEntries(KEYS.map(k => [k, []]));
-    const labelSet = new Set();
+  const WORK_FETCH_LIMIT = 12000;
+  const WORK_SPLIT_DEPTH_MAX = 8;
+
+  function mergeWorkItems(a, b) {
+    const seen = new Set();
+    const out = [];
+    for (const d of [...(a || []), ...(b || [])]) {
+      const key = `${d.ts}|${d.device_id}|${d.sensor_key}|${d.value}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(d);
+    }
+    return out;
+  }
+
+  async function workFetchChunk(fromT, toT, deviceId, period, depth) {
+    const fromISO = new Date(fromT).toISOString();
+    const toISO = new Date(toT).toISOString();
+
+    const keysParam = WORK_ALL_KEYS.join(',');
+    const q = `/datapoints?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}&limit=${WORK_FETCH_LIMIT}&device_id=${encodeURIComponent(deviceId)}&keys=${encodeURIComponent(keysParam)}`;
+    const { items } = await callWorker(q);
+
+    const filtered = (items || []).filter(d => {
+      if (String(d.device_id) !== String(deviceId)) return false;
+      return !!normalizeWorkKey(d.sensor_key);
+    });
+
+    // Si el backend devuelve "limit" clavado, puede estar recortando por volumen.
+    // Solo hacemos split si parece que viene “ruido” (muchos ítems pero pocos del device/keys que nos interesan).
+    const hitLimit = (items || []).length >= WORK_FETCH_LIMIT;
+    const noiseRatio = hitLimit ? (filtered.length / Math.max(1, (items || []).length)) : 1;
+    if (hitLimit && noiseRatio < 0.10 && depth < WORK_SPLIT_DEPTH_MAX && (toT - fromT) > 15 * 60 * 1000) {
+      const mid = Math.floor((fromT + toT) / 2);
+      const left = await workFetchChunk(fromT, mid, deviceId, period, depth + 1);
+      const right = await workFetchChunk(mid + 1, toT, deviceId, period, depth + 1);
+      return mergeWorkItems(left, right);
+    }
+
+    return filtered;
+  }
+
+  async function workFetchRange(fromISO, toISO, deviceId, period = 'mes') {
+    const key = `${deviceId}|${fromISO}|${toISO}`;
+    const now = Date.now();
+    const cached = workRangeCache.get(key);
+    const ttl = workTTL(period);
+
+    if (cached && (now - cached.fetchedAt) < ttl) return cached.items;
+
+    try {
+      const fromT = Date.parse(fromISO);
+      const toT = Date.parse(toISO);
+      const filtered = await workFetchChunk(fromT, toT, deviceId, period, 0);
+      workRangeCache.set(key, { fetchedAt: now, items: filtered });
+      return filtered;
+    } catch (e) {
+      const filtered = (lastItemsCache || []).filter(d => {
+        if (String(d.device_id) !== String(deviceId)) return false;
+        return !!normalizeWorkKey(d.sensor_key);
+      });
+      workRangeCache.set(key, { fetchedAt: now, items: filtered });
+      return filtered;
+    }
+  }
+
+  async function getWorkDataFor(period, deviceId) {
+    const { fromISO, toISO } = periodBounds(period);
+    return await workFetchRange(fromISO, toISO, deviceId, period);
+  }
+
+  function sumMs(items) {
+    let acc = 0;
+    for (const d of (items || [])) {
+      if (normalizeWorkKey(d.sensor_key) !== 'MS') continue;
+      acc += (Number(d.value) || 0);
+    }
+    return acc;
+  }
+
+  function dayKeyLocal(ts) {
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const da = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${da}`;
+  }
+
+  function buildWorkSeries(items, deviceId, fromT, toT, period = 'mes') {
+    const bucket = new Map();
+    const labelsSet = new Set();
+    const isDia = (period === 'dia');
 
     for (const d of (items || [])) {
       if (String(d.device_id) !== String(deviceId)) continue;
-      const k = String(d.sensor_key || '').toUpperCase().trim();
-      if (!KEYS.includes(k)) continue;
+
+      const base = normalizeWorkKey(d.sensor_key);
+      if (!WORK_VAR_KEYS.includes(base)) continue;
+
       const t = new Date(d.ts).getTime();
       if (t < fromT || t > toT) continue;
-      const y = Number(d.value) || 0;
-      const tMin = Math.floor(t / 60000) * 60000;
-      byKey[k].push({ t: tMin, y });
-      labelSet.add(tMin);
+
+      const bKey = isDia
+        ? Math.floor(t / 60000) * 60000
+        : dayKeyLocal(t);
+
+      labelsSet.add(bKey);
+
+      if (!bucket.has(bKey)) {
+        bucket.set(bKey, Object.fromEntries(WORK_VAR_KEYS.map(k => [k, { sum: 0, cnt: 0 }])));
+      }
+      const cell = bucket.get(bKey)[base];
+      cell.sum += (Number(d.value) || 0);
+      cell.cnt += 1;
     }
 
-    const labelsTs = Array.from(labelSet).sort((a, b) => a - b);
-    const labels = labelsTs.map(ts =>
-      new Date(ts).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-    );
+    const labelsSorted = Array.from(labelsSet).sort((a, b) => (a > b ? 1 : -1));
 
-    const maps = {};
-    for (const k of Object.keys(byKey)) {
-      const m = new Map();
-      byKey[k].sort((a, b) => a.t - b.t);
-      for (const p of byKey[k]) m.set(p.t, p.y);
-      maps[k] = m;
-    }
+    const labels = labelsSorted.map(x => {
+      if (isDia) {
+        return new Date(Number(x)).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      }
+      const dt = new Date(String(x) + 'T00:00:00');
+      return dt.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' });
+    });
 
-    const palette = {
-      C2R: '#ffb74d',
-      NHR: '#4da3ff',
-      NXR: '#ff6b6b',
-      ALR: '#7fb3ff',
-      SMR: '#49d17d'
-    };
-
-    const datasets = Object.keys(byKey).map(k => ({
+    const datasets = WORK_VAR_KEYS.map(k => ({
       label: k,
-      data: labelsTs.map(ts => maps[k].has(ts) ? maps[k].get(ts) : null),
-      borderColor: palette[k] || '#ccc',
+      data: labelsSorted.map(bKey => {
+        const row = bucket.get(bKey);
+        if (!row) return null;
+        const { sum, cnt } = row[k];
+        return cnt ? (sum / cnt) : null;
+      }),
+      borderColor: WORK_PALETTE[k] || '#ccc',
       backgroundColor: 'transparent',
       borderWidth: 2,
       tension: .25,
@@ -6188,70 +6353,50 @@
       spanGaps: true
     }));
 
-    return { labels, datasets };
-  }
-
-  // Semana ISO (para totales)
-  function isSameISOWeek(d1, ref) {
-    const a = new Date(ref);
-    const day = (a.getDay() + 6) % 7;
-    a.setHours(0, 0, 0, 0);
-    a.setDate(a.getDate() - day);
-    const start = a;
-    const end = new Date(start);
-    end.setDate(end.getDate() + 7);
-    return d1 >= start && d1 < end;
-  }
-
-  function calcWorkTotals(items, deviceId) {
-    const msData = extractWorkTimes(items, deviceId);
-    let todayMs = 0, weekMs = 0, monthMs = 0;
-    const now = new Date();
-
-    for (const d of msData) {
-      const t = new Date(d.ts);
-      const valMs = Number(d.value) || 0;
-      if (t.getFullYear() === now.getFullYear() &&
-        t.getMonth() === now.getMonth() &&
-        t.getDate() === now.getDate()) {
-        todayMs += valMs;
-      }
-      if (isSameISOWeek(t, now)) {
-        weekMs += valMs;
-      }
-      if (t.getFullYear() === now.getFullYear() &&
-        t.getMonth() === now.getMonth()) {
-        monthMs += valMs;
-      }
+    const avg = Object.fromEntries(WORK_VAR_KEYS.map(k => [k, { sum: 0, cnt: 0 }]));
+    for (const d of (items || [])) {
+      if (String(d.device_id) !== String(deviceId)) continue;
+      const base = normalizeWorkKey(d.sensor_key);
+      if (!WORK_VAR_KEYS.includes(base)) continue;
+      const t = new Date(d.ts).getTime();
+      if (t < fromT || t > toT) continue;
+      avg[base].sum += (Number(d.value) || 0);
+      avg[base].cnt += 1;
+    }
+    const avgOut = {};
+    for (const k of WORK_VAR_KEYS) {
+      avgOut[k] = avg[k].cnt ? (avg[k].sum / avg[k].cnt) : null;
     }
 
-    return { todayMs, weekMs, monthMs };
+    return { labels, datasets, avgOut };
   }
 
-  function isSameWeek(d1, d2) {
-    const start = new Date(d2);
-    start.setDate(d2.getDate() - d2.getDay());
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 7);
-    return d1 >= start && d1 < end;
+  function setWorkAvgPanel(avgOut) {
+    setText('workAvgC2R', fmtWork(avgOut?.C2R));
+    setText('workAvgNHR', fmtWork(avgOut?.NHR));
+    setText('workAvgNXR', fmtWork(avgOut?.NXR));
+    setText('workAvgALR', fmtWork(avgOut?.ALR));
+    setText('workAvgSMR', fmtWork(avgOut?.SMR));
   }
 
-  function renderWorkSection(items, deviceId) {
-    const { todayMs, weekMs, monthMs } = calcWorkTotals(items, deviceId);
-    setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(todayMs)}`);
-    setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(weekMs)}`);
-    setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(monthMs)}`);
+  function setWorkChartTitle(period, extra = '') {
+    const t = (period === 'dia') ? 'Trabajo del día'
+      : (period === 'semana') ? 'Trabajo semanal'
+        : (period === 'mes') ? 'Trabajo mensual'
+          : 'Trabajo';
+    setText('workChartTitle', `${t} — Variables (ppm)${extra ? ' — ' + extra : ''}`);
   }
 
-  function renderWorkCharts(items, deviceId, range) {
+  function renderWorkCharts(items, deviceId, fromT, toT, period = 'mes', titleExtra = '') {
     if (!items || !deviceId) return;
-    const fromT = range?.fromT ?? 0;
-    const toT = range?.toT ?? Date.now();
-    const { labels, datasets } = filterWorkSeries(items, deviceId, fromT, toT);
+
+    const { labels, datasets, avgOut } = buildWorkSeries(items, deviceId, fromT, toT, period);
+    setWorkAvgPanel(avgOut);
+    setWorkChartTitle(period, titleExtra);
 
     if (workChart) workChart.destroy();
-    workChart = new Chart($('workChart').getContext('2d'), {
+    const ctx = $('workChart').getContext('2d');
+    workChart = new Chart(ctx, {
       type: 'line',
       data: { labels, datasets },
       options: {
@@ -6260,92 +6405,107 @@
         plugins: { legend: { display: true } },
         interaction: { mode: 'nearest', intersect: false },
         scales: {
-          x: { title: { display: true, text: 'Hora' } },
-          y: { beginAtZero: true }
+          x: { title: { display: true, text: (period === 'dia') ? 'Hora' : 'Día' } },
+          y: { beginAtZero: true, title: { display: true, text: 'ppm' } }
         }
       }
     });
   }
 
-  async function downloadWorkCSV(deviceId, df = null, dt = null) {
-    let data = lastItemsCache || [];
-    if (df && dt) {
-      const fromISO = new Date(df + 'T00:00:00').toISOString();
-      const toISO = new Date(dt + 'T23:59:59.999').toISOString();
-      data = await workFetchRange(fromISO, toISO, deviceId);
+  const workTotalsCache = new Map();
+
+  async function refreshWorkTotals(deviceId, force = false) {
+    const now = Date.now();
+    const cached = workTotalsCache.get(String(deviceId));
+    if (!force && cached && (now - cached.fetchedAt) < 30000) {
+      setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(cached.todayMs)}`);
+      setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(cached.weekMs)}`);
+      setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(cached.monthMs)}`);
+      return cached;
     }
-    const keys = ['OPN', 'MS', 'C2R', 'NHR', 'NXR', 'ALR', 'SMR'];
-    const relevant = data.filter(d =>
-      String(d.device_id) === String(deviceId) &&
-      keys.includes(String(d.sensor_key).toUpperCase())
-    );
-    if (!relevant.length) {
-      alert('Sin datos de trabajo');
-      return;
-    }
-    const rows = [['timestamp_iso', 'fecha_local', 'hora_local', 'device_id', 'sensor', 'valor']];
-    for (const d of relevant) {
+
+    const dayItems = await getWorkDataFor('dia', deviceId);
+    const weekItems = await getWorkDataFor('semana', deviceId);
+    const monthItems = await getWorkDataFor('mes', deviceId);
+
+    const res = {
+      fetchedAt: now,
+      todayMs: sumMs(dayItems),
+      weekMs: sumMs(weekItems),
+      monthMs: sumMs(monthItems),
+    };
+
+    workTotalsCache.set(String(deviceId), res);
+    setText('workToday', `Trabajo de hoy: ${formatHM_fromMs(res.todayMs)}`);
+    setText('workWeek', `Trabajo de la semana: ${formatHM_fromMs(res.weekMs)}`);
+    setText('workMonth', `Trabajo del mes: ${formatHM_fromMs(res.monthMs)}`);
+    return res;
+  }
+
+  async function renderWorkSection(items, deviceId) {
+    if (!deviceId || !workIsVisible()) return;
+    await refreshWorkUI(deviceId, { force: false }).catch(() => { });
+  }
+
+  async function refreshWorkUI(deviceId, opts = {}) {
+    const period = opts.period || ($('workRange')?.value || 'mes');
+    const { fromT, toT, fromISO, toISO } = periodBounds(period);
+
+    await refreshWorkTotals(deviceId, !!opts.force);
+
+    const data = await workFetchRange(fromISO, toISO, deviceId, period);
+    renderWorkCharts(data, deviceId, fromT, toT, period);
+  }
+
+  async function downloadWorkCSVFor(deviceId, fromISO, toISO, filenameSuffix) {
+    const data = await workFetchRange(fromISO, toISO, deviceId, 'rango');
+    const rows = [['timestamp_iso', 'fecha_local', 'hora_local', 'device_id', 'sensor', 'sensor_base', 'valor']];
+
+    for (const d of (data || [])) {
+      const base = normalizeWorkKey(d.sensor_key) || '';
       const ts = new Date(d.ts);
       rows.push([
         ts.toISOString(),
         ts.toLocaleDateString('es-AR'),
-        ts.toLocaleTimeString('es-AR', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        }),
+        ts.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         d.device_id,
         d.sensor_key,
-        d.value
+        base,
+        d.value == null ? '' : String(d.value),
       ]);
     }
-    const csv = rows.map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+
+    if (rows.length <= 1) {
+      alert('Sin datos de trabajo');
+      return;
+    }
+
+    const csv = rows.map(r => r.map(cell =>
+      /[,;\n"]/.test(String(cell))
+        ? `"${String(cell).replace(/"/g, '""')}"`
+        : String(cell)
+    ).join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = df && dt
-      ? `trabajo_${deviceId}_${df}_a_${dt}.csv`
-      : `trabajo_${deviceId}.csv`;
+    a.download = filenameSuffix ? `trabajo_${deviceId}_${filenameSuffix}.csv` : `trabajo_${deviceId}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
-  $('btnWorkChart').onclick = async () => {
-    const wrap = $('workChartWrap');
-    const visible = getComputedStyle(wrap).display !== 'none';
-    wrap.style.display = visible ? 'none' : 'block';
-    $('btnWorkChart').textContent = visible ? 'Mostrar gráficos' : 'Ocultar gráficos';
-    if (visible) return;
-
-    if (currentOverlayDevice) {
-      const period = $('workRange')?.value || 'dia';
-      const data = await getWorkDataFor(period, currentOverlayDevice);
-      const { fromT, toT } = periodBounds(period);
-      renderWorkCharts(data, currentOverlayDevice, { fromT, toT });
-    }
-  };
-
-  $('btnWorkCSV').onclick = () => {
-    if (!currentOverlayDevice) return;
-    downloadWorkCSV(currentOverlayDevice);
-  };
-
-  $('btnWorkHistCSV').onclick = async () => {
-    const df = $('workDateFrom').value;
-    const dt = $('workDateTo').value;
-    if (!df || !dt || !currentOverlayDevice) return;
-    await downloadWorkCSV(currentOverlayDevice, df, dt);
-  };
-
   $('workRange').onchange = async () => {
-    const wrap = $('workChartWrap');
-    const visible = getComputedStyle(wrap).display !== 'none';
-    if (!visible || !currentOverlayDevice) return;
-    const period = $('workRange').value || 'dia';
-    const data = await getWorkDataFor(period, currentOverlayDevice);
-    const { fromT, toT } = periodBounds(period);
-    renderWorkCharts(data, currentOverlayDevice, { fromT, toT });
+    if (!currentOverlayDevice) return;
+    await refreshWorkUI(currentOverlayDevice, { force: true }).catch(() => { });
+  };
+
+  $('btnWorkCSV').onclick = async () => {
+    if (!currentOverlayDevice) return;
+    const period = $('workRange')?.value || 'mes';
+    const b = periodBounds(period);
+    const suffix = `${period}_${ymd(new Date(b.fromT))}_a_${ymd(new Date(b.toT))}`;
+    await downloadWorkCSVFor(currentOverlayDevice, b.fromISO, b.toISO, suffix);
   };
 
   $('btnWorkHistToggle').onclick = () => {
@@ -6364,20 +6524,27 @@
     const df = $('workDateFrom').value;
     const dt = $('workDateTo').value;
     if (!df || !dt || !currentOverlayDevice) return;
+
     const fromISO = new Date(df + 'T00:00:00').toISOString();
     const toISO = new Date(dt + 'T23:59:59.999').toISOString();
-    const items = await workFetchRange(fromISO, toISO, currentOverlayDevice);
     const fromT = new Date(df + 'T00:00:00').getTime();
     const toT = new Date(dt + 'T23:59:59.999').getTime();
-    renderWorkCharts(items, currentOverlayDevice, { fromT, toT });
+
+    const items = await workFetchRange(fromISO, toISO, currentOverlayDevice, 'rango');
+    renderWorkCharts(items, currentOverlayDevice, fromT, toT, 'rango', `${df} a ${dt}`);
   };
 
   $('btnWorkHistCSV').onclick = async () => {
     const df = $('workDateFrom').value;
     const dt = $('workDateTo').value;
     if (!df || !dt || !currentOverlayDevice) return;
-    await downloadWorkCSV(currentOverlayDevice, df, dt);
+    const fromISO = new Date(df + 'T00:00:00').toISOString();
+    const toISO = new Date(dt + 'T23:59:59.999').toISOString();
+    await downloadWorkCSVFor(currentOverlayDevice, fromISO, toISO, `${df}_a_${dt}`);
   };
+
+  
+  
 
   /* =========================================================
    *  CLIMA: ESTADO + BOTONES
@@ -6720,9 +6887,13 @@
           setModeSelection(null);
         } else {
           setModeSelection(mode);
+          if (mode === 'work' && currentOverlayDevice) {
+            refreshWorkUI(currentOverlayDevice, { force: true }).catch(() => { });
+          }
         }
       });
     });
+
 
     // Cartas meta del dashboard
     const cardSan = $('cardSanidad');
