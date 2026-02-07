@@ -1525,9 +1525,9 @@
     color:var(--muted);
   }
 
-  .prod-field input[type="date"],
-  .prod-field input[type="number"],
-  .prod-field select{
+  .prod-field > input[type="date"],
+  .prod-field > input[type="number"],
+  .prod-field > select{
     background:#10141a;
     border:1px solid var(--border);
     color:#fff;
@@ -1535,6 +1535,41 @@
     border-radius:8px;
     font-size:.9rem;
   }
+
+  /* Producción: date-chip ancho completo + botón calendario bien “clickeable” */
+  .prod-filters-row .date-chip,
+  #prodNewForm .date-chip{
+    width: 100%;
+  }
+
+  .prod-filters-row .date-chip input[type="date"],
+  #prodNewForm .date-chip input[type="date"]{
+    min-width: 0;      /* pisa el min-width:170 del date-chip base */
+    width: 100%;
+    padding: 10px 12px;
+  }
+
+  /* Botón calendario: icono amarillo + borde amarillo (se entiende que es un botón) */
+  .prod-filters-row .date-chip .cal-btn,
+  #prodNewForm .date-chip .cal-btn{
+    padding: 10px 12px;
+    background: rgba(255, 213, 79, 0.16);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+  .prod-filters-row .date-chip .cal-btn svg,
+  #prodNewForm .date-chip .cal-btn svg{
+    color: var(--accent);
+  }
+  .prod-filters-row .date-chip .cal-btn:hover,
+  #prodNewForm .date-chip .cal-btn:hover{
+    background: rgba(255, 213, 79, 0.22);
+  }
+  .prod-filters-row .date-chip .cal-btn:active,
+  #prodNewForm .date-chip .cal-btn:active{
+    transform: translateY(1px);
+  }
+
 
   /* Botones filtros */
   .prod-actions-row{
@@ -1593,9 +1628,7 @@
     width: 0;
     height: 0;
   }
-  .date-chip input[type="date"]{
-    padding-right: 8px; /* que no quede raro sin el icono nativo */
-  }
+
 
   #prodNewForm{
     display: grid;
@@ -1677,40 +1710,16 @@
   .field-row label span{ color: var(--muted); font-size:.9rem; }
 
   /* =========================================================
-   *  Date chip: que SI se vea el calendario
+   *  Date chip (sin overlay): usa el chip “input + botón”
    * =======================================================*/
-  .date-chip{
-    position:relative;
-    display:flex;
-    align-items:center;
-    width:100%;
+  /* oculto el icono nativo para evitar “doble calendario” (solo dentro del chip) */
+  .date-chip input[type="date"]::-webkit-calendar-picker-indicator,
+  .date-chip input[type="month"]::-webkit-calendar-picker-indicator{
+    opacity: 0;
+    width: 0;
+    height: 0;
   }
-  .date-chip input[type="date"], .date-chip input[type="month"]{
-    padding-right:42px;
-  }
-  .date-chip .cal-btn{
-    position:absolute;
-    right:6px;
-    top:50%;
-    transform: translateY(-50%);
-    width:32px;
-    height:32px;
-    border-radius:10px;
-    border:1px solid var(--border);
-    background: rgba(255,255,255,.04);
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-  }
-  .date-chip .cal-btn svg{ width:18px; height:18px; }
-  /* oculto el icono nativo para evitar “doble calendario” */
-  input[type="date"]::-webkit-calendar-picker-indicator,
-  input[type="month"]::-webkit-calendar-picker-indicator{
-    opacity:0;
-    display:none;
-  }
+
 
   /* =========================================================
    *  Calendario grande (grid mensual)
