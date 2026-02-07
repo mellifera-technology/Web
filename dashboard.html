@@ -838,19 +838,20 @@
   font-size: .85rem;
 }
 
-.sanidad-form input[type="date"],
+/* Sanidad/Barroa: dejamos que el date-chip mande en inputs type="date" */
 .sanidad-form input[type="text"],
+.sanidad-form input[type="number"],
 .sanidad-form select,
-.varroa-form input[type="date"],
 .varroa-form input[type="number"],
 .varroa-form select {
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
   border: 1px solid var(--border-soft, #2a3240);
   background: var(--bg-soft, #0c1118);
   color: #f5f7fb;
-  font-size: .85rem;
+  font-size: .9rem;
 }
+
 
 .sanidad-cards {
   display: grid;
@@ -951,19 +952,28 @@
 }
 
 .sanidad-hist-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem 1rem;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: .6rem 1rem;
+  align-items: end;
   margin-bottom: .7rem;
+}
+
+@media (max-width: 720px){
+  .sanidad-hist-filters { grid-template-columns: 1fr; }
 }
 
 .sanidad-hist-filters label {
   display: flex;
   flex-direction: column;
-  gap: .2rem;
-  font-size: .8rem;
+  gap: .25rem;
+  font-size: .85rem;
 }
+
+.sanidad-hist-filters > button {
+  height: 42px;
+}
+
 
 /* ================= BARROA ================= */
 
@@ -987,19 +997,28 @@
 }
 
 .varroa-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem 1rem;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: .6rem 1rem;
+  align-items: end;
   margin-bottom: .7rem;
+}
+
+@media (max-width: 720px){
+  .varroa-filters { grid-template-columns: 1fr; }
 }
 
 .varroa-filters label {
   display: flex;
   flex-direction: column;
-  gap: .2rem;
-  font-size: .8rem;
+  gap: .25rem;
+  font-size: .85rem;
 }
+
+.varroa-filters > button {
+  height: 42px;
+}
+
 
 /* Pastilla de % barroa */
 
@@ -1538,37 +1557,66 @@
 
   /* Producción: date-chip ancho completo + botón calendario bien “clickeable” */
   .prod-filters-row .date-chip,
-  #prodNewForm .date-chip{
+  #prodNewForm .date-chip,
+  .sanidad-hist-filters .date-chip,
+  .sanidad-form .date-chip,
+  .varroa-filters .date-chip,
+  .varroa-form .date-chip{
     width: 100%;
   }
 
   .prod-filters-row .date-chip input[type="date"],
-  #prodNewForm .date-chip input[type="date"]{
+  #prodNewForm .date-chip input[type="date"],
+  .sanidad-hist-filters .date-chip input[type="date"],
+  .sanidad-form .date-chip input[type="date"],
+  .varroa-filters .date-chip input[type="date"],
+  .varroa-form .date-chip input[type="date"]{
     min-width: 0;      /* pisa el min-width:170 del date-chip base */
     width: 100%;
     padding: 10px 12px;
   }
 
+
   /* Botón calendario: icono amarillo + borde amarillo (se entiende que es un botón) */
   .prod-filters-row .date-chip .cal-btn,
-  #prodNewForm .date-chip .cal-btn{
+  #prodNewForm .date-chip .cal-btn,
+  .sanidad-hist-filters .date-chip .cal-btn,
+  .sanidad-form .date-chip .cal-btn,
+  .varroa-filters .date-chip .cal-btn,
+  .varroa-form .date-chip .cal-btn{
     padding: 10px 12px;
     background: rgba(255, 213, 79, 0.16);
     border: 1px solid var(--accent);
     color: var(--accent);
   }
+
   .prod-filters-row .date-chip .cal-btn svg,
-  #prodNewForm .date-chip .cal-btn svg{
+  #prodNewForm .date-chip .cal-btn svg,
+  .sanidad-hist-filters .date-chip .cal-btn svg,
+  .sanidad-form .date-chip .cal-btn svg,
+  .varroa-filters .date-chip .cal-btn svg,
+  .varroa-form .date-chip .cal-btn svg{
     color: var(--accent);
   }
+
   .prod-filters-row .date-chip .cal-btn:hover,
-  #prodNewForm .date-chip .cal-btn:hover{
+  #prodNewForm .date-chip .cal-btn:hover,
+  .sanidad-hist-filters .date-chip .cal-btn:hover,
+  .sanidad-form .date-chip .cal-btn:hover,
+  .varroa-filters .date-chip .cal-btn:hover,
+  .varroa-form .date-chip .cal-btn:hover{
     background: rgba(255, 213, 79, 0.22);
   }
+
   .prod-filters-row .date-chip .cal-btn:active,
-  #prodNewForm .date-chip .cal-btn:active{
+  #prodNewForm .date-chip .cal-btn:active,
+  .sanidad-hist-filters .date-chip .cal-btn:active,
+  .sanidad-form .date-chip .cal-btn:active,
+  .varroa-filters .date-chip .cal-btn:active,
+  .varroa-form .date-chip .cal-btn:active{
     transform: translateY(1px);
   }
+
 
 
   /* Botones filtros */
@@ -2615,7 +2663,12 @@
                 <div class="field-row">
                   <label>
                     <span>Fecha de inicio</span>
-                    <input type="date" id="sanidadDate">
+                    <div class="date-chip">
+                      <input type="date" id="sanidadDate">
+                      <button class="cal-btn" type="button" aria-label="Fecha de inicio" onclick="tryOpenPicker('sanidadDate')">
+                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                      </button>
+                    </div>
                   </label>
                 </div>
 
@@ -2630,7 +2683,12 @@
                 <div class="field-row">
                   <label>
                     <span>Fecha estimada de retiro</span>
-                    <input type="date" id="sanidadEstimated" class="ui-input">
+                    <div class="date-chip">
+                      <input type="date" id="sanidadEstimated" class="ui-input">
+                      <button class="cal-btn" type="button" aria-label="Fecha estimada de retiro" onclick="tryOpenPicker('sanidadEstimated')">
+                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                      </button>
+                    </div>
                   </label>
                 </div>
 
@@ -2656,19 +2714,31 @@
             <div class="sanidad-hist-filters">
               <label>
                 <span>Colmena</span>
-                <select id="sanidadFilterDevice"></select>
+                <select id="sanidadFilterDevice" class="ui-select"></select>
               </label>
+
               <label>
                 <span>Desde</span>
-                <input type="date" id="sanidadFrom">
+                <div class="date-chip">
+                  <input type="date" id="sanidadFrom">
+                  <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('sanidadFrom')">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                  </button>
+                </div>
               </label>
+
               <label>
                 <span>Hasta</span>
-                <input type="date" id="sanidadTo">
+                <div class="date-chip">
+                  <input type="date" id="sanidadTo">
+                  <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('sanidadTo')">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                  </button>
+                </div>
               </label>
+
               <button type="button" id="btnSanidadReload" class="btn subtle">Actualizar</button>
             </div>
-
             <div class="table-wrap">
               <table class="data-table">
                 <thead>
@@ -2701,19 +2771,24 @@
                 <div class="field-row">
                   <label>
                     <span>Colmena</span>
-                    <select id="varroaDevice"></select>
+                    <select id="varroaDevice" class="ui-select"></select>
                   </label>
                 </div>
                 <div class="field-row">
                   <label>
                     <span>Fecha</span>
-                    <input type="date" id="varroaDate">
+                    <div class="date-chip">
+                      <input type="date" id="varroaDate">
+                      <button class="cal-btn" type="button" aria-label="Fecha" onclick="tryOpenPicker('varroaDate')">
+                        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                      </button>
+                    </div>
                   </label>
                 </div>
                 <div class="field-row">
                   <label>
                     <span>% de barroa</span>
-                    <input type="number" id="varroaPct" step="0.1" min="0" placeholder="Ej. 1.5">
+                    <input type="number" id="varroaPct" class="ui-input" step="0.1" min="0" placeholder="Ej. 1.5">
                   </label>
                 </div>
                 <div class="field-row">
@@ -2728,19 +2803,31 @@
               <div class="varroa-filters">
                 <label>
                   <span>Colmena</span>
-                  <select id="varroaDeviceFilter"></select>
+                  <select id="varroaDeviceFilter" class="ui-select"></select>
                 </label>
+
                 <label>
                   <span>Desde</span>
-                  <input type="date" id="varroaFrom" class="ui-input">
+                  <div class="date-chip">
+                    <input type="date" id="varroaFrom">
+                    <button class="cal-btn" type="button" aria-label="Desde" onclick="tryOpenPicker('varroaFrom')">
+                      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                    </button>
+                  </div>
                 </label>
+
                 <label>
                   <span>Hasta</span>
-                  <input type="date" id="varroaTo" class="ui-input">
+                  <div class="date-chip">
+                    <input type="date" id="varroaTo">
+                    <button class="cal-btn" type="button" aria-label="Hasta" onclick="tryOpenPicker('varroaTo')">
+                      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2"/></svg>
+                    </button>
+                  </div>
                 </label>
+
                 <button type="button" id="btnVarroaReload" class="btn subtle">Actualizar</button>
               </div>
-
               <div class="table-wrap">
                 <table class="data-table">
                   <thead>
