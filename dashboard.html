@@ -524,13 +524,15 @@
     overflow: auto;
   }
 
-  /* Grid superior en overlay de colmena (Temp / Hum / Producción por colmena) */
+  /* Grid superior en overlay de colmena (Temp / Hum) */
   .overlay-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 320px;
+    grid-template-columns: repeat(2, minmax(260px, 360px));
     gap: 16px;
     margin-bottom: 12px;
+    justify-content: center;
   }
+
 
   @media (max-width: 1100px) {
     .overlay-grid {
@@ -638,6 +640,24 @@
     color: #111;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .3);
   }
+
+    /* Panel desplegable dentro de la carta "Herramientas de análisis" */
+  .analysis-inline{
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .analysis-inline .card{
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-top: 0 !important;
+  }
+  .analysis-inline .card h3{
+    margin-top: 0;
+  }
+
 
   /* =========================================================
    *  GRÁFICAS (panel principal y overlay colmena)
@@ -1114,7 +1134,7 @@
 
   .notes-filters label,
   .notes-form label{
-    display:flex;
+    display:flex; 
     flex-direction:column;
     gap:.25rem;
     font-size:.9rem;
@@ -2287,6 +2307,7 @@
             <button type="button" data-mode="motion" id="btnModeMotion">Movimiento</button>
             <button type="button" data-mode="prod" id="btnModeProd">Producción</button>
           </div>
+          <div id="analysisInline" class="analysis-inline" style="display:none"></div>
         </div>
 
         <!-- Trabajo -->
@@ -5149,6 +5170,7 @@
   }
 
   (function initAnalysisModes() {
+      return; // DESACTIVADO: ahora lo maneja setModeSelection() (inline + toggle)
     const buttons = document.querySelectorAll('.mode-toggle button');
     const cardsByMode = {
       work: document.getElementById('workCard'),
@@ -6649,17 +6671,40 @@
    * =======================================================*/
   function setModeSelection(mode) {
     const buttons = document.querySelectorAll('.mode-toggle button');
+    const wrap = $('analysisInline');
+
+    const cardsByMode = {
+      work: $('workCard'),
+      air: $('airCard'),
+      motion: $('motionCard'),
+      prod: $('prodCardHive'),
+    };
+
+    // Mover panels adentro de "Herramientas de análisis" una sola vez
+    if (wrap && !wrap.dataset.moved) {
+      Object.values(cardsByMode).forEach(card => {
+        if (card) wrap.appendChild(card);
+      });
+      wrap.dataset.moved = '1';
+    }
+
+    // Botones (estilo seleccionado)
     buttons.forEach(b => {
       const isThis = (b.dataset.mode === mode);
       b.classList.toggle('selected', isThis);
+      b.setAttribute('aria-pressed', isThis ? 'true' : 'false');
     });
 
-    const wc = $('workCard');
-    if (wc) {
-      wc.style.display = (mode === 'work') ? 'block' : 'none';
-    }
-    // “air” y “motion” reservados para futuros dashboards
+    // Wrapper visible solo si hay un modo activo
+    if (wrap) wrap.style.display = mode ? 'block' : 'none';
+
+    // Mostrar 1 panel a la vez
+    Object.entries(cardsByMode).forEach(([m, card]) => {
+      if (!card) return;
+      card.style.display = (mode && m === mode) ? 'block' : 'none';
+    });
   }
+
 
   /* =========================================================
    *  DOMContentLoaded: WIRING DE BOTONES
