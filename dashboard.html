@@ -1878,8 +1878,8 @@
               <div class="wx-head">
                 <div class="wx-title">Pronóstico local</div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                  <button id="btnWxOpen" class="btn small yellow" type="button">Ingresar ubicación</button>
-                  <button id="btnWxReset" class="btn small" type="button" style="display:none">Resetear</button>
+                  <button id="btnWxOpen" class="btn small yellow" type="button">Elegir ubicación</button>
+                  <button id="btnWxReset" class="btn small" type="button" style="display:none">Cambiar ubicación</button>
                 </div>
               </div>
 
@@ -3097,7 +3097,9 @@
         );
         setWxButtonsState('fixed');
       } else {
-        setWxButtonsState('ready');
+        setWxButtonsState('input');
+        // opcional: foco directo
+        setTimeout(() => $('wxQuery')?.focus(), 0);
       }
     } catch (e) {
       const m = $('msg');
@@ -6226,6 +6228,8 @@
     const hmax = d.relative_humidity_2m_max?.[i];
     const hmin = d.relative_humidity_2m_min?.[i];
     const pr = d.precipitation_sum?.[i] ?? 0;
+    const pp = d.precipitation_probability_max?.[i];
+
 
     const dayLabel = wxFmtDayLabel(d.time[i]);
     const title = `${dayLabel} · ${wxEmoji(code)} ${wxMap[code] || '—'}`;
@@ -6299,6 +6303,9 @@
       open.style.display = 'none';
       reset.style.display = 'none';
       row.style.display = 'flex';
+      content.classList.add('wx-blur');
+      setText('wxWhere', 'Ingresá una ubicación');
+      wxHideResults();
     }
     if (state === 'fixed') {
       open.style.display = 'none';
@@ -6315,7 +6322,10 @@
 
   $('btnWxReset').onclick = () => {
     clearWxPlace();
-    setWxButtonsState('ready');
+    $('wxQuery').value = '';
+    wxHideResults();
+    setWxButtonsState('input');
+    $('wxQuery').focus();
   };
 
   $('btnWxFind').onclick = () => doWxSearch();
@@ -6591,10 +6601,10 @@
     // 7 días + humedad diaria
     const url = `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${lat}&longitude=${lon}` +
-      `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum` +
+      `&current=temperature_2m,relative_humidity_2m,weather_code` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min,precipitation_probability_max,precipitation_sum` +
       `&hourly=temperature_2m,relative_humidity_2m` +
       `&forecast_days=7&timezone=auto`;
-
     const r = await fetch(url, { cache: 'no-store' });
     const j = await r.json();
     const current = j.current || {};
