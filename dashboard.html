@@ -3442,60 +3442,69 @@
 
   function getKnownDevices() {
     const set = new Set();
+
     for (const d of lastItemsCache || []) {
       const id = String(d.device_id || '').trim();
-      if (!id || /mother/i.test(id) || !isNumericId(id)) continue;
+      if (!id || /mother/i.test(id)) continue;
       set.add(id);
     }
-    return Array.from(set).sort((a, b) => Number(a || 0) - Number(b || 0));
+
+    for (const h of hivesCache || []) {
+      const id = String(h.device_id || '').trim();
+      if (!id || /mother/i.test(id)) continue;
+      set.add(id);
+    }
+
+    return Array.from(set).sort((a, b) => String(a).localeCompare(String(b)));
   }
 
   const HIVE_NAMES_KEY = 'hive_names';
 const HIVE_POPUP_SEEN_KEY = 'hive_popup_seen';
 
-function getHiveNamesMap(){
-  try{
-    return JSON.parse(localStorage.getItem(HIVE_NAMES_KEY) || '{}');
-  }catch(e){
-    return {};
-  }
+let hivesCache = [];
+
+function getCurrentUserCode() {
+  return String($('uCode')?.dataset?.real || $('uCode')?.textContent || '').trim();
 }
 
-function saveHiveNamesMap(map){
-  localStorage.setItem(HIVE_NAMES_KEY, JSON.stringify(map || {}));
+async function apiGetHives(code) {
+  const q = code ? `/hives?code=${encodeURIComponent(code)}` : '/hives';
+  const res = await callWorker(q, { method: 'GET' });
+  return Array.isArray(res.items) ? res.items : [];
 }
 
-function getHivePopupSeenMap(){
-  try{
-    return JSON.parse(localStorage.getItem(HIVE_POPUP_SEEN_KEY) || '{}');
-  }catch(e){
-    return {};
-  }
+async function apiSaveHiveMeta(payload) {
+  return callWorker('/save_hive_meta', {
+    method: 'POST',
+    body: payload
+  });
 }
 
-function saveHivePopupSeenMap(map){
-  localStorage.setItem(HIVE_POPUP_SEEN_KEY, JSON.stringify(map || {}));
+async function reloadHivesFromServer() {
+  const code = getCurrentUserCode();
+  hivesCache = await apiGetHives(code);
+  return hivesCache;
 }
 
-function getHiveName(mac){
-  const map = getHiveNamesMap();
-  return map[mac] || ('Colmena ' + String(mac).slice(-2));
+function getHiveMeta(deviceId) {
+  const id = String(deviceId || '').trim().toUpperCase();
+  return hivesCache.find(h => String(h.device_id || '').trim().toUpperCase() === id) || null;
 }
 
-function setHiveName(mac, visibleNumber){
-  const clean = String(visibleNumber || '').replace(/\D/g, '');
-  if (!clean) return false;
+function getHiveName(deviceId) {
+  const hive = getHiveMeta(deviceId);
+  if (hive?.display_name) return hive.display_name;
 
-  const map = getHiveNamesMap();
-  map[mac] = 'Colmena ' + clean;
-  saveHiveNamesMap(map);
-  return true;
+  const raw = String(deviceId || '').trim();
+  if (!raw) return 'Colmena';
+  const shortId = raw.includes(':') ? raw.slice(-5) : raw.slice(-4);
+  return `Colmena ${shortId}`;
 }
 
-function markHivePopupSeen(mac){
-  const seen = getHivePopupSeenMap();
-  seen[mac] = true;
-  saveHivePopupSeenMap(seen);
+function hiveNeedsNaming(deviceId) {
+  const hive = getHiveMeta(deviceId);
+  if (!hive) return false;
+  return !String(hive.display_name || '').trim() || String(hive.status || '').trim() === 'pending_name';
 }
 
 function wasHivePopupSeen(mac){
@@ -3636,9 +3645,6 @@ function wasHivePopupSeen(mac){
   });
 
   $('btnCancelHive')?.addEventListener('click', () => {
-    if (newHiveMac && hivePopupMode === 'new') {
-      markHivePopupSeen(newHiveMac);
-    }
     closeHivePopup();
   });
 
@@ -3772,6 +3778,7 @@ function wasHivePopupSeen(mac){
   }
 
   async function bootDashboardAfterCode() {
+    await reloadHivesFromServer();
     await loadDatapoints();
     initDateDefaults();
     initProdDefaults();
@@ -3978,14 +3985,12 @@ function wasHivePopupSeen(mac){
     const wrap = $('autoCards');
     if (!wrap) return;
 
-    // Último timestamp por colmena
     const lastById = new Map();
-    // Estado OPN / MS por colmena
     const statusById = new Map();
 
     for (const d of items || []) {
       const rawId = String(d.device_id || '').trim();
-      if (!rawId || /mother/i.test(rawId) || !isNumericId(rawId)) continue;
+      if (!rawId || /mother/i.test(rawId)) continue;
 
       const t = new Date(d.ts).getTime();
       const prev = lastById.get(rawId) || 0;
@@ -3997,19 +4002,28 @@ function wasHivePopupSeen(mac){
       }
       const st = statusById.get(rawId);
 
-      // OPN = colmena abierta
       if (key === 'OPN' || key.endsWith('.OPN') || key.includes('OPN')) {
         if (t > st.lastOpen) st.lastOpen = t;
       }
-      // MS = “cierra” alerta
+
       if (key === 'MS' || key.endsWith('.MS')) {
         if (t > st.lastClose) st.lastClose = t;
       }
     }
 
-    const devices = [...lastById.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([id, ts]) => ({ id, ts }));
+    // unión de devices vistos en datapoints + devices guardados en hives
+    const allIdsSet = new Set([
+      ...Array.from(lastById.keys()),
+      ...(hivesCache || []).map(h => String(h.device_id || '').trim()).filter(Boolean)
+    ]);
+
+    const devices = Array.from(allIdsSet)
+      .filter(id => id && !/mother/i.test(id))
+      .map(id => ({
+        id,
+        ts: lastById.get(id) || 0
+      }))
+      .sort((a, b) => b.ts - a.ts || String(a.id).localeCompare(String(b.id)));
 
     if (!devices.length) {
       wrap.innerHTML = '<div class="muted">Sin colmenas detectadas.</div>';
@@ -4018,15 +4032,14 @@ function wasHivePopupSeen(mac){
 
     const now = Date.now();
 
-    // Sumar producción según configuración global
-    const prodKilos = await getProductionSummary(cardCfg.kilos);     // mes / año
-    const prodTrabajo = await getProductionSummary(cardCfg.trabajo); // semana / mes / año
+    const prodKilos = await getProductionSummary(cardCfg.kilos);
+    const prodTrabajo = await getProductionSummary(cardCfg.trabajo);
 
     const labelKilos = getKilosLabel();
     const labelTrabajo = getTrabajoLabel();
 
     wrap.innerHTML = devices.map(({ id, ts }) => {
-      const diffMin = (now - ts) / 60000;
+      const diffMin = ts ? (now - ts) / 60000 : 999999;
       const conectado = diffMin <= 15;
       const colorConn = conectado ? 'var(--ok)' : 'var(--bad)';
 
@@ -4038,12 +4051,10 @@ function wasHivePopupSeen(mac){
 
       if (st.lastOpen || st.lastClose) {
         if (st.lastOpen > st.lastClose) {
-          // Último evento fue OPN → alerta activa
           estadoLabel = 'ABIERTO';
           estadoDotCls = 'status-dot alert';
           estadoDotStyle = '';
         } else {
-          // Último evento fue MS → OK
           estadoLabel = 'Estado';
           estadoDotCls = 'status-dot';
           estadoDotStyle = 'background:var(--ok);';
@@ -4057,35 +4068,38 @@ function wasHivePopupSeen(mac){
 
       return `
         <div class="card device-card"
-             data-device="${id}"
-             tabindex="0"
-             role="button"
-             aria-label="Abrir Colmena ${id}">
-          
+            data-device="${id}"
+            tabindex="0"
+            role="button"
+            aria-label="Abrir ${escapeHtml(name)}">
 
           <h3 style="margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <span>${name}</span>
+            <span>${escapeHtml(name)}</span>
             <button
               onclick="event.stopPropagation(); editHive('${id}')"
               class="btn small"
               type="button"
               title="Editar nombre visible"
-              aria-label="Editar nombre visible de ${name}">
+              aria-label="Editar nombre visible de ${escapeHtml(name)}">
               Editar
             </button>
           </h3>
+
           <div class="status-row">
             <span>Conectado</span>
             <span class="status-dot" style="background:${colorConn}"></span>
           </div>
+
           <div class="status-row">
             <span>${estadoLabel}</span>
             <span class="${estadoDotCls}"${estadoDotStyle ? ` style="${estadoDotStyle}"` : ''}></span>
           </div>
+
           <div class="status-row">
             <span>${labelKilos}</span>
             <span style="font-weight:800;color:var(--accent)">${kilosVal}</span>
           </div>
+
           <div class="status-row">
             <span>${labelTrabajo}</span>
             <span style="font-weight:800;color:var(--focus)">${trabajoText}</span>
@@ -4095,12 +4109,11 @@ function wasHivePopupSeen(mac){
 
     if (editing) enableDnD();
 
-    // Mantener select del overlay de producción sincronizado
     const sel = $('prodDevice');
     if (sel) {
       const cur = sel.value;
       sel.innerHTML = '<option value="">Todas</option>' +
-        devices.map(d => `<option value="${d.id}">${d.id}</option>`).join('');
+        devices.map(d => `<option value="${d.id}">${escapeHtml(getHiveName(d.id))}</option>`).join('');
       if (cur) sel.value = cur;
     }
   }
@@ -4262,7 +4275,7 @@ function wasHivePopupSeen(mac){
 
   function openOverlay(id) {
     currentOverlayDevice = String(id);
-    setText('overlayTitle', 'Colmena ' + id);
+    setText('overlayTitle', getHiveName(id));
 
     const ov = $('deviceOverlay');
     ov.style.display = 'block';
@@ -4803,11 +4816,13 @@ function wasHivePopupSeen(mac){
 
   // Rellenar selects de colmenas (filtro + nueva producción)
   function fillProdDeviceSelects() {
-    const devices = getKnownDevices();   // ya lo tenés definido
+    const devices = getKnownDevices();
     const filterSel = $('prodDevice');
     const newSel = $('prodNewDevice');
 
-    const options = devices.map(id => `<option value="${id}">${id}</option>`).join('');
+    const options = devices
+      .map(id => `<option value="${id}">${escapeHtml(getHiveName(id))}</option>`)
+      .join('');
 
     if (filterSel) {
       filterSel.innerHTML = '<option value="">Todas</option>' + options;
@@ -6299,7 +6314,7 @@ function wasHivePopupSeen(mac){
     return res;
   }
 
-  $('btnSaveHive')?.addEventListener('click', () => {
+  $('btnSaveHive')?.addEventListener('click', async () => {
     const input = $('newHiveInput');
     const err = $('newHivePopupError');
 
@@ -6313,15 +6328,31 @@ function wasHivePopupSeen(mac){
       return;
     }
 
-    const ok = setHiveName(newHiveMac, num);
-    if (!ok) {
-      if (err) err.textContent = 'No se pudo guardar el nombre.';
-      return;
-    }
+    try {
+      if (err) err.textContent = '';
 
-    markHivePopupSeen(newHiveMac);
-    closeHivePopup();
-    renderDeviceCards(lastItemsCache || []);
+      const code = getCurrentUserCode();
+      if (!code) {
+        if (err) err.textContent = 'No se encontró el código del usuario.';
+        return;
+      }
+
+      await apiSaveHiveMeta({
+        code,
+        device_id: newHiveMac,
+        mac: newHiveMac,
+        display_name: `Colmena ${num}`,
+        place_x: null,
+        place_y: null
+      });
+
+      await reloadHivesFromServer();
+      closeHivePopup();
+      await renderDeviceCards(lastItemsCache || []);
+    } catch (e) {
+      if (err) err.textContent = 'No se pudo guardar la colmena.';
+      console.error(e);
+    }
   });
 
   
@@ -6573,24 +6604,18 @@ function wasHivePopupSeen(mac){
     return eventType === 'NEW_HIVE' || sensorKey === 'EVENT.NEW_HIVE';
   }
 
-  function checkNewHive(items){
-    if (!Array.isArray(items) || !items.length) return;
+  function checkNewHive(items) {
     if ($('newHivePopup')?.classList.contains('show')) return;
 
-    const namesMap = getHiveNamesMap();
-
-    const newHiveItem = items.find(it => {
-      const mac = String(it?.device_id || '').trim();
-      if (!mac || /mother/i.test(mac)) return false;
-      if (!isNewHiveEvent(it)) return false;
-      if (namesMap[mac]) return false;
-      if (wasHivePopupSeen(mac)) return false;
-      return true;
+    const pendingHive = (hivesCache || []).find(h => {
+      const id = String(h.device_id || '').trim();
+      if (!id || /mother/i.test(id)) return false;
+      return !String(h.display_name || '').trim() || String(h.status || '').trim() === 'pending_name';
     });
 
-    if (!newHiveItem) return;
+    if (!pendingHive) return;
 
-    openHivePopup(newHiveItem.device_id, 'new');
+    openHivePopup(pendingHive.device_id, 'new');
   }
 
   /* =========================================================
@@ -6610,13 +6635,18 @@ function wasHivePopupSeen(mac){
     if (polling) return;
     polling = true;
     try {
+      await reloadHivesFromServer();
+
       const { items } = await callWorker('/datapoints?limit=200');
       lastItemsCache = items;
+
       renderTable(items);
       updateLastReading(items);
-      checkNewHive(items);
       updateMotherKPIs(items);
-      renderDeviceCards(items);
+
+      await renderDeviceCards(items);
+      checkNewHive(items);
+
       if (chartsVisible && !historyMode) renderChartsDaily(items);
 
       if (currentOverlayDevice) {
