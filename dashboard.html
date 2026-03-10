@@ -2094,7 +2094,7 @@
             </button>
           </p>
           <p class="reveal-wrap">
-            <span>Código de 4 dígitos: <b id="uCode" data-real="">—</b></span>
+            <span>Clave única RFID: <b id="uCode" data-real="">—</b></span>
             <button id="toggleCode" class="eye-btn" type="button" aria-pressed="false" title="Mostrar/ocultar código">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3l18 18" stroke-width="2"/><path d="M21 12s-3.5-7-9-7" stroke-width="2"/></svg>
               <span>Ocultar</span>
@@ -3207,6 +3207,27 @@
       </div>
     </div>
   </div>
+  <div id="claimCodeOverlay" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(8,10,14,.96);backdrop-filter:blur(6px);">
+    <div style="max-width:520px;margin:8vh auto 0;background:#171a21;border:1px solid #262b35;border-radius:16px;padding:24px;color:#eef0f3;">
+      <h2 style="margin-top:0;">Vincular tarjeta</h2>
+      <p class="muted" style="margin-bottom:14px;">
+        Para ingresar al panel, primero debe cargarse la clave única de la tarjeta RFID.
+      </p>
+
+      <label for="claimCodeInput" style="display:block;margin-bottom:8px;">Clave única RFID</label>
+      <input id="claimCodeInput"
+            type="text"
+            placeholder="Ej. 04A1B2C3D4"
+            class="ui-input"
+            style="width:100%;margin-bottom:12px;text-transform:uppercase;" />
+
+      <div id="claimCodeMsg" class="muted" style="min-height:20px;margin-bottom:12px;"></div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="btnClaimCodeSave" class="btn yellow" type="button">Guardar código</button>
+      </div>
+    </div>
+  </div>
 <script>
   /* =========================================================
    *  AÑO EN FOOTER
@@ -3386,6 +3407,7 @@
       location.href = 'login.html';
       return;
     }
+
     currentUID = u.uid;
 
     const ue = $('uEmail');
@@ -3397,26 +3419,16 @@
 
       const uc = $('uCode');
       uc.dataset.real = code || '—';
-      uc.textContent = uc.dataset.real;
+      uc.textContent = code || '—';
 
-      await loadDatapoints();
-      initDateDefaults();
-      initProdDefaults();
-
-      // Clima: si hay ubicación guardada la usamos
-      const saved = loadWxPlace();
-      if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)) {
-        await renderWeather(
-          saved.lat,
-          saved.lon,
-          saved.label || (`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`)
-        );
-        setWxButtonsState('fixed');
-      } else {
-        setWxButtonsState('input');
-        // opcional: foco directo
-        setTimeout(() => $('wxQuery')?.focus(), 0);
+      if (!code) {
+        showClaimCodeOverlay('Debe ingresar la clave de su tarjeta para continuar.');
+        return;
       }
+
+      hideClaimCodeOverlay();
+      await bootDashboardAfterCode();
+
     } catch (e) {
       const m = $('msg');
       if (m) m.textContent = "Error cargando datos: " + (e.message || e);
@@ -3426,6 +3438,14 @@
   $('btnLogout').onclick = () => auth.signOut().then(() => location.href = 'login.html');
   $('btnTutorials').onclick = () => location.href = 'tutoriales.html';
 
+  $('btnClaimCodeSave').onclick = () => handleClaimCodeSubmit();
+
+  $('claimCodeInput')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClaimCodeSubmit();
+    }
+  });
   /* =========================================================
    *  TOGGLE EMAIL / CÓDIGO (mascar)
    * =======================================================*/
@@ -3482,6 +3502,130 @@
     });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
+  }
+
+  function normalizeClaimCode(code) {
+    return String(code || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
+
+  function showClaimCodeOverlay(message = '') {
+    const ov = $('claimCodeOverlay');
+    const msg = $('claimCodeMsg');
+    if (msg) msg.textContent = message || '';
+    if (ov) {
+      ov.style.display = 'block';
+      ov.setAttribute('aria-hidden', 'false');
+    }
+    setDashboardLocked(true);
+    setTimeout(() => $('claimCodeInput')?.focus(), 0);
+  }
+
+  function hideClaimCodeOverlay() {
+    const ov = $('claimCodeOverlay');
+    if (ov) {
+      ov.style.display = 'none';
+      ov.setAttribute('aria-hidden', 'true');
+    }
+    setDashboardLocked(false);
+  }
+
+  function setDashboardLocked(locked) {
+    const site = document.querySelector('main.site');
+    const header = document.querySelector('.header');
+    const footer = document.querySelector('footer');
+
+    if (site) {
+      site.style.pointerEvents = locked ? 'none' : '';
+      site.style.userSelect = locked ? 'none' : '';
+      site.style.filter = locked ? 'blur(2px)' : '';
+    }
+    if (header) {
+      header.style.pointerEvents = locked ? 'none' : '';
+      header.style.filter = locked ? 'blur(2px)' : '';
+    }
+    if (footer) {
+      footer.style.pointerEvents = locked ? 'none' : '';
+      footer.style.filter = locked ? 'blur(2px)' : '';
+    }
+  }
+
+  async function claimMyCode(code) {
+    const normalized = normalizeClaimCode(code);
+    if (!normalized) {
+      throw new Error('Debe ingresar una clave válida.');
+    }
+
+    const res = await callWorker('/claim_code', {
+      method: 'POST',
+      body: { code: normalized }
+    });
+
+    const uc = $('uCode');
+    if (uc) {
+      uc.dataset.real = normalized;
+      uc.textContent = normalized;
+    }
+
+    return res;
+  }
+
+  async function bootDashboardAfterCode() {
+    await loadDatapoints();
+    initDateDefaults();
+    initProdDefaults();
+
+    const saved = loadWxPlace();
+    if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)) {
+      await renderWeather(
+        saved.lat,
+        saved.lon,
+        saved.label || (`Lat ${saved.lat.toFixed(2)}, Lon ${saved.lon.toFixed(2)}`)
+      );
+      setWxButtonsState('fixed');
+    } else {
+      setWxButtonsState('input');
+      setTimeout(() => $('wxQuery')?.focus(), 0);
+    }
+  }
+
+  async function handleClaimCodeSubmit() {
+    const input = $('claimCodeInput');
+    const msg = $('claimCodeMsg');
+    const btn = $('btnClaimCodeSave');
+
+    if (!input) return;
+
+    const code = normalizeClaimCode(input.value);
+
+    if (!code) {
+      if (msg) msg.textContent = 'Ingrese la clave de la tarjeta.';
+      input.focus();
+      return;
+    }
+
+    try {
+      if (btn) btn.disabled = true;
+      if (msg) msg.textContent = 'Guardando código...';
+
+      await claimMyCode(code);
+
+      if (msg) msg.textContent = '';
+      hideClaimCodeOverlay();
+      await bootDashboardAfterCode();
+    } catch (e) {
+      if (msg) {
+        const raw = String(e.message || e || '');
+        if (raw.includes('code_claimed')) {
+          msg.textContent = 'Ese código ya está asignado a otro usuario.';
+        } else if (raw.includes('bad_payload')) {
+          msg.textContent = 'El código ingresado no es válido.';
+        } else {
+          msg.textContent = 'Error guardando el código.';
+        }
+      }
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   }
 
   /* =========================================================
