@@ -2057,32 +2057,101 @@
   }
   .gcal-box summary{ cursor:pointer; }
   .danger{ border-color: rgba(255,107,107,.35) !important; color:#ffb3b3 !important; }
-
-.popup-hive{
- position:fixed;
- bottom:30px;
- right:30px;
- background:#1b1f27;
- border:1px solid #333;
- border-radius:12px;
- padding:18px;
- width:260px;
- z-index:9999;
+/* =========================================================
+ *  POPUP NUEVA / EDITAR COLMENA
+ * =======================================================*/
+#newHivePopup{
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 3000;
+  background: rgba(8,10,14,.96);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
-.popup-content h3{
- margin-top:0;
+#newHivePopup.show{
+  display: flex;
 }
 
-.popup-hive input{
- width:100%;
- padding:8px;
- margin-top:6px;
- border-radius:8px;
- border:1px solid #444;
- background:#111;
- color:white;
+#newHivePopup .popup-content{
+  width: 100%;
+  max-width: 560px;
+  background: #171a21;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
 }
+
+#newHivePopup .popup-title{
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+#newHivePopup .popup-text{
+  margin: 0 0 18px;
+  color: var(--muted);
+}
+
+#newHivePopup .popup-label{
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+#newHivePopup .popup-input-wrap{
+  display: flex;
+  align-items: center;
+  background: #10141a;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+#newHivePopup .popup-prefix{
+  padding: 12px 14px;
+  background: rgba(255,255,255,.04);
+  color: var(--muted);
+  font-weight: 700;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+#newHivePopup input{
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  padding: 12px 14px;
+  font-size: 1rem;
+}
+
+#newHivePopup .popup-help{
+  color: var(--muted);
+  font-size: .92rem;
+  margin-bottom: 18px;
+}
+
+#newHivePopup .popup-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#newHivePopup .popup-error{
+  min-height: 20px;
+  margin: 6px 0 10px;
+  color: #ff8a80;
+  font-size: .92rem;
+}
+
 
 </style>
 </head>
@@ -3255,24 +3324,40 @@
     </div>
   </div>
 
-  <div id="newHivePopup" class="popup-hive">
-    <div class="popup-content">
+  <div id="newHivePopup" aria-hidden="true">
+  <div class="popup-content">
+    <h3 id="newHivePopupTitle" class="popup-title">Nueva colmena detectada</h3>
 
-      <h3>Nueva colmena detectada</h3>
+    <p id="newHivePopupText" class="popup-text">
+      Se detectó una nueva colmena. Elegí cómo querés verla en pantalla.
+    </p>
 
-      <p>Se detectó un nuevo dispositivo.</p>
+    <label class="popup-label" for="newHiveInput">Nombre visible</label>
 
-      <label>
-        Nombre de la colmena
-        <input id="newHiveInput" type="number" min="1" placeholder="Ej: 12">
-      </label>
+    <div class="popup-input-wrap">
+      <span class="popup-prefix">Colmena</span>
+      <input
+        id="newHiveInput"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="12"
+        maxlength="6"
+      >
+    </div>
 
-      <small>Puedes modificar este nombre más tarde en editar colmenas.</small>
+    <div id="newHivePopupError" class="popup-error"></div>
 
-      <button id="btnSaveHive">Guardar</button>
+    <div class="popup-help">
+      Este nombre es solo para visualización del usuario. Más adelante podés modificarlo.
+    </div>
 
+    <div class="popup-actions">
+      <button id="btnCancelHive" class="btn" type="button">Cancelar</button>
+      <button id="btnSaveHive" class="btn yellow" type="button">Guardar</button>
     </div>
   </div>
+</div>
 <script>
   /* =========================================================
    *  AÑO EN FOOTER
@@ -3365,16 +3450,58 @@
     return Array.from(set).sort((a, b) => Number(a || 0) - Number(b || 0));
   }
 
-  function getHiveName(mac){
-    const map = JSON.parse(localStorage.getItem("hive_names") || "{}");
-    return map[mac] || ("Colmena " + mac.slice(-2));
-  }
+  const HIVE_NAMES_KEY = 'hive_names';
+const HIVE_POPUP_SEEN_KEY = 'hive_popup_seen';
 
-  function setHiveName(mac, name){
-    const map = JSON.parse(localStorage.getItem("hive_names") || "{}");
-    map[mac] = name;
-    localStorage.setItem("hive_names", JSON.stringify(map));
+function getHiveNamesMap(){
+  try{
+    return JSON.parse(localStorage.getItem(HIVE_NAMES_KEY) || '{}');
+  }catch(e){
+    return {};
   }
+}
+
+function saveHiveNamesMap(map){
+  localStorage.setItem(HIVE_NAMES_KEY, JSON.stringify(map || {}));
+}
+
+function getHivePopupSeenMap(){
+  try{
+    return JSON.parse(localStorage.getItem(HIVE_POPUP_SEEN_KEY) || '{}');
+  }catch(e){
+    return {};
+  }
+}
+
+function saveHivePopupSeenMap(map){
+  localStorage.setItem(HIVE_POPUP_SEEN_KEY, JSON.stringify(map || {}));
+}
+
+function getHiveName(mac){
+  const map = getHiveNamesMap();
+  return map[mac] || ('Colmena ' + String(mac).slice(-2));
+}
+
+function setHiveName(mac, visibleNumber){
+  const clean = String(visibleNumber || '').replace(/\D/g, '');
+  if (!clean) return false;
+
+  const map = getHiveNamesMap();
+  map[mac] = 'Colmena ' + clean;
+  saveHiveNamesMap(map);
+  return true;
+}
+
+function markHivePopupSeen(mac){
+  const seen = getHivePopupSeenMap();
+  seen[mac] = true;
+  saveHivePopupSeenMap(seen);
+}
+
+function wasHivePopupSeen(mac){
+  const seen = getHivePopupSeenMap();
+  return !!seen[mac];
+}
 
 
   /* =========================================================
@@ -3496,6 +3623,24 @@
   $('btnTutorials').onclick = () => location.href = 'tutoriales.html';
 
   $('btnClaimCodeSave').onclick = () => handleClaimCodeSubmit();
+
+    $('newHiveInput')?.addEventListener('input', (e) => {
+    e.target.value = keepOnlyDigits(e.target.value);
+  });
+
+  $('newHiveInput')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      $('btnSaveHive')?.click();
+    }
+  });
+
+  $('btnCancelHive')?.addEventListener('click', () => {
+    if (newHiveMac && hivePopupMode === 'new') {
+      markHivePopupSeen(newHiveMac);
+    }
+    closeHivePopup();
+  });
 
   $('claimCodeInput')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -3918,9 +4063,16 @@
              aria-label="Abrir Colmena ${id}">
           
 
-          <h3 style="margin:0">
-            ${name}
-            <button onclick="event.stopPropagation(); editHive('${id}')" style="margin-left:6px">✏</button>
+          <h3 style="margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span>${name}</span>
+            <button
+              onclick="event.stopPropagation(); editHive('${id}')"
+              class="btn small"
+              type="button"
+              title="Editar nombre visible"
+              aria-label="Editar nombre visible de ${name}">
+              Editar
+            </button>
           </h3>
           <div class="status-row">
             <span>Conectado</span>
@@ -6147,44 +6299,98 @@
     return res;
   }
 
-  let newHiveMac = null;
+  $('btnSaveHive')?.addEventListener('click', () => {
+    const input = $('newHiveInput');
+    const err = $('newHivePopupError');
 
-  function showNewHivePopup(mac){
+    if (!input || !newHiveMac) return;
 
-    newHiveMac = mac;
+    const num = keepOnlyDigits(input.value);
 
-    const el = document.getElementById("newHivePopup");
-    el.style.display = "block";
+    if (!num) {
+      if (err) err.textContent = 'Ingresá solo el número de la colmena.';
+      input.focus();
+      return;
+    }
+
+    const ok = setHiveName(newHiveMac, num);
+    if (!ok) {
+      if (err) err.textContent = 'No se pudo guardar el nombre.';
+      return;
+    }
+
+    markHivePopupSeen(newHiveMac);
+    closeHivePopup();
+    renderDeviceCards(lastItemsCache || []);
+  });
+
+  
+
+  function keepOnlyDigits(value){
+    return String(value || '').replace(/\D/g, '');
   }
 
-  document.getElementById("btnSaveHive").onclick = () => {
+  let newHiveMac = null;
+  let hivePopupMode = 'new'; // 'new' | 'edit'
 
-    const num = document.getElementById("newHiveInput").value;
+  function openHivePopup(mac, mode = 'new'){
+    newHiveMac = String(mac || '');
+    hivePopupMode = mode;
 
-    if(!num) return;
+    const popup = $('newHivePopup');
+    const input = $('newHiveInput');
+    const err = $('newHivePopupError');
+    const title = $('newHivePopupTitle');
+    const text = $('newHivePopupText');
 
-    const name = "Colmena " + num;
+    if (!popup || !input) return;
 
-    setHiveName(newHiveMac, name);
+    if (err) err.textContent = '';
 
-    document.getElementById("newHivePopup").style.display = "none";
+    const current = getHiveName(newHiveMac);
+    const currentNum = String(current).replace(/^Colmena\s*/i, '').replace(/\D/g, '');
 
-    renderDeviceCards(lastItemsCache || []);
+    if (mode === 'edit') {
+      if (title) title.textContent = 'Editar colmena';
+      if (text) {
+        text.textContent = `Vas a cambiar el nombre visible de la colmena detectada como ${newHiveMac}.`;
+      }
+      input.value = currentNum || '';
+    } else {
+      if (title) title.textContent = 'Nueva colmena detectada';
+      if (text) {
+        text.textContent = `Se detectó una nueva colmena (${newHiveMac}). Elegí cómo querés verla en pantalla.`;
+      }
+      input.value = '';
+    }
+
+    popup.classList.add('show');
+    popup.setAttribute('aria-hidden', 'false');
+
+    setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 0);
+  }
+
+  function closeHivePopup(){
+    const popup = $('newHivePopup');
+    const err = $('newHivePopupError');
+    const input = $('newHiveInput');
+
+    if (popup) {
+      popup.classList.remove('show');
+      popup.setAttribute('aria-hidden', 'true');
+    }
+    if (err) err.textContent = '';
+    if (input) input.value = '';
+
+    newHiveMac = null;
+    hivePopupMode = 'new';
   }
 
   function editHive(mac){
-
-    const current = getHiveName(mac);
-
-    const num = prompt("Nombre de la colmena:", current.replace("Colmena ",""));
-
-    if(!num) return;
-
-    const name = "Colmena " + num;
-
-    setHiveName(mac, name);
-
-    renderDeviceCards(lastItemsCache || []);
+    openHivePopup(mac, 'edit');
   }
 
   function buildCalendarMonthGrid(ym){
@@ -6361,16 +6567,30 @@
   }
 
   //datapoints
-  function checkNewHive(event){
-    if(event?.event?.type === "NEW_HIVE"){
-      const mac = event.device_id;
+  function isNewHiveEvent(item){
+    const eventType = String(item?.event?.type || item?.meta?.type || '').toUpperCase();
+    const sensorKey = String(item?.sensor_key || '').toUpperCase();
+    return eventType === 'NEW_HIVE' || sensorKey === 'EVENT.NEW_HIVE';
+  }
 
-      const map = JSON.parse(localStorage.getItem("hive_names") || "{}");
+  function checkNewHive(items){
+    if (!Array.isArray(items) || !items.length) return;
+    if ($('newHivePopup')?.classList.contains('show')) return;
 
-      if(!map[mac]){
-          showNewHivePopup(mac);
-      }
-    }
+    const namesMap = getHiveNamesMap();
+
+    const newHiveItem = items.find(it => {
+      const mac = String(it?.device_id || '').trim();
+      if (!mac || /mother/i.test(mac)) return false;
+      if (!isNewHiveEvent(it)) return false;
+      if (namesMap[mac]) return false;
+      if (wasHivePopupSeen(mac)) return false;
+      return true;
+    });
+
+    if (!newHiveItem) return;
+
+    openHivePopup(newHiveItem.device_id, 'new');
   }
 
   /* =========================================================
@@ -6394,7 +6614,7 @@
       lastItemsCache = items;
       renderTable(items);
       updateLastReading(items);
-      checkNewHive(item); //ver si va aca!
+      checkNewHive(items);
       updateMotherKPIs(items);
       renderDeviceCards(items);
       if (chartsVisible && !historyMode) renderChartsDaily(items);
