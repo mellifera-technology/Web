@@ -2058,6 +2058,32 @@
   .gcal-box summary{ cursor:pointer; }
   .danger{ border-color: rgba(255,107,107,.35) !important; color:#ffb3b3 !important; }
 
+.popup-hive{
+ position:fixed;
+ bottom:30px;
+ right:30px;
+ background:#1b1f27;
+ border:1px solid #333;
+ border-radius:12px;
+ padding:18px;
+ width:260px;
+ z-index:9999;
+}
+
+.popup-content h3{
+ margin-top:0;
+}
+
+.popup-hive input{
+ width:100%;
+ padding:8px;
+ margin-top:6px;
+ border-radius:8px;
+ border:1px solid #444;
+ background:#111;
+ color:white;
+}
+
 </style>
 </head>
 <body class="hide-exterior">
@@ -3228,6 +3254,25 @@
       </div>
     </div>
   </div>
+
+  <div id="newHivePopup" class="popup-hive">
+    <div class="popup-content">
+
+      <h3>Nueva colmena detectada</h3>
+
+      <p>Se detectó un nuevo dispositivo.</p>
+
+      <label>
+        Nombre de la colmena
+        <input id="newHiveInput" type="number" min="1" placeholder="Ej: 12">
+      </label>
+
+      <small>Puedes modificar este nombre más tarde en editar colmenas.</small>
+
+      <button id="btnSaveHive">Guardar</button>
+
+    </div>
+  </div>
 <script>
   /* =========================================================
    *  AÑO EN FOOTER
@@ -3319,6 +3364,18 @@
     }
     return Array.from(set).sort((a, b) => Number(a || 0) - Number(b || 0));
   }
+
+  function getHiveName(mac){
+    const map = JSON.parse(localStorage.getItem("hive_names") || "{}");
+    return map[mac] || ("Colmena " + mac.slice(-2));
+  }
+
+  function setHiveName(mac, name){
+    const map = JSON.parse(localStorage.getItem("hive_names") || "{}");
+    map[mac] = name;
+    localStorage.setItem("hive_names", JSON.stringify(map));
+  }
+
 
   /* =========================================================
    *  CONFIG TARJETAS COLMENA (mes / año, sem / mes / año)
@@ -3851,6 +3908,7 @@
       const kilosVal = (prodKilos[id]?.kilos || 0).toFixed(1);
       const trabajoMin = prodTrabajo[id]?.trabajoMin || 0;
       const trabajoText = formatMinutes(trabajoMin);
+      const name = getHiveName(id);
 
       return `
         <div class="card device-card"
@@ -3858,7 +3916,12 @@
              tabindex="0"
              role="button"
              aria-label="Abrir Colmena ${id}">
-          <h3 style="margin:0">Colmena ${id}</h3>
+          
+
+          <h3 style="margin:0">
+            ${name}
+            <button onclick="event.stopPropagation(); editHive('${id}')" style="margin-left:6px">✏</button>
+          </h3>
           <div class="status-row">
             <span>Conectado</span>
             <span class="status-dot" style="background:${colorConn}"></span>
@@ -6084,6 +6147,45 @@
     return res;
   }
 
+  let newHiveMac = null;
+
+  function showNewHivePopup(mac){
+
+    newHiveMac = mac;
+
+    const el = document.getElementById("newHivePopup");
+    el.style.display = "block";
+  }
+
+  document.getElementById("btnSaveHive").onclick = () => {
+
+    const num = document.getElementById("newHiveInput").value;
+
+    if(!num) return;
+
+    const name = "Colmena " + num;
+
+    setHiveName(newHiveMac, name);
+
+    document.getElementById("newHivePopup").style.display = "none";
+
+    renderDeviceCards(lastItemsCache || []);
+  }
+
+  function editHive(mac){
+
+    const current = getHiveName(mac);
+
+    const num = prompt("Nombre de la colmena:", current.replace("Colmena ",""));
+
+    if(!num) return;
+
+    const name = "Colmena " + num;
+
+    setHiveName(mac, name);
+
+    renderDeviceCards(lastItemsCache || []);
+  }
 
   function buildCalendarMonthGrid(ym){
     const [Y,M]=ym.split('-').map(n=>parseInt(n,10));
@@ -6258,6 +6360,19 @@
     }
   }
 
+  //datapoints
+  function checkNewHive(event){
+    if(event?.event?.type === "NEW_HIVE"){
+      const mac = event.device_id;
+
+      const map = JSON.parse(localStorage.getItem("hive_names") || "{}");
+
+      if(!map[mac]){
+          showNewHivePopup(mac);
+      }
+    }
+  }
+
   /* =========================================================
    *  TOGGLE TABLA LECTURAS CRUDAS
    * =======================================================*/
@@ -6279,6 +6394,7 @@
       lastItemsCache = items;
       renderTable(items);
       updateLastReading(items);
+      checkNewHive(item); //ver si va aca!
       updateMotherKPIs(items);
       renderDeviceCards(items);
       if (chartsVisible && !historyMode) renderChartsDaily(items);
