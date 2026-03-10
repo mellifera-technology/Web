@@ -6350,8 +6350,8 @@ function wasHivePopupSeen(mac){
       closeHivePopup();
       await renderDeviceCards(lastItemsCache || []);
     } catch (e) {
-      if (err) err.textContent = 'No se pudo guardar la colmena.';
-      console.error(e);
+      console.error('save hive error:', e);
+      if (err) err.textContent = String(e?.message || e || 'No se pudo guardar la colmena.');
     }
   });
 
